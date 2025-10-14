@@ -125,6 +125,8 @@ const Header = () => {
                         </ul>
                       </li>
                       <li><Link to="/contact">Contact</Link></li>
+                      <li><Link to="/login">Login</Link></li>
+                      <li><Link to="/register">Register</Link></li>
                     </ul>
                   </div>
                 </div>
@@ -216,6 +218,8 @@ const Header = () => {
                 <li><Link to="/team">Team</Link></li>
                 <li><Link to="/blog">Blog</Link></li>
                 <li><Link to="/contact">Contact</Link></li>
+                <li><Link to="/login">Login</Link></li>
+                <li><Link to="/register">Register</Link></li>
               </ul>
             </nav>
           </div>

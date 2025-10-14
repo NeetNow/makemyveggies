@@ -1,0 +1,94 @@
+.login-page,
+.register-page,
+.forgot-password-page {
+    padding: 80px 0;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-page.banner,
+.register-page.banner,
+.forgot-password-page.banner {
+    background-color: transparent;
+}
+
+.login-box,
+.register-box {
+    /* background: rgba(255, 255, 255, 0.8); */
+    /* border-radius: 10px; */
+    /* box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); */
+    padding: 40px;
+    margin: 20px 0;
+    position: relative;
+    z-index: 10;
+    /* backdrop-filter: blur(5px); */
+}
+
+.login-header,
+.register-header {
+    margin-bottom: 30px;
+}
+
+.login-header h2,
+.register-header h2 {
+    color: #28a745;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.login-header p,
+.register-header p {
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.form-control {
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.form-control:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.btn-primary {
+    background-color: #28a745;
+    border-color: #28a745;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 5px;
+}
+
+.btn-primary:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.login-footer,
+.register-footer {
+    margin-top: 20px;
+}
+
+.login-footer a,
+.register-footer a {
+    color: #28a745;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-footer a:hover,
+.register-footer a:hover {
+    text-decoration: underline;
+}
