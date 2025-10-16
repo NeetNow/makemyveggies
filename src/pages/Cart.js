@@ -222,7 +222,7 @@ const Cart = () => {
                         </ul>
                       </div>
                       <div className="checkout">
-                        <Link to="/checkout" className="custom-btn">proceed to checkout</Link>
+                        <Link to="/order" className="custom-btn">proceed to checkout</Link>
                       </div>
                     </form>
                   </div>
