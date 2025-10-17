@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import '../assets/css/order.css'; // Import order page CSS
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -114,6 +115,8 @@ const Header = () => {
                         <ul>
                           <li><Link to="/cart">Cart</Link></li>
                           <li><Link to="/shop">Shop</Link></li>
+                          <li><Link to="/order">Order</Link></li>
+                          <li><Link to="/order-tracking">Order Tracking</Link></li>
                           <li><Link to="/product-details">Product Details</Link></li>
                         </ul>
                       </li>
@@ -218,6 +221,9 @@ const Header = () => {
                 <li><Link to="/team">Team</Link></li>
                 <li><Link to="/blog">Blog</Link></li>
                 <li><Link to="/contact">Contact</Link></li>
+                <li><Link to="/shop">Shop</Link></li>
+                <li><Link to="/order">Order</Link></li>
+                <li><Link to="/order-tracking">Order Tracking</Link></li>
                 <li><Link to="/login">Login</Link></li>
                 <li><Link to="/register">Register</Link></li>
               </ul>
