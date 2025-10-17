@@ -42,7 +42,7 @@ function App() {
     <CartProvider>
       <Router>
         <div className="App">
-          <div className="preloader"></div>
+          
 
           <Routes>
           {/* Homepage */}
