@@ -1,423 +1,267 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { useCart } from '../context/CartContext';
-import '../assets/css/style.css'; // Import original CSS
 
 const Shop = () => {
-  const { addToCart, loading } = useCart();
-  const navigate = useNavigate();
-  const [addingToCart, setAddingToCart] = useState(null); // Track which product is being added
-  
-  // Filter states
-  const [filters, setFilters] = useState({
-    category: 'all',
-    priceRange: [0, 500],
-    rating: 0,
-    searchTerm: ''
-  });
-
-  // Sample product data with categories
-  const [allProducts] = useState([
+  // Sample product data - in a real app this would come from an API or context
+  const [products] = useState([
     {
       id: 1,
-      name: 'Gardening Gloves',
+      name: 'Garden Rose Plant',
       price: 25.99,
-      image: '/assets/img/shop/img1.jpg',
-      rating: 5,
-      category: 'tools'
+      originalPrice: 35.99,
+      image: 'https://via.placeholder.com/300x300/4CAF50/ffffff?text=Rose+Plant',
+      category: 'plants',
+      rating: 4.5,
+      inStock: true
     },
     {
       id: 2,
-      name: 'Gardening Boots',
-      price: 89.99,
-      image: '/assets/img/shop/img2.jpg',
-      rating: 4,
-      category: 'clothing'
+      name: 'Garden Irrigation System',
+      price: 150.00,
+      originalPrice: 180.00,
+      image: 'https://via.placeholder.com/300x300/2196F3/ffffff?text=Irrigation',
+      category: 'equipment',
+      rating: 4.8,
+      inStock: true
     },
     {
       id: 3,
-      name: 'Gardening Hose',
-      price: 45.99,
-      image: '/assets/img/shop/img3.jpg',
-      rating: 5,
-      category: 'watering'
+      name: 'Garden Tools Set',
+      price: 75.50,
+      originalPrice: 85.00,
+      image: 'https://via.placeholder.com/300x300/FF9800/ffffff?text=Tools',
+      category: 'tools',
+      rating: 4.2,
+      inStock: true
     },
     {
       id: 4,
-      name: 'Watering Can',
-      price: 35.99,
-      image: '/assets/img/shop/img4.jpg',
-      rating: 4,
-      category: 'watering'
+      name: 'Organic Fertilizer',
+      price: 18.99,
+      originalPrice: 22.99,
+      image: 'https://via.placeholder.com/300x300/9C27B0/ffffff?text=Fertilizer',
+      category: 'supplies',
+      rating: 4.6,
+      inStock: false
     },
     {
       id: 5,
-      name: 'Flowerpot',
-      price: 15.99,
-      image: '/assets/img/shop/img5.jpg',
-      rating: 3,
-      category: 'pots'
+      name: 'Garden Gloves',
+      price: 12.50,
+      originalPrice: 15.00,
+      image: 'https://via.placeholder.com/300x300/F44336/ffffff?text=Gloves',
+      category: 'accessories',
+      rating: 4.3,
+      inStock: true
     },
     {
       id: 6,
-      name: 'Wheelbarrow',
-      price: 199.99,
-      image: '/assets/img/shop/img6.jpg',
-      rating: 5,
-      category: 'tools'
-    },
-    {
-      id: 7,
-      name: 'Gardening Fork',
-      price: 29.99,
-      image: '/assets/img/shop/img7.jpg',
-      rating: 4,
-      category: 'tools'
-    },
-    {
-      id: 8,
-      name: 'Garden Fertilizer',
-      price: 19.99,
-      image: '/assets/img/shop/img8.jpg',
-      rating: 5,
-      category: 'fertilizers'
-    },
-    {
-      id: 9,
-      name: 'Garden Hoe',
-      price: 39.99,
-      image: '/assets/img/shop/img9.jpg',
-      rating: 4,
-      category: 'tools'
-    },
-    {
-      id: 10,
-      name: 'Plant Seeds',
-      price: 12.99,
-      image: '/assets/img/shop/img1.jpg',
-      rating: 5,
-      category: 'seeds'
-    },
-    {
-      id: 11,
-      name: 'Garden Sprayer',
-      price: 65.99,
-      image: '/assets/img/shop/img2.jpg',
-      rating: 4,
-      category: 'watering'
-    },
-    {
-      id: 12,
-      name: 'Pruning Shears',
-      price: 24.99,
-      image: '/assets/img/shop/img3.jpg',
-      rating: 5,
-      category: 'tools'
+      name: 'Plant Seeds Collection',
+      price: 8.99,
+      originalPrice: 12.99,
+      image: 'https://via.placeholder.com/300x300/795548/ffffff?text=Seeds',
+      category: 'plants',
+      rating: 4.7,
+      inStock: true
     }
   ]);
 
-  // Filter products based on current filters
-  const filteredProducts = allProducts.filter(product => {
-    // Category filter
-    if (filters.category !== 'all' && product.category !== filters.category) {
-      return false;
-    }
-    
-    // Price range filter
-    if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1]) {
-      return false;
-    }
-    
-    // Rating filter
-    if (product.rating < filters.rating) {
-      return false;
-    }
-    
-    // Search term filter
-    if (filters.searchTerm && !product.name.toLowerCase().includes(filters.searchTerm.toLowerCase())) {
-      return false;
-    }
-    
-    return true;
-  });
+  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('name');
+  const [viewMode, setViewMode] = useState('grid'); // grid or list
 
-  // Handle filter changes
-  const handleFilterChange = (filterType, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value
-    }));
+  // Filter products by category
+  const filterProducts = (category) => {
+    setSelectedCategory(category);
+    if (category === 'all') {
+      setFilteredProducts(products);
+    } else {
+      setFilteredProducts(products.filter(product => product.category === category));
+    }
   };
 
-  // Reset all filters
-  const resetFilters = () => {
-    setFilters({
-      category: 'all',
-      priceRange: [0, 500],
-      rating: 0,
-      searchTerm: ''
-    });
-  };
-
-  // Handle adding product to cart
-  const handleAddToCart = async (product) => {
-    setAddingToCart(product.id);
-    try {
-      await addToCart(product, 1);
-      // Show success message with option to view cart
-      const viewCart = window.confirm(
-        `${product.name} added to cart successfully!\n\nWould you like to view your cart now?`
-      );
-      if (viewCart) {
-        navigate('/cart');
+  // Sort products
+  const sortProducts = (sortType) => {
+    setSortBy(sortType);
+    const sorted = [...filteredProducts].sort((a, b) => {
+      switch (sortType) {
+        case 'price-low':
+          return a.price - b.price;
+        case 'price-high':
+          return b.price - a.price;
+        case 'rating':
+          return b.rating - a.rating;
+        case 'name':
+        default:
+          return a.name.localeCompare(b.name);
       }
-    } catch (error) {
-      console.error('Failed to add product to cart:', error);
-      alert('Failed to add product to cart. Please try again.');
-    } finally {
-      setAddingToCart(null);
-    }
+    });
+    setFilteredProducts(sorted);
   };
 
-  // Handle quick view to cart
-  const handleQuickAddToCart = (product, event) => {
-    event.preventDefault();
-    handleAddToCart(product);
-  };
+  const categories = ['all', ...new Set(products.map(p => p.category))];
 
   return (
     <>
       <Header />
       <main>
         {/* Page Header */}
-        <section className="pageheader overflow-hidden">
+        <section className="pageheader padding-block">
           <div className="container">
-            <div className="pageheader__content">
-              <h2>Our Shop Page</h2>
-              <nav aria-label="breadcrumb">
-                <ol className="breadcrumb">
-                  <li><Link to="/">Home</Link></li>
-                  <li className="active" aria-current="page">Shop</li>
-                </ol>
-              </nav>
+            <div className="row">
+              <div className="col-12">
+                <div className="section__header">
+                  <ul className="breadcum">
+                    <li><Link to="/">Home</Link></li>
+                    <li>Shop</li>
+                  </ul>
+                  <h2>Our Products</h2>
+                </div>
+              </div>
             </div>
           </div>
         </section>
-        
+
         {/* Shop Section */}
-        <section className="blogsingle shoppage bg-white">
+        <section className="shop padding-block bg-white">
           <div className="container">
-            <div className="row g-4">
-              <div className="col-xl-8">
-                <div className="shoppage__header">
-                  <nav className="shoppagenav">
-                    <h6>Showing 1–{filteredProducts.length} of {allProducts.length} results</h6>
-                    <div className="nav nav-tab" id="nav-tab" role="tablist">
-                      <button className="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
-                        <i className="fa-light fa-list-ul"></i>
-                      </button>
-                      <button className="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
-                        <i className="fa-light fa-bars"></i>
-                      </button>
-                    </div>
-                  </nav>
-                </div>
-                <div className="tab-content" id="nav-tabContent">
-                  <div className="tab-pane show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                    {filteredProducts.length === 0 ? (
-                      <div className="text-center py-5">
-                        <i className="fa-solid fa-search fa-3x text-muted mb-3"></i>
-                        <h4>No products found</h4>
-                        <p className="text-muted mb-4">
-                          Try adjusting your filters or search terms to find what you're looking for.
-                        </p>
-                        <button 
-                          onClick={resetFilters}
-                          className="custom-btn"
-                        >
-                          <i className="fa-solid fa-refresh me-2"></i>
-                          Reset All Filters
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="row g-4">
-                        {filteredProducts.map((product) => (
-                        <div key={product.id} className="col-md-6 col-xl-4">
-                          <div className="shoppage__inner">
-                            <div className="shoppage__item">
-                              <div className="thum">
-                                <Link to={`/product-details/${product.id}`}>
-                                  <img src={product.image} alt="img" />
-                                </Link>
-                                <div className="shoppagelink go-up">
-                                  <a href={product.image} data-rel="lightcase"><i className="fa-solid fa-eye"></i></a>
-                                  <a href="#"><i className="fa-regular fa-heart"></i></a>
-                                  <button 
-                                    onClick={(e) => handleQuickAddToCart(product, e)}
-                                    disabled={addingToCart === product.id}
-                                    style={{
-                                      background: 'none',
-                                      border: 'none',
-                                      color: 'inherit',
-                                      cursor: addingToCart === product.id ? 'not-allowed' : 'pointer',
-                                      opacity: addingToCart === product.id ? 0.6 : 1
-                                    }}
-                                    title="Add to Cart"
-                                  >
-                                    {addingToCart === product.id ? (
-                                      <i className="fa-solid fa-spinner fa-spin"></i>
-                                    ) : (
-                                      <i className="fa-solid fa-cart-shopping"></i>
-                                    )}
-                                  </button>
-                                </div>
-                              </div>
-                              <div className="content">
-                                <div className="allstar">
-                                  {[...Array(product.rating)].map((_, i) => (
-                                    <i key={i} className="fa-solid fa-star"></i>
-                                  ))}
-                                </div>
-                                <h6><Link to={`/product-details/${product.id}`}>{product.name}</Link></h6>
-                                <span>${product.price}</span>
-                                <div className="mt-3">
-                                  <button 
-                                    className="custom-btn w-100"
-                                    onClick={() => handleAddToCart(product)}
-                                    disabled={addingToCart === product.id}
-                                    style={{
-                                      opacity: addingToCart === product.id ? 0.6 : 1,
-                                      cursor: addingToCart === product.id ? 'not-allowed' : 'pointer'
-                                    }}
-                                  >
-                                    {addingToCart === product.id ? (
-                                      <>
-                                        <i className="fa-solid fa-spinner fa-spin me-2"></i>
-                                        Adding...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <i className="fa-solid fa-cart-plus me-2"></i>
-                                        Add to Cart
-                                      </>
-                                    )}
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        ))}
-                      </div>
-                    )}
+            {/* Shop Controls */}
+            <div className="shop-controls">
+              <div className="row align-items-center">
+                <div className="col-md-4">
+                  <div className="filter-category">
+                    <label>Category:</label>
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => filterProducts(e.target.value)}
+                      className="form-select"
+                    >
+                      {categories.map(category => (
+                        <option key={category} value={category}>
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                  <div className="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                    {/* List view content would go here if needed */}
+                </div>
+                <div className="col-md-4">
+                  <div className="filter-sort">
+                    <label>Sort by:</label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => sortProducts(e.target.value)}
+                      className="form-select"
+                    >
+                      <option value="name">Name</option>
+                      <option value="price-low">Price: Low to High</option>
+                      <option value="price-high">Price: High to Low</option>
+                      <option value="rating">Rating</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="col-md-4 text-md-end">
+                  <div className="view-mode">
+                    <span>View:</span>
+                    <button
+                      className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                      onClick={() => setViewMode('grid')}
+                    >
+                      <i className="fa-solid fa-th"></i>
+                    </button>
+                    <button
+                      className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                      onClick={() => setViewMode('list')}
+                    >
+                      <i className="fa-solid fa-list"></i>
+                    </button>
                   </div>
                 </div>
               </div>
-              <div className="col-xl-4">
-                {/* Filter Sidebar */}
-                <div className="shoppage__sidebar">
-                  
-                  {/* Search Filter */}
-                  <div className="sidebar__widget mb-4">
-                    <h5 className="widget-title">Search Products</h5>
-                    <div className="search-box">
-                      <input
-                        type="text"
-                        placeholder="Search products..."
-                        value={filters.searchTerm}
-                        onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
-                        className="form-control"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Category Filter */}
-                  <div className="sidebar__widget mb-4">
-                    <h5 className="widget-title">Categories</h5>
-                    <div className="category-list">
-                      {['all', 'tools', 'watering', 'pots', 'seeds', 'fertilizers', 'clothing'].map(category => (
-                        <div key={category} className="category-item">
-                          <label className="d-flex align-items-center">
-                            <input
-                              type="radio"
-                              name="category"
-                              value={category}
-                              checked={filters.category === category}
-                              onChange={(e) => handleFilterChange('category', e.target.value)}
-                              className="me-2"
-                            />
-                            <span className="text-capitalize">
-                              {category === 'all' ? 'All Categories' : category}
-                              <small className="text-muted ms-2">
-                                ({category === 'all' 
-                                  ? allProducts.length 
-                                  : allProducts.filter(p => p.category === category).length})
-                              </small>
-                            </span>
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  
-
-                  {/* Filter Actions */}
-                  <div className="sidebar__widget">
-                    <div className="filter-actions">
-                      <button 
-                        onClick={resetFilters}
-                        className="custom-btn w-100 mb-3"
-                      >
-                        <i className="fa-solid fa-refresh me-2"></i>
-                        Reset Filters
-                      </button>
-                      <div className="active-filters">
-                        <h6>Active Filters:</h6>
-                        <div className="filter-tags">
-                          {filters.category !== 'all' && (
-                            <span className="badge bg-success me-2 mb-2">
-                              Category: {filters.category}
-                              <i 
-                                className="fa-solid fa-times ms-1" 
-                                onClick={() => handleFilterChange('category', 'all')}
-                                style={{cursor: 'pointer'}}
-                              ></i>
-                            </span>
-                          )}
-                          {filters.rating > 0 && (
-                            <span className="badge bg-warning me-2 mb-2">
-                              {filters.rating}+ Stars
-                              <i 
-                                className="fa-solid fa-times ms-1" 
-                                onClick={() => handleFilterChange('rating', 0)}
-                                style={{cursor: 'pointer'}}
-                              ></i>
-                            </span>
-                          )}
-                          {filters.searchTerm && (
-                            <span className="badge bg-info me-2 mb-2">
-                              Search: {filters.searchTerm}
-                              <i 
-                                className="fa-solid fa-times ms-1" 
-                                onClick={() => handleFilterChange('searchTerm', '')}
-                                style={{cursor: 'pointer'}}
-                              ></i>
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
+              <div className="row">
+                <div className="col-12">
+                  <p className="results-count">
+                    Showing {filteredProducts.length} of {products.length} products
+                  </p>
                 </div>
               </div>
             </div>
+
+            {/* Products Grid/List */}
+            <div className={`products-container ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}>
+              <div className="row g-4">
+                {filteredProducts.map((product) => (
+                  <div key={product.id} className={viewMode === 'list' ? 'col-12' : 'col-md-6 col-lg-4'}>
+                    <div className={`product-card ${!product.inStock ? 'out-of-stock' : ''}`}>
+                      <div className="product-image">
+                        <img src={product.image} alt={product.name} />
+                        {product.originalPrice > product.price && (
+                          <div className="discount-badge">
+                            {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                          </div>
+                        )}
+                        {!product.inStock && (
+                          <div className="stock-badge out-of-stock">Out of Stock</div>
+                        )}
+                        <div className="product-actions">
+                          <button className="action-btn">
+                            <i className="fa-solid fa-heart"></i>
+                          </button>
+                          <button className="action-btn">
+                            <i className="fa-solid fa-eye"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="product-info">
+                        <div className="product-category">
+                          {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+                        </div>
+                        <h5 className="product-title">
+                          <Link to={`/product-details/${product.id}`}>{product.name}</Link>
+                        </h5>
+                        <div className="product-rating">
+                          {[...Array(5)].map((_, i) => (
+                            <i
+                              key={i}
+                              className={`fa-solid fa-star ${i < Math.floor(product.rating) ? 'filled' : ''}`}
+                            ></i>
+                          ))}
+                          <span>({product.rating})</span>
+                        </div>
+                        <div className="product-price">
+                          <span className="current-price">${product.price.toFixed(2)}</span>
+                          {product.originalPrice > product.price && (
+                            <span className="original-price">${product.originalPrice.toFixed(2)}</span>
+                          )}
+                        </div>
+                        <div className="product-buttons">
+                          {product.inStock ? (
+                            <button className="add-to-cart-btn">
+                              Add to Cart
+                            </button>
+                          ) : (
+                            <button className="notify-btn" disabled>
+                              Notify When Available
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Load More Button */}
+            {filteredProducts.length >= 6 && (
+              <div className="row">
+                <div className="col-12 text-center">
+                  <button className="load-more-btn">Load More Products</button>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       </main>

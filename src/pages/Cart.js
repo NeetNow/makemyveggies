@@ -1,71 +1,98 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { useCart } from '../context/CartContext';
 
 const Cart = () => {
-  const { 
-    cartItems, 
-    loading, 
-    error, 
-    updateQuantity, 
-    removeFromCart, 
-    getCartTotal,
-    setError 
-  } = useCart();
+  // Sample cart data - in a real app this would come from context/state management
+  const [cartItems, setCartItems] = useState([
+    {
+      id: 1,
+      name: 'Garden Rose Plant',
+      price: 25.99,
+      quantity: 2,
+      image: 'https://via.placeholder.com/80x80/4CAF50/ffffff?text=Rose'
+    },
+    {
+      id: 2,
+      name: 'Garden Irrigation System',
+      price: 150.00,
+      quantity: 1,
+      image: 'https://via.placeholder.com/80x80/2196F3/ffffff?text=System'
+    },
+    {
+      id: 3,
+      name: 'Garden Tools Set',
+      price: 75.50,
+      quantity: 1,
+      image: 'https://via.placeholder.com/80x80/FF9800/ffffff?text=Tools'
+    }
+  ]);
 
-  const subtotal = getCartTotal();
-  const total = subtotal;
-
-  // Handle quantity update
-  const handleQuantityUpdate = async (id, newQuantity) => {
-    if (newQuantity < 1) return;
-    try {
-      await updateQuantity(id, newQuantity);
-    } catch (err) {
-      console.error('Failed to update quantity:', err);
+  const updateQuantity = (id, newQuantity) => {
+    if (newQuantity === 0) {
+      setCartItems(cartItems.filter(item => item.id !== id));
+    } else {
+      setCartItems(cartItems.map(item =>
+        item.id === id ? { ...item, quantity: newQuantity } : item
+      ));
     }
   };
 
-  // Handle item removal
-  const handleRemoveItem = async (id) => {
-    try {
-      await removeFromCart(id);
-    } catch (err) {
-      console.error('Failed to remove item:', err);
-    }
-  };
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const tax = subtotal * 0.1; // 10% tax
+  const shipping = subtotal > 200 ? 0 : 15; // Free shipping over $200
+  const total = subtotal + tax + shipping;
 
-  // Show empty cart
-  if (cartItems.length === 0 && !loading) {
+  if (cartItems.length === 0) {
     return (
       <>
         <Header />
         <main>
-          <section className="pageheader overflow-hidden">
+          <section className="pageheader padding-block">
             <div className="container">
-              <div className="pageheader__content">
-                <h2>Shop Cart</h2>
-                <nav aria-label="breadcrumb">
-                  <ol className="breadcrumb">
-                    <li><Link to="/">Home</Link></li>
-                    <li><Link to="/shop">Shop</Link></li>
-                    <li className="active" aria-current="page">Cart</li>
-                  </ol>
-                </nav>
+              <div className="row">
+                <div className="col-12">
+                  <div className="section__header">
+                    <ul className="breadcum">
+                      <li><Link to="/">Home</Link></li>
+                      <li>Cart</li>
+                    </ul>
+                    <h2>Shopping Cart</h2>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
-          <div className="cart-page-content">
+
+          <section className="cart-empty padding-block">
             <div className="container">
-              <div className="empty-cart">
-                <h4>Your cart is empty</h4>
-                <p>Add some items to your cart to get started!</p>
-                <Link to="/shop" className="btn btn-success">Continue Shopping</Link>
+              <div className="row">
+                <div className="col-12 text-center">
+                  <div className="empty-cart-content">
+                    <div style={{
+                      width: '200px',
+                      height: '200px',
+                      margin: '0 auto 30px',
+                      display: 'block',
+                      borderRadius: '50%',
+                      background: '#e0e0e0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '48px',
+                      color: '#999'
+                    }}>
+                      🛒
+                    </div>
+                    <h3>Your cart is empty</h3>
+                    <p>Looks like you haven't added anything to your cart yet.</p>
+                    <Link to="/shop" className="custom-btn">Continue Shopping</Link>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </section>
         </main>
         <Footer />
       </>
@@ -76,122 +103,145 @@ const Cart = () => {
     <>
       <Header />
       <main>
-        <section className="pageheader overflow-hidden">
+        {/* Page Header */}
+        <section className="pageheader padding-block">
           <div className="container">
-            <div className="pageheader__content">
-              <h2>Shop Cart</h2>
-              <nav aria-label="breadcrumb">
-                <ol className="breadcrumb">
-                  <li><Link to="/">Home</Link></li>
-                  <li><Link to="/shop">Shop</Link></li>
-                  <li className="active" aria-current="page">Cart</li>
-                </ol>
-              </nav>
+            <div className="row">
+              <div className="col-12">
+                <div className="section__header">
+                  <ul className="breadcum">
+                    <li><Link to="/">Home</Link></li>
+                    <li>Cart</li>
+                  </ul>
+                  <h2>Shopping Cart</h2>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <div className="cart-page-content">
+        {/* Cart Section */}
+        <section className="cart padding-block bg-white">
           <div className="container">
-            {loading && (
-              <div className="text-center py-5">
-                <div className="spinner-border text-success" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              </div>
-            )}
-
-            {error && (
-              <div className="alert alert-warning alert-dismissible fade show" role="alert">
-                {error}
-                <button type="button" className="btn-close" onClick={() => setError(null)}></button>
-              </div>
-            )}
-
-            {!loading && (
-              <div className="row">
-                <div className="col-lg-8">
-                  <div className="cart-table">
-                    {/* Table Header */}
-                    <div className="cart-header">
-                      <div className="header-product">Product</div>
-                      <div className="header-price">Price</div>
-                      <div className="header-quantity">Quantity</div>
-                      <div className="header-total">Total</div>
-                      <div className="header-remove">Remove</div>
-                    </div>
-
-                    {/* Table Body */}
-                    <div className="cart-body">
-                      {cartItems.map((item) => (
-                        <div key={item.id} className="cart-row">
-                          <div className="cart-product">
-                            <img src={item.image} alt={item.name} className="product-img" />
-                            <div className="product-details">
-                              <h6><Link to={`/product-details/${item.id}`}>{item.name}</Link></h6>
-                            </div>
+            <div className="row">
+              <div className="col-12">
+                <div className="cart-container">
+                  {/* Cart Items */}
+                  <div className="cart-items">
+                    {cartItems.map((item) => (
+                      <div key={item.id} className="cart-item">
+                        <div className="item-image">
+                          <img src={item.image} alt={item.name} />
+                        </div>
+                        <div className="item-details">
+                          <h4 className="item-name">{item.name}</h4>
+                          <div className="item-meta">
+                            <span className="item-category">Garden Plant</span>
                           </div>
-                          <div className="cart-price">
-                            ${item.price?.toFixed(2)}
-                          </div>
-                          <div className="cart-quantity">
-                            <div className="qty-controls">
-                              <button 
-                                onClick={() => handleQuantityUpdate(item.id, item.quantity - 1)}
-                                className="qty-btn"
-                              >
-                                -
-                              </button>
-                              <span className="qty-value">{item.quantity}</span>
-                              <button 
-                                onClick={() => handleQuantityUpdate(item.id, item.quantity + 1)}
-                                className="qty-btn"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                          <div className="cart-total">
-                            ${((item.price || 0) * item.quantity).toFixed(2)}
-                          </div>
-                          <div className="cart-remove">
-                            <button 
-                              onClick={() => handleRemoveItem(item.id)}
-                              className="remove-btn"
+                        </div>
+                        <div className="item-price">
+                          <span className="unit-price">${item.price.toFixed(2)}</span>
+                        </div>
+                        <div className="item-quantity">
+                          <div className="quantity-controls">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="qty-btn"
+                              disabled={item.quantity <= 1}
                             >
-                              ●
+                              −
+                            </button>
+                            <input
+                              type="number"
+                              value={item.quantity}
+                              onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
+                              className="qty-input"
+                              min="1"
+                            />
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="qty-btn"
+                            >
+                              +
                             </button>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                        <div className="item-total">
+                          <span className="total-price">${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                        <div className="item-actions">
+                          <button
+                            onClick={() => updateQuantity(item.id, 0)}
+                            className="remove-btn"
+                            title="Remove item"
+                          >
+                            <i className="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-                    {/* Discount Section */}
-                    <div className="discount-row">
-                      <input type="text" placeholder="Discount Code" className="discount-input" />
-                      <button className="discount-apply-btn">Lawyer Book</button>
-                    </div>
+                  {/* Cart Actions */}
+                  <div className="cart-actions">
+                    <Link to="/shop" className="continue-shopping-btn">
+                      <i className="fa-solid fa-arrow-left"></i>
+                      Continue Shopping
+                    </Link>
+                    <button className="clear-cart-btn" onClick={() => setCartItems([])}>
+                      <i className="fa-solid fa-trash"></i>
+                      Clear Cart
+                    </button>
                   </div>
                 </div>
 
-                <div className="col-lg-4">
-                  <div className="cart-summary-box">
-                    
-
-                    <div className="summary-total">
-                      <span>Total</span>
-                      <span className="amount">${total.toFixed(2)}</span>
+                {/* Cart Summary */}
+                <div className="cart-summary">
+                  <div className="summary-card">
+                    <h3>Cart Summary</h3>
+                    <div className="summary-row">
+                      <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items):</span>
+                      <span>${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="summary-row">
+                      <span>Shipping:</span>
+                      <span className={shipping === 0 ? 'text-success' : ''}>
+                        {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
+                      </span>
+                    </div>
+                    <div className="summary-row">
+                      <span>Tax (10%):</span>
+                      <span>${tax.toFixed(2)}</span>
+                    </div>
+                    <hr className="summary-divider" />
+                    <div className="summary-row summary-total">
+                      <span>Total:</span>
+                      <span>${total.toFixed(2)}</span>
                     </div>
 
-                    <Link to="/checkout" className="checkout-button">
-                      Proceed To Checkout
-                    </Link>
+                    {subtotal < 200 && (
+                      <div className="shipping-notice">
+                        <i className="fa-solid fa-info-circle"></i>
+                        <span>Add ${(200 - subtotal).toFixed(2)} more for FREE shipping!</span>
+                      </div>
+                    )}
+
+                    <div className="checkout-section">
+                      <Link to="/checkout" className="checkout-btn">
+                        <i className="fa-solid fa-credit-card"></i>
+                        Proceed to Checkout
+                      </Link>
+                      <div className="secure-checkout">
+                        <i className="fa-solid fa-lock"></i>
+                        <span>Secure Checkout</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        </section>
       </main>
       <Footer />
     </>
