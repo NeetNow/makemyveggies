@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../assets/css/order.css'; // Import order page CSS
+import { useCart } from '../context/CartContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const { cartItems, getCartTotal, getCartItemCount, removeFromCart } = useCart();
 
   return (
     <div className="header">
@@ -115,8 +116,6 @@ const Header = () => {
                         <ul>
                           <li><Link to="/cart">Cart</Link></li>
                           <li><Link to="/shop">Shop</Link></li>
-                          <li><Link to="/order">Order</Link></li>
-                          <li><Link to="/order-tracking">Order Tracking</Link></li>
                           <li><Link to="/product-details">Product Details</Link></li>
                         </ul>
                       </li>
@@ -135,53 +134,80 @@ const Header = () => {
                 </div>
 
                 <div className="header__cart">
-                  <div className="carticon">
-                    <a href="#" onClick={() => setIsCartOpen(!isCartOpen)}>
+                  <div className="carticon" style={{ position: 'relative' }}>
+                    <Link to="/cart" onClick={() => setIsCartOpen(!isCartOpen)}>
                       <i className="fa-light fa-basket-shopping"></i>
-                    </a>
+                      {getCartItemCount() > 0 && (
+                        <span 
+                          style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            right: '-8px',
+                            background: '#73B611',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: '20px',
+                            height: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {getCartItemCount()}
+                        </span>
+                      )}
+                    </Link>
                   </div>
                   <div className={`cart-details ${isCartOpen ? 'show' : ''}`}>
                     <div className="close d-sm-none d-block" onClick={() => setIsCartOpen(false)}>
                       <i className="fa-sharp fa-solid fa-square-xmark"></i>
                     </div>
-                    <div className="item">
-                      <div className="thumb">
-                        <img src="/assets/img/cart/img1.jpg" alt="img" />
+                    
+                    {cartItems.length === 0 ? (
+                      <div className="text-center p-3">
+                        <p>Your cart is empty</p>
+                        <Link to="/shop" className="custom-btn" onClick={() => setIsCartOpen(false)}>
+                          Shop Now
+                        </Link>
                       </div>
-                      <div className="right">
-                        <div className="text">
-                          <h6><a href="#">Product title here</a></h6>
-                          <p>$20.00</p>
-                          <span>In Stock</span>
+                    ) : (
+                      <>
+                        {cartItems.slice(0, 3).map((item) => (
+                          <div key={item.id} className="item">
+                            <div className="thumb">
+                              <img src={item.image} alt={item.name} />
+                            </div>
+                            <div className="right">
+                              <div className="text">
+                                <h6><Link to={`/product-details/${item.id}`}>{item.name}</Link></h6>
+                                <p>${item.price?.toFixed(2)} x {item.quantity}</p>
+                                <span>In Stock</span>
+                              </div>
+                              <div className="cros" onClick={() => removeFromCart(item.id)}>
+                                <i className="fa-sharp fa-solid fa-square-xmark"></i>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {cartItems.length > 3 && (
+                          <div className="text-center p-2">
+                            <small>and {cartItems.length - 3} more items...</small>
+                          </div>
+                        )}
+                        
+                        <div className="total">
+                          <div className="subtotal">
+                            <p>Subtotal: <span>${getCartTotal().toFixed(2)}</span></p>
+                          </div>
+                          <div className="checkout">
+                            <Link to="/cart" onClick={() => setIsCartOpen(false)}>View Cart</Link>
+                          </div>
                         </div>
-                        <div className="cros">
-                          <i className="fa-sharp fa-solid fa-square-xmark"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="item">
-                      <div className="thumb">
-                        <img src="/assets/img/cart/img2.png" alt="img" />
-                      </div>
-                      <div className="right">
-                        <div className="text">
-                          <h6><a href="#">Product title here</a></h6>
-                          <p>$20.00</p>
-                          <span>In Stock</span>
-                        </div>
-                        <div className="cros">
-                          <i className="fa-sharp fa-solid fa-square-xmark"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="total">
-                      <div className="subtotal">
-                        <p>Subtotal :<span> $40.00</span></p>
-                      </div>
-                      <div className="checkout">
-                        <a href="#">Checkout</a>
-                      </div>
-                    </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -221,9 +247,6 @@ const Header = () => {
                 <li><Link to="/team">Team</Link></li>
                 <li><Link to="/blog">Blog</Link></li>
                 <li><Link to="/contact">Contact</Link></li>
-                <li><Link to="/shop">Shop</Link></li>
-                <li><Link to="/order">Order</Link></li>
-                <li><Link to="/order-tracking">Order Tracking</Link></li>
                 <li><Link to="/login">Login</Link></li>
                 <li><Link to="/register">Register</Link></li>
               </ul>
