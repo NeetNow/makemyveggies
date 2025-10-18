@@ -1,3 +1,5 @@
+-- MAKEMYVEGGIES DATABASE SCHEMA
+-- Created for user registration with OTP verification
 
 -- USERS TABLE
 -- Stores user information such as name, email, and address
@@ -14,10 +16,26 @@ CREATE TABLE `users` (
     `state` VARCHAR(50),
     `country` VARCHAR(50),
     `postal_code` VARCHAR(20),
+    `email_verified` TINYINT(1) DEFAULT 0,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `is_active` TINYINT(1) DEFAULT 1,
     PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- OTP VERIFICATION TABLE
+-- Stores OTP codes for email verification
+CREATE TABLE `otp_verification` (
+    `otp_id` INT NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(100) NOT NULL,
+    `otp_code` VARCHAR(6) NOT NULL,
+    `purpose` VARCHAR(50) DEFAULT 'registration',
+    `expires_at` TIMESTAMP NOT NULL,
+    `is_used` TINYINT(1) DEFAULT 0,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`otp_id`),
+    INDEX `idx_email_otp` (`email`, `otp_code`),
+    INDEX `idx_expires_at` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- CATEGORIES TABLE

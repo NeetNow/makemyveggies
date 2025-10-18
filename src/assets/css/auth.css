@@ -7,6 +7,59 @@
     overflow: hidden;
 }
 
+/* Login Type Selection Buttons */
+.login-type-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #ced4da;
+    padding: 10px 0;
+    margin: 0 10px;
+    font-weight: 600;
+    color: #6c757d;
+    flex: 1;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.login-type-btn.active {
+    border-bottom: 2px solid #28a745;
+    color: #28a745;
+    background: rgba(248, 249, 250, 0.7);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Email Login Method Options */
+.email-login-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.email-login-method {
+    background: transparent;
+    border: 1px solid #ced4da;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    width: fit-content;
+}
+
+.email-login-method.active {
+    background: rgba(40, 167, 69, 0.1);
+    border-color: #28a745;
+    color: #28a745;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.15);
+}
+
+.email-login-method.otp-option {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 15px;
+    align-self: flex-start;
+}
+
 .login-page.banner,
 .register-page.banner,
 .forgot-password-page.banner {
@@ -62,6 +115,26 @@
     box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
 }
 
+/* Remember Me Checkbox Alignment */
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.form-check-input {
+    margin-right: 10px;
+    margin-top: 0;
+}
+
+/* Active Login Type Button */
+.login-type-btn.active {
+    background: rgba(200, 200, 200, 0.1);
+    border-bottom: 2px solid #28a745;
+    color: #28a745;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .btn-primary {
     background-color: #28a745;
     border-color: #28a745;
@@ -75,6 +148,7 @@
     background-color: #218838;
     border-color: #1e7e34;
 }
+
 
 .login-footer,
 .register-footer {
