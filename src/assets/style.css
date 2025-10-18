@@ -251,7 +251,7 @@ textarea {
   top: 50%;
 }
 
-.contactus__inner .thumb::after, .shoppage__item .thum:after, .blog__inner:hover .thumb::after, .blog__inner .thumb::before, .feedback2__inner .icon::after, .feedback::after, .projectfilter__item::after, .project__item:after, .service--servicepage3::before, .service--servicepage3::after, .service__inner .thumb::after, .counter__inner .thumb::after, .natureplant--natureplantpage3 .samepositon.topright, .natureplant__innerimg .counteritem .thumb::after, .natureplant__gardingmake .item .thumb::after, .feature__inner .icon::after, .custom-btn:before, .custom-btn:after, .imghover:hover::after, .imghover::before, .plybtn a:after, .plybtn a:before, .overly::after, .preloader {
+.contactus__inner .thumb::after, .shoppage__item .thum:after, .blog__inner:hover .thumb::after, .blog__inner .thumb::before, .feedback2__inner .icon::after, .feedback::after, .projectfilter__item::after, .project__item:after, .service--servicepage3::before, .service--servicepage3::after, .service__inner .thumb::after, .counter__inner .thumb::after, .natureplant--natureplantpage3 .samepositon.topright, .natureplant__innerimg .counteritem .thumb::after, .natureplant__gardingmake .item .thumb::after, .feature__inner .icon::after, .custom-btn:before, .custom-btn:after, .imghover:hover::after, .imghover::before, .plybtn a:after, .plybtn a:before, .overly::after {
   top: 0;
 }
 
@@ -262,7 +262,7 @@ textarea {
   left: 50%;
 }
 
-.contactus__inner .thumb::after, .shoppage__item .thum:after, .process__item .base::before, .blog__inner:hover .thumb::before, .blog__inner .thumb::after, .feedback2__inner .icon::after, .feedback::after, .team__inner--innerpage2 .text, .team__inner .thumb::after, .projectfilter__item::after, .project__item:after, .service--servicepage3::after, .service__inner .thumb::after, .counter__inner .thumb::after, .natureplant .position.leftimg, .natureplant__innerimg .counteritem .thumb::after, .natureplant__gardingmake .item .thumb::after, .feature__inner .icon::after, .footer__news ul li:first-child::after, .custom-btn:before, .custom-btn:after, .imghover:hover::before, .imghover::after, .plybtn a:after, .plybtn a:before, .overly::after, .preloader {
+.contactus__inner .thumb::after, .shoppage__item .thum:after, .process__item .base::before, .blog__inner:hover .thumb::before, .blog__inner .thumb::after, .feedback2__inner .icon::after, .feedback::after, .team__inner--innerpage2 .text, .team__inner .thumb::after, .projectfilter__item::after, .project__item:after, .service--servicepage3::after, .service__inner .thumb::after, .counter__inner .thumb::after, .natureplant .position.leftimg, .natureplant__innerimg .counteritem .thumb::after, .natureplant__gardingmake .item .thumb::after, .feature__inner .icon::after, .footer__news ul li:first-child::after, .custom-btn:before, .custom-btn:after, .imghover:hover::before, .imghover::after, .plybtn a:after, .plybtn a:before, .overly::after {
   left: 0;
 }
 
@@ -311,7 +311,7 @@ a .testmonial .thum, .testmonial a .thum, a .feedback__inner .top .thumb, .feedb
 }
 
 .map iframe, .contactus__inner .thumb::after, .cartpage__paymentitem .content form .update button, .cartdesk__img img, .shopdetails__smallthumb img, .shopdetails__innerthumb img, .shoppage__item .thum:after, .shoppage__item .thum img, .testmonial__content, .testmonial .thum img, .skill__rightimg img, .skill__item .skillbar-container, .skill__item, .question__rightimg img, .blogsingle__comments .content ul li .img img, .blogsingle__author .author-content .thum img, .blogsingle__catagory .content ul li, .blogsingle__bodycontent .thum img, .blog__inner .thumb a img, .feedback2__inner .text .profile .thumb img, .feedback2__inner .icon::after, .feedback__inner .top .thumb img, .teamprofile__img img, .team__inner--innerpage2 .text, .team__inner .thumb::after, .team__inner .thumb img, .portfoliosingle__right ul li, .portfoliosingle__thumb img, .projectfilter__item::after, .project__item .thum img, .project__item .content, .project__item:after, .servicesingle__middle .midddleinner img, .servicesingle__top img, .servicesingle__sidebar .brouchore.brouchoreneedhelp .thumb img, .service2__item .thumb > img, .service__rightimg img, .service__inner .thumb::after, .counter__inner .thumb::after, .natureplant__innerimg .counteritem .thumb::after, .natureplant__gardingmake .item .thumb::after, .feature__inner .icon::after, .footer__photo .allphoto .item .inneritem, .footer__photo .allphoto .item a img, .footer__news ul li .thumb img, .header__nav .mainactive > ul li > ul li a, .faqcontent__innerimg img, .faqcontent__innerimg, .mission__inner .thumb img, .plybtn a:after, .plybtn a:before, .overly::after, .pluse_1,
-.pluse_2, .preloader, input, textarea, select,
+.pluse_2, input, textarea, select,
 .blogsingle__popularpost .postitem > ul > li .content h6 a,
 .blog__inner .content .text h6 a,
 .blog__inner .content .text h6,
@@ -325,7 +325,7 @@ a .testmonial .thum, .testmonial a .thum, a .feedback__inner .top .thumb, .feedb
 }
 
 .contactus__inner .thumb::after, .shoppage__item .thum:after, .shoppage__item .thum img, .feedback2__inner .icon::after, .feedback::after, .projectfilter__item--itemproject, .projectfilter__item::after, .projectfilter__item a, .project__item:hover:after, .project__item:after, .service--servicepage3::before, .service--servicepage3::after, .service__inner .thumb::after, .counter__inner .thumb::after, .natureplant__innerimg .counteritem .thumb::after, .natureplant__gardingmake .item .thumb::after, .feature__inner .icon::after, .footer__photo .allphoto .item .inneritem, .faqcontent__innerimg img, .faqcontent__innerimg, .plybtn a:after, .plybtn a:before, .overly::after, .pluse_1,
-.pluse_2, .preloader {
+.pluse_2 {
   height: 100%;
 }
 
@@ -401,9 +401,10 @@ a h6 {
 .blog__inner .content .text h6,
 .natureplant__content--contentpage2 ul li,
 .footer__news ul li .text h6 {
-  display: -webkit-box !important;
+  display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
 }
 
 .accordion-item .accordion-button:after, .feedback .positionfeedback.righttop, .projectfilter__item .inneritem .upitem, .service__rightimg img, .banner .position_bshape.topright img, .banner .position_bshape.topleftimg img, .header__bottom.header-fixed .ellepsis {
@@ -465,7 +466,7 @@ a h6 {
   background-size: cover !important;
 }
 
-.feedback2__inner .icon, .feedback::after, .project, .service, .counter, .natureplant, .footer, .pageheader, .newslatter__bg, .preloader {
+.feedback2__inner .icon, .feedback::after, .project, .service, .counter, .natureplant, .footer, .pageheader, .newslatter__bg {
   background-repeat: no-repeat !important;
 }
 
@@ -1910,7 +1911,8 @@ input, textarea, select {
 }
 
 .header {
-  max-width: 1400px;
+  /* max-width: 1400px; */
+  background: #EDF8CA;
 }
 @media (min-width: 1600px) {
   .header {
@@ -2970,7 +2972,7 @@ input, textarea, select {
 }
 
 .natureplant {
-  background-image: url("../img/home-1/welcome/bg.png");
+  background:#EDF8CA;
   padding: calc(1.6875rem + 5.25vw) 0rem calc(1.625rem + 4.5vw) 0rem;
 }
 @media (min-width: 1200px) {
