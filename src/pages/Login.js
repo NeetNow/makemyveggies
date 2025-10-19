@@ -3,17 +3,48 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../assets/css/auth.css';
 
 const Login = () => {
+  const [loginType, setLoginType] = useState('email'); // email or mobile
   const [email, setEmail] = useState('');
+  const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Here you would typically handle login logic
-    console.log('Login attempt with:', { email, password, rememberMe });
-    // For now, we'll just navigate to the home page
-    navigate('/');
+    setIsSubmitting(true);
+    setMessage('');
+
+    try {
+      const response = await fetch('http://localhost/gard_1/makemyveggies-feature-bhavesh_react/mmv/makemyveggies/backend/api/login.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email: loginType === 'email' ? email : null,
+          mobile: loginType === 'mobile' ? mobile : null,
+          password 
+        }),
+      });
+
+      const data = await response.json();
+      setIsSubmitting(false);
+
+      if (data.success) {
+        // Store token in localStorage or sessionStorage
+        localStorage.setItem('userToken', data.token);
+        navigate('/');
+      } else {
+        setMessage(data.message || 'Login failed');
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      console.error('Login error:', error);
+      setMessage('An error occurred during login. Please try again.');
+    }
   };
 
   return (
@@ -49,21 +80,68 @@ const Login = () => {
                 <h2>Login to Your Account</h2>
                 <p>Please enter your credentials to login</p>
               </div>
-              
-              <form onSubmit={handleSubmit} className="login-form">
-                <div className="form-group mb-3">
-                  <label htmlFor="email" className="form-label">Email Address</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
+
+              {/* Login Type Selection - Minimalist Style */}
+              <div className="login-type-selector mb-4">
+                <div className="d-flex justify-content-between">
+                  <button 
+                    type="button" 
+                    className={`login-type-btn ${loginType === 'email' ? 'active' : ''}`}
+                    onClick={() => setLoginType('email')}
+                  >
+                    Email
+                  </button>
+                  <button 
+                    type="button" 
+                    className={`login-type-btn ${loginType === 'mobile' ? 'active' : ''}`}
+                    onClick={() => setLoginType('mobile')}
+                  >
+                    Mobile Number
+                  </button>
                 </div>
-                
+              </div>
+
+              {message && (
+                <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-danger'} mb-3`}>
+                  {message}
+                </div>
+              )}
+
+              <form onSubmit={handleLogin} className="login-form">
+
+                {/* Email Input */}
+                {loginType === 'email' && (
+                  <div className="form-group mb-3">
+                    <label htmlFor="email" className="form-label">Email Address</label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      id="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+
+                {/* Mobile Input */}
+                {loginType === 'mobile' && (
+                  <div className="form-group mb-3">
+                    <label htmlFor="mobile" className="form-label">Mobile Number</label>
+                    <input
+                      type="tel"
+                      className="form-control"
+                      id="mobile"
+                      placeholder="Enter your mobile number"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+
+                {/* Password Input */}
                 <div className="form-group mb-3">
                   <label htmlFor="password" className="form-label">Password</label>
                   <input
@@ -76,7 +154,8 @@ const Login = () => {
                     required
                   />
                 </div>
-                
+
+                {/* Remember Me Checkbox */}
                 <div className="form-group mb-3">
                   <div className="form-check">
                     <input
@@ -91,13 +170,19 @@ const Login = () => {
                     </label>
                   </div>
                 </div>
-                
+
+                {/* Submit Button */}
                 <div className="form-group mb-4">
-                  <button type="submit" className="btn btn-primary w-100">
-                    Login
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary w-100"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Processing...' : 'Login'}
                   </button>
                 </div>
-                
+
+                {/* Additional Actions */}
                 <div className="login-footer text-center">
                   <p>
                     Don't have an account? <Link to="/register">Register here</Link>
