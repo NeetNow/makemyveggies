@@ -3,6 +3,7 @@ import './App.css';
 import './assets/css/bootstrap.min.css';
 import './assets/css/style.css';
 
+import { Fragment } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Homepage Components
@@ -32,11 +33,19 @@ import FAQ from './pages/FAQ';
 import Cart from './pages/Cart';
 import Shop from './pages/Shop';
 import ProductDetails from './pages/ProductDetails';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import UserProfile from './pages/UserProfile';
+import Order from './pages/Order';
+import OrderTracking from './pages/OrderTracking';
 
 function App() {
   return (
     <Router>
-      <div className="App">
+      <Fragment>
+        <div className="preloader"></div>
 
         <Routes>
           {/* Homepage */}
@@ -57,13 +66,11 @@ function App() {
               <Footer />
 
               {/* Scroll To Top */}
-              {/* scrollToTop start here */}
               <a href="#" className="scrollToTop">
                 <i className="fa-solid fa-arrow-up-long"></i>
                 <span className="pluse_1"></span>
                 <span className="pluse_2"></span>
               </a>
-              {/* scrollToTop ending here */}
             </>
           } />
 
@@ -79,8 +86,15 @@ function App() {
           <Route path="/shop" element={<Shop />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/product-details/:id" element={<ProductDetails />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/order" element={<Order />} />
+          <Route path="/order-tracking" element={<OrderTracking />} />
         </Routes>
-      </div>
+      </Fragment>
     </Router>
   );
 }
