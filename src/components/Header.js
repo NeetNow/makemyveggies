@@ -58,7 +58,7 @@ const Header = () => {
             <div className="col-6 col-xl-2">
               <div className="left">
                 <div className="header__logo">
-                  <Link to="/"><img src="/assets/img/logo/newlogo.png" alt="logo" /></Link>
+                  <Link to="/"><img src="/assets/img/logo/logo.png" alt="logo" /></Link>
                 </div>
               </div>
             </div>
@@ -66,11 +66,18 @@ const Header = () => {
               <div className="right">
                 <div className="header__nav target">
                   <div className="mobilelogo d-xl-none d-block">
-                    <Link to="/"><img src="/assets/img/logo/newlogo.png" alt="logo" /></Link>
+                    <Link to="/"><img src="/assets/img/logo/whiteloog.png" alt="logo" /></Link>
                   </div>
                   <div className="mainactive activescroll">
                     <ul>
-                      <li><Link to="/">Home</Link></li>
+                      <li>
+                        <Link to="/">Home</Link>
+                        <ul>
+                          <li><Link to="/" className="active">home-1</Link></li>
+                          <li><Link to="/">home-2</Link></li>
+                          <li><Link to="/">home-3</Link> </li>
+                        </ul>
+                      </li>
                       <li><Link to="/about">About</Link></li>
                       <li>
                         <a href="#0">Pages</a>
@@ -174,7 +181,7 @@ const Header = () => {
                 </div>
 
                 <div className="header__bottombtn d-xl-block d-none">
-                  <a href="contact.html" className="custom-btn">Explore Garden</a>
+                  <a href="login" className="custom-btn">Login/Register</a>
                 </div>
 
                 <div className="ellepsis d-xl-none" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -195,7 +202,7 @@ const Header = () => {
         <div className="mobile-menu-overlay" onClick={() => setIsMenuOpen(false)}>
           <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
             <div className="mobile-menu-header">
-              <img src="/assets/img/logo/newlogo.png" alt="logo" />
+              <img src="/assets/img/logo/whiteloog.png" alt="logo" />
               <button onClick={() => setIsMenuOpen(false)}>
                 <i className="fa-sharp fa-solid fa-square-xmark"></i>
               </button>
@@ -209,6 +216,8 @@ const Header = () => {
                 <li><Link to="/team">Team</Link></li>
                 <li><Link to="/blog">Blog</Link></li>
                 <li><Link to="/contact">Contact</Link></li>
+                <li><Link to="/login">Login</Link></li>
+                <li><Link to="/register">Register</Link></li>
               </ul>
             </nav>
           </div>
