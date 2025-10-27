@@ -1,13 +1,21 @@
-
--- USERS TABLE
--- Stores user information such as name, email, and address
+-- Table structure for table `users`
 CREATE TABLE `users` (
-    `user_id` INT NOT NULL AUTO_INCREMENT,
-    `first_name` VARCHAR(50) NOT NULL,
-    `last_name` VARCHAR(50) NOT NULL,
-    `email` VARCHAR(100) NOT NULL UNIQUE,
-    `password` VARCHAR(255) NOT NULL,
-    `phone` VARCHAR(15),
+  `user_id` int(11) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `phone` varchar(15) DEFAULT NULL,
+  `email_verified` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_active` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--user address table
+CREATE TABLE `addresses` (
+    `address_id` INT NOT NULL AUTO_INCREMENT,
+    `user_id` INT NOT NULL,
     `address_line1` VARCHAR(255),
     `address_line2` VARCHAR(255),
     `city` VARCHAR(50),
@@ -16,9 +24,13 @@ CREATE TABLE `users` (
     `postal_code` VARCHAR(20),
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `is_active` TINYINT(1) DEFAULT 1,
-    PRIMARY KEY (`user_id`)
+    PRIMARY KEY (`address_id`),
+    CONSTRAINT `fk_addresses_users`
+        FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- CATEGORIES TABLE
 -- Defines product categories (supports parent-child hierarchy)
@@ -150,3 +162,14 @@ CREATE TABLE `coupons` (
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`coupon_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Table structure for table `otp_verification`
+CREATE TABLE `otp_verification` (
+  `otp_id` int(11) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `otp_code` varchar(6) NOT NULL,
+  `purpose` varchar(50) DEFAULT 'registration',
+  `expires_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_used` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
