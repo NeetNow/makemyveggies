@@ -45,7 +45,6 @@ function App() {
   return (
     <Router>
       <Fragment>
-        <div className="preloader"></div>
 
         <Routes>
           {/* Homepage */}
