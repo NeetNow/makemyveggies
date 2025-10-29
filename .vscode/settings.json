@@ -1,0 +1,14 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "javascript.format.enable": false,
+  "typescript.format.enable": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "files.eol": "\n",
+  "[javascript]": {
+    "editor.defaultFormatter": "lonefy.vscode-JS-CSS-HTML-formatter"
+  }
+}
