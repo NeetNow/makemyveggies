@@ -1,66 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { FaStar, FaTimes, FaShoppingCart } from 'react-icons/fa';
+import '../styles/Cart.css';
 
 const Cart = () => {
-  // Sample cart data - in a real app this would come from context/state management
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Garden Rose Plant',
-      price: 25.99,
-      quantity: 2,
-      image: 'https://via.placeholder.com/80x80/4CAF50/ffffff?text=Rose'
-    },
-    {
-      id: 2,
-      name: 'Garden Irrigation System',
-      price: 150.00,
-      quantity: 1,
-      image: 'https://via.placeholder.com/80x80/2196F3/ffffff?text=System'
-    },
-    {
-      id: 3,
-      name: 'Garden Tools Set',
-      price: 75.50,
-      quantity: 1,
-      image: 'https://via.placeholder.com/80x80/FF9800/ffffff?text=Tools'
-    }
-  ]);
+  const { cartItems, updateQuantity, removeFromCart } = useCart();
 
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity === 0) {
-      setCartItems(cartItems.filter(item => item.id !== id));
-    } else {
-      setCartItems(cartItems.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      ));
-    }
-  };
-
+  // Calculate cart totals
+  const [selectedShipping, setSelectedShipping] = React.useState('free');
+  const [country, setCountry] = React.useState('');
+  const [postcode, setPostcode] = React.useState('');
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const tax = subtotal * 0.1; // 10% tax
-  const shipping = subtotal > 200 ? 0 : 15; // Free shipping over $200
-  const total = subtotal + tax + shipping;
+  const shippingRates = { free: 0, flat: 0, local: 0 };
+  const shipping = shippingRates[selectedShipping] ?? 0;
+  const total = subtotal + shipping;
 
-  if (cartItems.length === 0) {
+  if (!cartItems || cartItems.length === 0) {
     return (
       <>
         <Header />
         <main>
-          <section className="pageheader padding-block">
+          <section className="pageheader overflow-hidden">
             <div className="container">
-              <div className="row">
-                <div className="col-12">
-                  <div className="section__header">
-                    <ul className="breadcum">
-                      <li><Link to="/">Home</Link></li>
-                      <li>Cart</li>
-                    </ul>
-                    <h2>Shopping Cart</h2>
-                  </div>
-                </div>
+              <div className="pageheader__content">
+                <h2>Shopping Cart</h2>
+                <nav aria-label="breadcrumb">
+                  <ul className="breadcrumb">
+                    <li><Link to="/">Home</Link></li>
+                    <li className="active" aria-current="page">Cart</li>
+                  </ul>
+                </nav>
               </div>
             </div>
           </section>
@@ -70,23 +42,11 @@ const Cart = () => {
               <div className="row">
                 <div className="col-12 text-center">
                   <div className="empty-cart-content">
-                    <div style={{
-                      width: '200px',
-                      height: '200px',
-                      margin: '0 auto 30px',
-                      display: 'block',
-                      borderRadius: '50%',
-                      background: '#e0e0e0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '48px',
-                      color: '#999'
-                    }}>
-                      🛒
+                    <div className="empty-cart-icon">
+                      <FaShoppingCart />
                     </div>
                     <h3>Your cart is empty</h3>
-                    <p>Looks like you haven't added anything to your cart yet.</p>
+                    <p>Looks like you haven't added anything to your cart yet</p>
                     <Link to="/shop" className="custom-btn">Continue Shopping</Link>
                   </div>
                 </div>
@@ -103,138 +63,225 @@ const Cart = () => {
     <>
       <Header />
       <main>
-        {/* Page Header */}
-        <section className="pageheader padding-block">
+        <section className="pageheader overflow-hidden">
           <div className="container">
-            <div className="row">
-              <div className="col-12">
-                <div className="section__header">
-                  <ul className="breadcum">
-                    <li><Link to="/">Home</Link></li>
-                    <li>Cart</li>
-                  </ul>
-                  <h2>Shopping Cart</h2>
-                </div>
-              </div>
+            <div className="pageheader__content">
+              <h2>Shopping Cart</h2>
+              <nav aria-label="breadcrumb">
+                <ul className="breadcrumb">
+                  <li><Link to="/">Home</Link></li>
+                  <li className="active" aria-current="page">Cart</li>
+                </ul>
+              </nav>
             </div>
           </div>
         </section>
 
-        {/* Cart Section */}
-        <section className="cart padding-block bg-white">
+        <section className="cartdesk padding-block">
           <div className="container">
-            <div className="row">
-              <div className="col-12">
-                <div className="cart-container">
-                  {/* Cart Items */}
-                  <div className="cart-items">
+            <div className="cartdesk__innerborder">
+              {/* Cart Header */}
+              <div className="cartdesk__header">
+                <nav>
+                  <div className="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button 
+                      className="nav-link active" 
+                      id="nav-home-tab" 
+                      data-bs-toggle="tab" 
+                      data-bs-target="#nav-home" 
+                      type="button" 
+                      role="tab" 
+                      aria-controls="nav-home" 
+                      aria-selected="true"
+                    >
+                      Shopping Cart
+                    </button>
+                  </div>
+                </nav>
+              </div>
+              
+              {/* Cart Content */}
+              <div className="cartdesk__content row">
+                <div className="col-lg-7">
+                  <div className="cartdesk__body">
+                    <div className="cartdesk__tablehead row d-none d-md-flex">
+                      <div className="col-md-6 th">Product</div>
+                      <div className="col-md-2 th">Price</div>
+                      <div className="col-md-2 th">Quantity</div>
+                      <div className="col-md-1 th">Total</div>
+                      <div className="col-md-1 th text-end">Remove</div>
+                    </div>
                     {cartItems.map((item) => (
-                      <div key={item.id} className="cart-item">
-                        <div className="item-image">
-                          <img src={item.image} alt={item.name} />
-                        </div>
-                        <div className="item-details">
-                          <h4 className="item-name">{item.name}</h4>
-                          <div className="item-meta">
-                            <span className="item-category">Garden Plant</span>
+                      <div key={item.id} className="cartdesk__item">
+                        <div className="row align-items-center">
+                          <div className="col-md-6">
+                            <div className="cartdesk__itemleft">
+                              <div className="cartdesk__img">
+                                <img src={item.image} alt={item.name} className="img-fluid" />
+                              </div>
+                              <div className="cartdesk__text">
+                                <h4>{item.name}</h4>
+                                <div className="allstar">
+                                  <ul className="star">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <FaStar 
+                                        key={star} 
+                                        className={star <= 4 ? 'filled' : 'half'} 
+                                      />
+                                    ))}
+                                  </ul>
+                                </div>
+                                <p>{item.description || 'No description available'}</p>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <div className="item-price">
-                          <span className="unit-price">${item.price.toFixed(2)}</span>
-                        </div>
-                        <div className="item-quantity">
-                          <div className="quantity-controls">
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="qty-btn"
-                              disabled={item.quantity <= 1}
-                            >
-                              −
-                            </button>
-                            <input
-                              type="number"
-                              value={item.quantity}
-                              onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 0)}
-                              className="qty-input"
-                              min="1"
-                            />
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="qty-btn"
-                            >
-                              +
-                            </button>
+                          <div className="col-md-2">
+                            <div className="cartdesk__price">
+                              <div className="price-amount">${item.price.toFixed(2)}</div>
+                            </div>
                           </div>
-                        </div>
-                        <div className="item-total">
-                          <span className="total-price">${(item.price * item.quantity).toFixed(2)}</span>
-                        </div>
-                        <div className="item-actions">
-                          <button
-                            onClick={() => updateQuantity(item.id, 0)}
-                            className="remove-btn"
-                            title="Remove item"
-                          >
-                            <i className="fa-solid fa-trash"></i>
-                          </button>
+                          <div className="col-md-2">
+                            <div className="cartdesk__qty">
+                              <div className="quantity">
+                                <button 
+                                  className="minus"
+                                  onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                                  type="button"
+                                  aria-label="Decrease quantity"
+                                >
+                                  -
+                                </button>
+                                <input 
+                                  type="text" 
+                                  value={item.quantity} 
+                                  className="qty" 
+                                  onChange={(e) => {
+                                    const value = parseInt(e.target.value) || 1;
+                                    updateQuantity(item.id, Math.max(1, value));
+                                  }}
+                                  aria-label="Quantity"
+                                />
+                                <button 
+                                  className="plus"
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  type="button"
+                                  aria-label="Increase quantity"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-md-1">
+                            <div className="cartdesk__total">
+                              <div className="total-amount">${(item.price * item.quantity).toFixed(2)}</div>
+                            </div>
+                          </div>
+                          <div className="col-md-1 text-end">
+                            <div className="cartdesk__remove">
+                              <button 
+                                className="remove"
+                                onClick={() => removeFromCart(item.id)}
+                                type="button"
+                                aria-label="Remove item"
+                              >
+                                <FaTimes />
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
-
-                  {/* Cart Actions */}
-                  <div className="cart-actions">
-                    <Link to="/shop" className="continue-shopping-btn">
-                      <i className="fa-solid fa-arrow-left"></i>
-                      Continue Shopping
-                    </Link>
-                    <button className="clear-cart-btn" onClick={() => setCartItems([])}>
-                      <i className="fa-solid fa-trash"></i>
-                      Clear Cart
-                    </button>
+                  <div className="coupon mt-3">
+                    <label className="d-block mb-2">Discount Code</label>
+                    <div className="d-flex gap-2">
+                      <input type="text" placeholder="Discount Code" />
+                      <button type="button" className="custom-btn">Apply</button>
+                    </div>
                   </div>
                 </div>
-
-                {/* Cart Summary */}
-                <div className="cart-summary">
-                  <div className="summary-card">
-                    <h3>Cart Summary</h3>
-                    <div className="summary-row">
-                      <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items):</span>
+                <div className="col-lg-5">
+                  <div className="cartdesk__totalamount">
+                    <div className="cartdesk__totalamount--item">
+                      <span>Subtotal</span>
                       <span>${subtotal.toFixed(2)}</span>
                     </div>
-                    <div className="summary-row">
-                      <span>Shipping:</span>
-                      <span className={shipping === 0 ? 'text-success' : ''}>
-                        {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
-                      </span>
+                    <div className="cartdesk__totalamount--item">
+                      <span>Shipping</span>
+                      <span>+${shipping.toFixed(2)}</span>
                     </div>
-                    <div className="summary-row">
-                      <span>Tax (10%):</span>
-                      <span>${tax.toFixed(2)}</span>
+                    <div className="shipping-options">
+                      <div className="option">
+                        <label>
+                          <input
+                            type="radio"
+                            name="shipping"
+                            value="free"
+                            checked={selectedShipping === 'free'}
+                            onChange={(e) => setSelectedShipping(e.target.value)}
+                          />{' '}
+                          Free Shipping
+                        </label>
+                        <span className="amount">+${(0).toFixed(2)}</span>
+                      </div>
+                      <div className="option">
+                        <label>
+                          <input
+                            type="radio"
+                            name="shipping"
+                            value="flat"
+                            checked={selectedShipping === 'flat'}
+                            onChange={(e) => setSelectedShipping(e.target.value)}
+                          />{' '}
+                          Flat Rate
+                        </label>
+                        <span className="amount">+${(0).toFixed(2)}</span>
+                      </div>
+                      <div className="option">
+                        <label>
+                          <input
+                            type="radio"
+                            name="shipping"
+                            value="local"
+                            checked={selectedShipping === 'local'}
+                            onChange={(e) => setSelectedShipping(e.target.value)}
+                          />{' '}
+                          Local Delivery
+                        </label>
+                        <span className="amount">+${(0).toFixed(2)}</span>
+                      </div>
                     </div>
-                    <hr className="summary-divider" />
-                    <div className="summary-row summary-total">
-                      <span>Total:</span>
+                    <div className="calculate-shipping">
+                      <div className="mb-2 calc-title">Calculate Shipping</div>
+                      <select
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className="form-select mb-2"
+                      >
+                        <option value="">Select Country</option>
+                        <option value="US">United States</option>
+                        <option value="IN">India</option>
+                        <option value="GB">United Kingdom</option>
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="Postcode/ZIP"
+                        value={postcode}
+                        onChange={(e) => setPostcode(e.target.value)}
+                        className="form-control mb-2"
+                      />
+                      <button type="button" className="custom-btn w-100">Update Cart</button>
+                    </div>
+                    <div className="cartdesk__totalamount--item total">
+                      <span>Total</span>
                       <span>${total.toFixed(2)}</span>
                     </div>
-
-                    {subtotal < 200 && (
-                      <div className="shipping-notice">
-                        <i className="fa-solid fa-info-circle"></i>
-                        <span>Add ${(200 - subtotal).toFixed(2)} more for FREE shipping!</span>
-                      </div>
-                    )}
-
-                    <div className="checkout-section">
-                      <Link to="/checkout" className="checkout-btn">
-                        <i className="fa-solid fa-credit-card"></i>
-                        Proceed to Checkout
+                    <div className="cartdesk__totalamount--btn">
+                      <Link to="/checkout" className="custom-btn">
+                        <FaShoppingCart className="me-2" />
+                        Proceed To Checkout
                       </Link>
-                      <div className="secure-checkout">
-                        <i className="fa-solid fa-lock"></i>
-                        <span>Secure Checkout</span>
-                      </div>
                     </div>
                   </div>
                 </div>

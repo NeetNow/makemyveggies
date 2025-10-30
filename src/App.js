@@ -5,6 +5,7 @@ import './assets/css/style.css';
 
 import { Fragment } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { CartProvider } from './context/CartContext';
 
 // Homepage Components
 import Header from './components/Header';
@@ -43,8 +44,9 @@ import OrderTracking from './pages/OrderTracking';
 
 function App() {
   return (
-    <Router>
-      <Fragment>
+    <CartProvider>
+      <Router>
+        <Fragment>
 
         <Routes>
           {/* Homepage */}
@@ -93,8 +95,9 @@ function App() {
           <Route path="/order" element={<Order />} />
           <Route path="/order-tracking" element={<OrderTracking />} />
         </Routes>
-      </Fragment>
-    </Router>
+        </Fragment>
+      </Router>
+    </CartProvider>
   );
 }
 

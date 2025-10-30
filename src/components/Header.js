@@ -19,7 +19,7 @@ const Header = () => {
                   </div>
                   <div className="text">
                     <p>+041-982-3648</p>
-                  </div>
+                  </div> 
                 </li>
                 <li>
                   <div className="icon">
@@ -114,7 +114,7 @@ const Header = () => {
                         <ul>
                           <li><Link to="/cart">Cart</Link></li>
                           <li><Link to="/shop">Shop</Link></li>
-                          <li><Link to="/product-details">Product Details</Link></li>
+                          <li><Link to="/product-details/1">Product Details</Link></li>
                         </ul>
                       </li>
                       <li>

@@ -1627,7 +1627,7 @@ input, textarea, select {
 }
 @media (min-width: 1200px) and (min-width: 1200px) {
   .pageheader {
-    padding: 18.75rem 0 5rem 0;
+    padding: 5.75rem 0 5rem 0;
   }
 }
 .pageheader__content h2 {
@@ -5569,4 +5569,4 @@ input, textarea, select {
   min-height: 600px;
 }
 
-/*# sourceMappingURL=style.css.map */
+

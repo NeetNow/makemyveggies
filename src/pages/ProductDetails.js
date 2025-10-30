@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useCart } from '../context/CartContext';
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const { addToCart } = useCart();
 
   // Sample product data - in a real app this would come from an API or context
   const [product] = useState({
@@ -50,9 +52,15 @@ const ProductDetails = () => {
     }
   };
 
-  const addToCart = () => {
-    // In a real app, this would add to cart context/state
-    alert(`Added ${quantity} x ${product.name} to cart!`);
+  const handleAddToCart = () => {
+    const productForCart = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images?.[0] || product.image,
+      description: product.description,
+    };
+    addToCart(productForCart, quantity);
   };
 
   return (
@@ -60,19 +68,17 @@ const ProductDetails = () => {
       <Header />
       <main>
         {/* Page Header */}
-        <section className="pageheader padding-block">
+        <section className="pageheader overflow-hidden">
           <div className="container">
-            <div className="row">
-              <div className="col-12">
-                <div className="section__header">
-                  <ul className="breadcum">
-                    <li><Link to="/">Home</Link></li>
-                    <li><Link to="/shop">Shop</Link></li>
-                    <li>{product.name}</li>
-                  </ul>
-                  <h2>{product.name}</h2>
-                </div>
-              </div>
+            <div className="pageheader__content">
+              <h2>{product.name}</h2>
+              <nav aria-label="breadcrumb">
+                <ul className="breadcrumb">
+                  <li><Link to="/">Home</Link></li>
+                  <li><Link to="/shop">Shop</Link></li>
+                  <li className="active" aria-current="page">{product.name}</li>
+                </ul>
+              </nav>
             </div>
           </div>
         </section>
@@ -176,7 +182,7 @@ const ProductDetails = () => {
                       </div>
 
                       <button
-                        onClick={addToCart}
+                        onClick={handleAddToCart}
                         className="add-to-cart-btn"
                       >
                         Add to Cart - ${(product.price * quantity).toFixed(2)}
