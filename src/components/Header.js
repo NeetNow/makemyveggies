@@ -52,7 +52,7 @@ const Header = () => {
       </div>
 
       {/* Header Bottom */}
-      <div className="header__bottom bg-white">
+      <div className="header__bottom bg-white p-0">
         <div className="container-xl container-fluid">
           <div className="row align-items-center">
             <div className="col-6 col-xl-2">

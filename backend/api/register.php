@@ -6,7 +6,7 @@ ini_set('log_errors', 1);
 
 // Use database connection from config
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../utils/email.php';
+require_once __DIR__ . '/../utils/email_production.php';
 
 setCorsHeaders();
 
@@ -45,15 +45,17 @@ try {
     // Hash password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     
-    try {
-        $database = new Database();
-        $db = $database->getConnection();
-        
-        if (!$db) {
-            throw new Exception('Database connection failed');
-        }
-    } catch (Exception $e) {
-        sendResponse(false, 'Database connection failed: ' . $e->getMessage(), null, 500);
+    // Validate phone number
+    if (!preg_match('/^[0-9]{10,15}$/', $phone)) {
+        sendResponse(false, 'Invalid phone number format. Must be 10-15 digits.', null, 400);
+    }
+    
+    // Connect to database
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    if (!$db) {
+        sendResponse(false, 'Database connection failed', null, 500);
     }
     
     // Check if email already exists
@@ -88,7 +90,7 @@ try {
             $otp_stmt->execute([$email, $otp_code, $expires_at]);
             
             // Send OTP email using EmailService
-            $emailService = new EmailService();
+            $emailService = new ProductionEmailService();
             $user_name = $first_name . ' ' . $last_name;
             $email_sent = $emailService->sendOTP($email, $otp_code, $user_name);
             
@@ -142,7 +144,7 @@ try {
         $db->commit();
         
         // Send OTP email using EmailService
-        $emailService = new EmailService();
+        $emailService = new ProductionEmailService();
         $user_name = $first_name . ' ' . $last_name;
         $email_sent = $emailService->sendOTP($email, $otp_code, $user_name);
         

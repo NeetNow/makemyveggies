@@ -53,6 +53,25 @@ class ProductionEmailService {
         }
     }
 
+    public function sendPasswordResetOTP($to_email, $otp_code, $user_name = '') {
+        // Use fallback if PHPMailer is not available
+        if (!$this->use_phpmailer) {
+            $fallback = new FallbackEmailService();
+            return $fallback->sendOTP($to_email, $otp_code, $user_name); // Reuse sendOTP for fallback
+        }
+        
+        $subject = "Password Reset - MakeMyVeggies";
+        $message = $this->getPasswordResetOTPEmailTemplate($otp_code, $user_name);
+        
+        try {
+            return $this->sendEmailWithPHPMailer($to_email, $subject, $message);
+        } catch (Exception $e) {
+            error_log("PHPMailer failed for password reset, trying fallback: " . $e->getMessage());
+            $fallback = new FallbackEmailService();
+            return $fallback->sendOTP($to_email, $otp_code, $user_name); // Reuse sendOTP for fallback
+        }
+    }
+
     private function sendEmailWithPHPMailer($to_email, $subject, $message) {
         if (!class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
             throw new Exception("PHPMailer class not available");

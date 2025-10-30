@@ -6,7 +6,7 @@ ini_set('log_errors', 1);
 
 // Use database connection from config
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../utils/email.php';
+require_once __DIR__ . '/../utils/email_production.php';
 
 setCorsHeaders();
 
@@ -77,7 +77,7 @@ try {
     $otp_stmt->execute([$email, $otp_code, $expires_at]);
     
     // Send OTP email using EmailService
-    $emailService = new EmailService();
+    $emailService = new ProductionEmailService();
     $user_name = $user['first_name'] . ' ' . $user['last_name'];
     $email_sent = $emailService->sendPasswordResetOTP($email, $otp_code, $user_name);
     

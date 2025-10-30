@@ -5,7 +5,7 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 require_once '../config/database.php';
-require_once '../utils/email.php';
+require_once '../utils/email_production.php';
 
 setCorsHeaders();
 
@@ -98,7 +98,7 @@ try {
     error_log("Successfully stored new OTP in database for: " . $email);
     
     // Send OTP email using EmailService
-    $emailService = new EmailService();
+    $emailService = new ProductionEmailService();
     $user_name = $user_info['first_name'] . ' ' . $user_info['last_name'];
     $email_sent = $emailService->sendOTP($email, $otp_code, $user_name);
     
