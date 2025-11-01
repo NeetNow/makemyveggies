@@ -12,21 +12,11 @@ const Shop = () => {
   const [addedItems, setAddedItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const API_BASE = 'http://localhost:8000'; // process.env.REACT_APP_API_BASE || 'http://localhost:8000';
-
-  // Sample categories for filters
-  const categories = [
-    'Fresh Vegetables', 'Herbs & Seasonings', 'Fruits', 'Exotic Fruits & Veggies',
-    'Fresh Fruits', 'Organic Fruits', 'Fresh Berries', 'Butter & Eggs',
-    'Fresh Onion', 'Fresh Nuts', 'Fresh Meat', 'Fresh Milk'
-  ];
-
-  // Sample brands for filters
-  const brands = [
-    'Vegetables', 'Fruits', 'Juices', 'Meat', 'Breakfast', 'Fresh', 'Food', 'Dinner', 'Organic'
-  ];
-
-  // Sample price ranges
+  // Dynamic data from backend
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  
+  // Price ranges
   const priceRanges = [
     { id: 1, range: '$0.00 - $50.00' },
     { id: 2, range: '$50.00 - $100.00' },
@@ -53,107 +43,78 @@ const Shop = () => {
   const [showRatings, setShowRatings] = useState(true);
   const [showTags, setShowTags] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 9;
+  const productsPerPage = 12; // 4 columns x 3 rows
 
   // Fetch products from backend
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        console.log('Fetching from:', `${API_BASE}/api/products.php`);
-        const res = await fetch(`${API_BASE}/api/products.php`, {
-          method: 'GET',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        console.log('Response status:', res.status);
-        
-        if (!res.ok) {
-          throw new Error(`Server returned ${res.status}`);
-        }
-        
-        const data = await res.json();
-        console.log('API Response:', data);
-        
-        if (!data.success) {
-          throw new Error(data.message || 'API returned error');
-        }
-        
-        if (!data.data || data.data.length === 0) {
-          throw new Error('No products found in database');
-        }
-        
-        const mapped = (data.data || []).map(p => ({
-          id: p.id,
-          name: p.name,
-          price: p.price,
-          originalPrice: p.originalPrice ?? p.price,
-          image: p.image || 'https://via.placeholder.com/300x300/eeeeee/888888?text=Product',
-          category: (p.category || 'others').toLowerCase(),
-          rating: p.rating || 4.5,
-          inStock: p.inStock !== false,
-          discount: p.discount || 0,
-          brand: p.category || 'Fresh'
-        }));
-        
-        console.log('✅ Loaded products:', mapped.length);
-        setProducts(mapped);
-        setFilteredProducts(mapped);
-        setError(null);
-      } catch (e) {
-        console.error('❌ Fetch error:', e);
-        setError(`Backend Error: ${e.message}. Using sample data.`);
-        
-        // Fallback to sample data
-        const sampleProducts = [
-          {
-            id: 1,
-            name: 'Fresh Organic Tomato',
-            price: 2.99,
-            originalPrice: 3.99,
-            image: 'https://images.unsplash.com/photo-1590771129824-2662a4c7660e?w=300',
-            category: 'vegetables',
-            rating: 4.5,
-            inStock: true,
-            discount: 25,
-            brand: 'Vegetables'
-          },
-          {
-            id: 2,
-            name: 'Organic Carrot',
-            price: 1.99,
-            originalPrice: 2.49,
-            image: 'https://images.unsplash.com/photo-1447175008436-054170c2e979?w=300',
-            category: 'vegetables',
-            rating: 4.2,
-            inStock: true,
-            discount: 20,
-            brand: 'Vegetables'
-          },
-          {
-            id: 3,
-            name: 'Fresh Broccoli',
-            price: 3.49,
-            originalPrice: 3.99,
-            image: 'https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=300',
-            category: 'vegetables',
-            rating: 4.7,
-            inStock: true,
-            discount: 12,
-            brand: 'Vegetables'
-          }
-        ];
-        setProducts(sampleProducts);
-        setFilteredProducts(sampleProducts);
-      } finally {
-        setLoading(false);
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/backend/api/get_products.php', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}: ${res.statusText}`);
       }
-    };
+      
+      const data = await res.json();
+      
+      if (data.status !== 'success') {
+        throw new Error(data.message || 'Failed to fetch products');
+      }
+      
+      if (!data.products || data.products.length === 0) {
+        setProducts([]);
+        setFilteredProducts([]);
+        setError('No products found in the database');
+        return;
+      }
+      
+      const mapped = data.products.map(p => ({
+        id: p.id,
+        name: p.title,
+        price: parseFloat(p.price),
+        originalPrice: parseFloat(p.price), // No original price in API, using same price
+        image: p.primaryImage || 'https://via.placeholder.com/300x300/eeeeee/888888?text=Product',
+        category: (p.categoryName || 'others').toLowerCase(),
+        rating: 4.5, // Default rating since not in API
+        inStock: p.inStock === true,
+        discount: 0, // No discount in API
+        brand: p.categoryName || 'Unknown',
+        description: p.description,
+        stock: p.stock,
+        sku: p.sku
+      }));
+      
+      setProducts(mapped);
+      setFilteredProducts(mapped);
+      
+      // Extract unique categories and brands from products
+      const uniqueCategories = [...new Set(mapped.map(p => p.category))].filter(Boolean);
+      const uniqueBrands = [...new Set(mapped.map(p => p.brand))].filter(Boolean);
+      
+      setCategories(uniqueCategories);
+      setBrands(uniqueBrands);
+      
+      setError(null);
+    } catch (e) {
+      console.error('❌ Fetch error:', e);
+      setError(`Error loading products: ${e.message}`);
+      setProducts([]);
+      setFilteredProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
     fetchProducts();
-  }, [API_BASE]);
+  }, [fetchProducts]);
 
   // Filter products by category
   const filterProducts = (category) => {
@@ -226,6 +187,10 @@ const Shop = () => {
   // Apply filters
   const applyFilters = () => {
     console.log('🔍 Applying filters. Total products:', products.length);
+    if (products.length === 0) {
+      console.log('⚠️ No products to filter yet');
+      return;
+    }
     let filtered = [...products];
     
     // Apply category filter
@@ -275,9 +240,20 @@ const Shop = () => {
   const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
+  console.log('🎯 Render: filteredProducts:', filteredProducts.length, 'currentProducts:', currentProducts.length, 'page:', currentPage);
+
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Apply filters when dependencies change
+  // Apply filters when products are loaded
+  useEffect(() => {
+    if (products.length > 0) {
+      console.log('🔄 Products loaded, applying initial filters');
+      applyFilters();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products.length]);
+
+  // Apply filters when filter dependencies change
   useEffect(() => {
     applyFilters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -305,19 +281,19 @@ const Shop = () => {
         {/* Shop Content */}
         <div className="container">
           <div className="shop-container">
-            {/* Mobile Filter Toggle */}
-            <div className="mobile-filter-toggle">
+            {/* Mobile Filter Toggle - REMOVED */}
+            {/* <div className="mobile-filter-toggle">
               <button 
                 className="filter-toggle-btn"
                 onClick={() => setShowMobileFilters(!showMobileFilters)}
               >
                 <FiFilter /> {showMobileFilters ? 'Hide Filters' : 'Show Filters'}
               </button>
-            </div>
+            </div> */}
 
-            <div className="shop-layout">
-              {/* Sidebar Filters */}
-              <aside className={`shop-sidebar ${showMobileFilters ? 'show' : ''}`}>
+            <div className="shop-layout" style={{display: 'block', width: '100%'}}>
+              {/* Sidebar Filters - REMOVED */}
+              {false && <aside className={`shop-sidebar ${showMobileFilters ? 'show' : ''}`}>
                 <div className="sidebar-header">
                   <h3>Filter</h3>
                   <button className="close-filters" onClick={() => setShowMobileFilters(false)}>
@@ -463,10 +439,10 @@ const Shop = () => {
                     Reset All
                   </button>
                 </div>
-              </aside>
+              </aside>}
 
               {/* Main Content */}
-              <div className="shop-main">
+              <div className="shop-main" style={{width: '100%', maxWidth: '100%'}}>
                 {/* Shop Header */}
                 <div className="shop-header">
                   <p className="results-count">
@@ -509,7 +485,7 @@ const Shop = () => {
                 </div>
 
                 {/* Products Grid */}
-                <div className={`products-grid ${viewMode}`}>
+                <div className={`products-grid ${viewMode}`} style={{gridTemplateColumns: viewMode === 'grid' ? 'repeat(4, 1fr)' : '1fr'}}>
                   {loading ? (
                     <div className="no-results"><p>Loading products...</p></div>
                   ) : error ? (

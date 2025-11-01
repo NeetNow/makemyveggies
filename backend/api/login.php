@@ -6,6 +6,10 @@ ini_set('log_errors', 1);
 
 // Use database connection from config
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 setCorsHeaders();
 
@@ -74,19 +78,43 @@ try {
         sendResponse(false, 'Invalid email or password', null, 401);
     }
     
-    // Generate a simple token (in production, use JWT or more secure method)
+    // JWT Configuration
+    $jwt_secret = 'your-super-secret-jwt-key-change-this-in-production-2024';
+    $jwt_algorithm = 'HS256';
+    
+    // Generate JWT token
     $user_email = !empty($email) ? $email : $user['email']; // For mobile login, use email from DB
-    $token = base64_encode(json_encode([
+    $current_time = time();
+    $expiration_time = $current_time + (7 * 24 * 60 * 60); // 7 days
+    
+    $payload = [
+        'iss' => 'makemyveggies', // Issuer
+        'aud' => 'makemyveggies-users', // Audience
+        'iat' => $current_time, // Issued at
+        'nbf' => $current_time, // Not before
+        'exp' => $expiration_time, // Expiration
         'user_id' => $user['user_id'],
         'email' => $user_email,
         'first_name' => $user['first_name'],
-        'last_name' => $user['last_name'],
-        'timestamp' => time()
-    ]));
+        'last_name' => $user['last_name']
+    ];
     
-    // Return success with token
+    $jwt_token = JWT::encode($payload, $jwt_secret, $jwt_algorithm);
+    
+    // Set HTTP-only cookie with JWT token
+    $cookie_options = [
+        'expires' => $expiration_time,
+        'path' => '/',
+        'domain' => '', // Set to your domain in production
+        'secure' => false, // Set to true in production with HTTPS
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ];
+    
+    setcookie('auth_token', $jwt_token, $cookie_options);
+    
+    // Return success without token (since it's in cookie)
     sendResponse(true, 'Login successful', [
-        'token' => $token,
         'user' => [
             'user_id' => $user['user_id'],
             'email' => $user_email,

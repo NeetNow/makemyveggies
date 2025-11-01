@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 import '../assets/css/auth.css';
 
 const Login = () => {
@@ -11,6 +13,7 @@ const Login = () => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,8 +21,9 @@ const Login = () => {
     setMessage('');
 
     try {
-      const response = await fetch('http://localhost/gard_1/makemyveggies-feature-bhavesh_react/mmv/makemyveggies/backend/api/login.php', {
+      const response = await fetch('/backend/api/login.php', {
         method: 'POST',
+        credentials: 'include', // Include cookies
         headers: {
           'Content-Type': 'application/json',
         },
@@ -34,16 +38,45 @@ const Login = () => {
       setIsSubmitting(false);
 
       if (data.success) {
-        // Store token in localStorage or sessionStorage
-        localStorage.setItem('userToken', data.token);
+        // Update auth context with user data
+        login(data.data.user);
+        
+        // Show success toast
+        toast.success('Login successful! Welcome back.', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        
+        // Navigate to home page
         navigate('/');
       } else {
         setMessage(data.message || 'Login failed');
+        toast.error(data.message || 'Login failed', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     } catch (error) {
       setIsSubmitting(false);
       console.error('Login error:', error);
-      setMessage('An error occurred during login. Please try again.');
+      const errorMessage = 'An error occurred during login. Please try again.';
+      setMessage(errorMessage);
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 

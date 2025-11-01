@@ -40,14 +40,22 @@ const Register = () => {
             password
         };
 
+        // Create AbortController for timeout handling
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
         try {
-            const response = await fetch('http://localhost/gard_1/makemyveggies-feature-bhavesh_react/mmv/makemyveggies/backend/api/register.php', {
+            const response = await fetch('/backend/api/register.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify(userData),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -64,9 +72,17 @@ const Register = () => {
                 setMessage('Registration failed: ' + (data.message || 'Unknown error'));
             }
         } catch (error) {
+            clearTimeout(timeoutId);
             setIsSubmitting(false);
-            console.error('Error:', error);
-            setMessage('An error occurred during registration. Please check if the backend server is running.');
+            console.error('Registration error:', error);
+            
+            if (error.name === 'AbortError') {
+                setMessage('Request timeout. Please check your connection and try again.');
+            } else if (error.message.includes('Failed to fetch')) {
+                setMessage('Network error: Unable to connect to the server. Please ensure XAMPP is running and try again.');
+            } else {
+                setMessage('Registration failed: ' + error.message);
+            }
         }
     };
 
@@ -86,14 +102,26 @@ const Register = () => {
             otp_code: otpCode
         };
 
+        // Create AbortController for timeout handling
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
         try {
-            const response = await fetch('http://localhost/gard_1/makemyveggies-feature-bhavesh_react/mmv/makemyveggies/backend/api/verify_otp.php', {
+            const response = await fetch('/backend/api/verify_otp.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify(otpData),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
             const data = await response.json();
 
@@ -105,12 +133,20 @@ const Register = () => {
                     navigate('/login');
                 }, 2000);
             } else {
-                setMessage('OTP verification failed: ' + data.message);
+                setMessage('OTP verification failed: ' + (data.message || 'Unknown error'));
             }
         } catch (error) {
+            clearTimeout(timeoutId);
             setIsSubmitting(false);
-            console.error('Error:', error);
-            setMessage('An error occurred during OTP verification');
+            console.error('OTP verification error:', error);
+            
+            if (error.name === 'AbortError') {
+                setMessage('Request timeout. Please try again.');
+            } else if (error.message.includes('Failed to fetch')) {
+                setMessage('Network error: Unable to connect to the server. Please ensure XAMPP is running.');
+            } else {
+                setMessage('OTP verification failed: ' + error.message);
+            }
         }
     };
 
@@ -120,14 +156,26 @@ const Register = () => {
 
         const resendData = { email };
 
+        // Create AbortController for timeout handling
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
         try {
-            const response = await fetch('http://localhost/gard_1/makemyveggies-feature-bhavesh_react/mmv/makemyveggies/backend/api/resend_otp.php', {
+            const response = await fetch('/backend/api/resend_otp.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify(resendData),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
             const data = await response.json();
 
@@ -136,12 +184,20 @@ const Register = () => {
             if (data.success) {
                 setMessage('New OTP sent to your email!');
             } else {
-                setMessage('Failed to resend OTP: ' + data.message);
+                setMessage('Failed to resend OTP: ' + (data.message || 'Unknown error'));
             }
         } catch (error) {
+            clearTimeout(timeoutId);
             setIsSubmitting(false);
-            console.error('Error:', error);
-            setMessage('An error occurred while resending OTP');
+            console.error('Resend OTP error:', error);
+            
+            if (error.name === 'AbortError') {
+                setMessage('Request timeout. Please try again.');
+            } else if (error.message.includes('Failed to fetch')) {
+                setMessage('Network error: Unable to connect to the server. Please ensure XAMPP is running.');
+            } else {
+                setMessage('Failed to resend OTP: ' + error.message);
+            }
         }
     };
 

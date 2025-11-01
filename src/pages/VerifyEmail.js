@@ -34,7 +34,7 @@ const VerifyEmail = () => {
     };
     
     // Send data to PHP backend for email verification
-    fetch('http://localhost/makemyveggies/backend/api/verify_otp.php', {
+    fetch('https://dev.makemyveggies.com/backend/api/verify_otp.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

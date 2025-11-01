@@ -11,18 +11,18 @@ class ProductionConfig {
     // Database Configuration
     const DB_HOST = "localhost";
     const DB_PORT = "3306";
-    const DB_NAME = "makemyveggies";
-    const DB_USERNAME = "root";
-    const DB_PASSWORD = "";
+    const DB_NAME = "u913267094_mmv_dev";
+    const DB_USERNAME = "u913267094_mmv_developer";
+    const DB_PASSWORD = "MMV_shp@2025";
     
     // Security Configuration
-    const JWT_SECRET = "makemyveggies_jwt_secret_2024"; // Change in production
-    const ENCRYPTION_KEY = "makemyveggies_encryption_key"; // Change in production
+    const JWT_SECRET = "makemyveggies_jwt_secret_2025"; 
+    const ENCRYPTION_KEY = "makemyveggies_encryption_key"; 
     
     // Application Configuration
     const APP_NAME = "MakeMyVeggies";
-    const APP_URL = "https://makemyveggies.com"; // Change to your domain
-    const FRONTEND_URL = "http://localhost:3000"; // Change to your frontend URL
+    const APP_URL = "https://makemyveggies.com"; 
+    const FRONTEND_URL = "http://localhost:3000"; 
     
     // OTP Configuration
     const OTP_EXPIRY_MINUTES = 10;

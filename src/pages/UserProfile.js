@@ -1,9 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 import '../assets/css/auth.css';
 
-
 const UserProfile = () => {
+    const { currentUser, logout } = useAuth();
+    const navigate = useNavigate();
+    
+    const [activeSection, setActiveSection] = useState('profile');
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const mobileMenuRef = useRef(null);
     const [user, setUser] = useState({
         firstName: '',
         lastName: '',
@@ -18,7 +25,6 @@ const UserProfile = () => {
     });
     
     const [isEditing, setIsEditing] = useState(false);
-    const [isChangingPassword, setIsChangingPassword] = useState(false);
     const [passwordData, setPasswordData] = useState({
         currentPassword: '',
         newPassword: '',
@@ -27,24 +33,31 @@ const UserProfile = () => {
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [orders, setOrders] = useState([]);
-    
-    const navigate = useNavigate();
 
+    // Close mobile menu when clicking outside
     useEffect(() => {
-        // Load user profile data
-        loadUserProfile();
-        loadUserOrders();
+        const handleClickOutside = (event) => {
+            if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+                setIsMobileMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
-    const loadUserProfile = async () => {
+    const loadUserProfile = useCallback(async () => {
         try {
-            const userId = localStorage.getItem('userId');
-            if (!userId) {
+            if (!currentUser) {
                 navigate('/login');
                 return;
             }
 
-            const response = await fetch(`http://localhost/makemyveggies/backend/api/get_user_profile.php?userId=${userId}`);
+            const response = await fetch(`http://localhost/git_mmv/git_pull2/backend/api/get_user_profile.php`, {
+                credentials: 'include'
+            });
             const data = await response.json();
             
             if (data.status === 'success') {
@@ -58,14 +71,15 @@ const UserProfile = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [currentUser, navigate]);
 
-    const loadUserOrders = async () => {
+    const loadUserOrders = useCallback(async () => {
         try {
-            const userId = localStorage.getItem('userId');
-            if (!userId) return;
+            if (!currentUser) return;
 
-            const response = await fetch(`http://localhost/makemyveggies/backend/api/get_user_orders.php?userId=${userId}`);
+            const response = await fetch(`http://localhost/git_mmv/git_pull2/backend/api/get_user_orders.php`, {
+                credentials: 'include'
+            });
             const data = await response.json();
             
             if (data.status === 'success') {
@@ -74,7 +88,19 @@ const UserProfile = () => {
         } catch (error) {
             console.error('Error loading orders:', error);
         }
-    };
+    }, [currentUser]);
+
+    useEffect(() => {
+        // Check if user is authenticated
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+        
+        // Load user profile data
+        loadUserProfile();
+        loadUserOrders();
+    }, [currentUser, navigate, loadUserProfile, loadUserOrders]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -97,14 +123,14 @@ const UserProfile = () => {
         setMessage('');
 
         try {
-            const userId = localStorage.getItem('userId');
-            const response = await fetch('http://localhost/makemyveggies/backend/api/update_user_profile.php', {
+            const response = await fetch('http://localhost/git_mmv/git_pull2/backend/api/update_user_profile.php', {
+                credentials: 'include',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: userId,
+                    userId: currentUser.id,
                     ...user
                 }),
             });
@@ -113,9 +139,11 @@ const UserProfile = () => {
             
             if (data.status === 'success') {
                 setMessage('Profile updated successfully!');
+                toast.success('Profile updated successfully!');
                 setIsEditing(false);
             } else {
                 setMessage('Failed to update profile: ' + data.message);
+                toast.error('Failed to update profile: ' + data.message);
             }
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -138,14 +166,14 @@ const UserProfile = () => {
         }
 
         try {
-            const userId = localStorage.getItem('userId');
-            const response = await fetch('http://localhost/makemyveggies/backend/api/change_password.php', {
+            const response = await fetch('http://localhost/git_mmv/git_pull2/backend/api/change_password.php', {
+                credentials: 'include',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: userId,
+                    userId: currentUser.id,
                     currentPassword: passwordData.currentPassword,
                     newPassword: passwordData.newPassword
                 }),
@@ -155,7 +183,7 @@ const UserProfile = () => {
             
             if (data.status === 'success') {
                 setMessage('Password changed successfully!');
-                setIsChangingPassword(false);
+                toast.success('Password changed successfully!');
                 setPasswordData({
                     currentPassword: '',
                     newPassword: '',
@@ -163,6 +191,7 @@ const UserProfile = () => {
                 });
             } else {
                 setMessage('Failed to change password: ' + data.message);
+                toast.error('Failed to change password: ' + data.message);
             }
         } catch (error) {
             console.error('Error changing password:', error);
@@ -170,9 +199,9 @@ const UserProfile = () => {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userEmail');
+    const handleLogout = async () => {
+        await logout();
+        toast.success('Logged out successfully');
         navigate('/login');
     };
 
@@ -192,355 +221,522 @@ const UserProfile = () => {
         );
     }
 
-    return (
-        <div className="register-page banner">
-            {/* Background Images */}
-            <div className="position_bshape contentrightimg imghover d-md-block d-none">
-                <img src="/assets/img/home-1/banner/bannerightimg.png" alt="banner" />
-            </div>
-            <div className="position_bshape topleftimg dnone">
-                <img src="/assets/img/home-1/banner/shape1.png" alt="banner" />
-            </div>
-            <div className="position_bshape topright">
-                <img src="/assets/img/home-1/banner/shape5.png" alt="banner" />
-            </div>
-            <div className="position_bshape bottomleft d-xl-block d-none">
-                <img src="/assets/img/home-1/banner/shpae2.png" alt="banner" />
-            </div>
-            <div className="position_bshape bottommiddle d-lg-block d-none">
-                <img src="/assets/img/home-1/banner/shape3.png" alt="banner" />
-            </div>
-            <div className="position_bshape bottomright d-sm-block d-none">
-                <img src="/assets/img/home-1/banner/shape4.png" alt="banner" />
-            </div>
-            <div className="position_bshape middleshape d-lg-block d-none">
-                <img src="/assets/img/home-1/banner/shape6.png" alt="banner" />
-            </div>
+    // Get section title for mobile header
+    const getSectionTitle = () => {
+        switch (activeSection) {
+            case 'profile':
+                return 'Personal Information';
+            case 'address':
+                return 'Address Information';
+            case 'orders':
+                return 'Order History';
+            case 'password':
+                return 'Change Password';
+            case 'settings':
+                return 'Account Settings';
+            default:
+                return 'Personal Information';
+        }
+    };
 
-            <div className="container">
+    // Handle section change and close mobile menu
+    const handleSectionChange = (section) => {
+        setActiveSection(section);
+        setIsMobileMenuOpen(false);
+    };
+
+    // Render different sections based on activeSection
+    const renderContent = () => {
+        switch (activeSection) {
+            case 'profile':
+                return renderProfileSection();
+            case 'address':
+                return renderAddressSection();
+            case 'orders':
+                return renderOrdersSection();
+            case 'password':
+                return renderPasswordSection();
+            case 'settings':
+                return renderSettingsSection();
+            default:
+                return renderProfileSection();
+        }
+    };
+
+    const renderProfileSection = () => (
+        <div className="profile-content">
+            <h3 className="mb-4">Personal Information</h3>
+            {message && (
+                <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-danger'} mb-3`}>
+                    {message}
+                </div>
+            )}
+            <form onSubmit={handleUpdateProfile}>
                 <div className="row">
-                    <div className="col-md-10 col-lg-8 mx-auto">
-                        <div className="register-box">
-                            <div className="register-header text-center">
-                                <h2>My Profile</h2>
-                                <p>Manage your account information</p>
-                            </div>
+                    <div className="col-md-6">
+                        <div className="form-group mb-3">
+                            <label htmlFor="firstName" className="form-label">First Name</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                id="firstName"
+                                name="firstName"
+                                value={user.firstName}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                                required
+                            />
+                        </div>
+                    </div>
+                    <div className="col-md-6">
+                        <div className="form-group mb-3">
+                            <label htmlFor="lastName" className="form-label">Last Name</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                id="lastName"
+                                name="lastName"
+                                value={user.lastName}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                                required
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="form-group mb-3">
+                    <label htmlFor="email" className="form-label">Email Address</label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        id="email"
+                        name="email"
+                        value={user.email}
+                        disabled
+                    />
+                    <small className="text-muted">Email cannot be changed</small>
+                </div>
+                <div className="form-group mb-3">
+                    <label htmlFor="phone" className="form-label">Phone Number</label>
+                    <input
+                        type="tel"
+                        className="form-control"
+                        id="phone"
+                        name="phone"
+                        value={user.phone}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className="form-actions">
+                    {!isEditing ? (
+                        <button type="button" className="btn btn-primary" onClick={() => setIsEditing(true)}>
+                            Edit Profile
+                        </button>
+                    ) : (
+                        <div>
+                            <button type="submit" className="btn btn-success me-2">
+                                Save Changes
+                            </button>
+                            <button type="button" className="btn btn-secondary" onClick={() => setIsEditing(false)}>
+                                Cancel
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </form>
+        </div>
+    );
 
-                            {message && (
-                                <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-danger'} mb-3`}>
-                                    {message}
+    const renderAddressSection = () => (
+        <div className="profile-content">
+            <h3 className="mb-4">Address Information</h3>
+            <form onSubmit={handleUpdateProfile}>
+                <div className="form-group mb-3">
+                    <label htmlFor="addressLine1" className="form-label">Address Line 1</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="addressLine1"
+                        name="addressLine1"
+                        value={user.addressLine1}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className="form-group mb-3">
+                    <label htmlFor="addressLine2" className="form-label">Address Line 2</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="addressLine2"
+                        name="addressLine2"
+                        value={user.addressLine2}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className="row">
+                    <div className="col-md-6">
+                        <div className="form-group mb-3">
+                            <label htmlFor="city" className="form-label">City</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                id="city"
+                                name="city"
+                                value={user.city}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                            />
+                        </div>
+                    </div>
+                    <div className="col-md-6">
+                        <div className="form-group mb-3">
+                            <label htmlFor="state" className="form-label">State</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                id="state"
+                                name="state"
+                                value={user.state}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-6">
+                        <div className="form-group mb-3">
+                            <label htmlFor="country" className="form-label">Country</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                id="country"
+                                name="country"
+                                value={user.country}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                            />
+                        </div>
+                    </div>
+                    <div className="col-md-6">
+                        <div className="form-group mb-3">
+                            <label htmlFor="postalCode" className="form-label">Postal Code</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                id="postalCode"
+                                name="postalCode"
+                                value={user.postalCode}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="form-actions">
+                    {!isEditing ? (
+                        <button type="button" className="btn btn-primary" onClick={() => setIsEditing(true)}>
+                            Edit Address
+                        </button>
+                    ) : (
+                        <div>
+                            <button type="submit" className="btn btn-success me-2">
+                                Save Changes
+                            </button>
+                            <button type="button" className="btn btn-secondary" onClick={() => setIsEditing(false)}>
+                                Cancel
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </form>
+        </div>
+    );
+
+    const renderOrdersSection = () => (
+        <div className="profile-content">
+            <h3 className="mb-4">Order History</h3>
+            {orders.length > 0 ? (
+                <div className="orders-list">
+                    {orders.map((order, index) => (
+                        <div key={index} className="order-item card mb-3">
+                            <div className="card-body">
+                                <div className="row">
+                                    <div className="col-md-8">
+                                        <h5 className="card-title">Order #{order.id}</h5>
+                                        <p className="card-text">
+                                            <small className="text-muted">Placed on {order.date}</small>
+                                        </p>
+                                        <p className="card-text">{order.items} items</p>
+                                    </div>
+                                    <div className="col-md-4 text-end">
+                                        <h5 className="text-success">${order.total}</h5>
+                                        <span className={`badge ${order.status === 'Delivered' ? 'bg-success' : 'bg-warning'}`}>
+                                            {order.status}
+                                        </span>
+                                    </div>
                                 </div>
-                            )}
-
-                            {/* Profile Navigation */}
-                            <div className="profile-nav mb-4">
-                                <div className="btn-group w-100" role="group">
-                                    <button 
-                                        type="button" 
-                                        className={`btn ${!isChangingPassword ? 'btn-primary' : 'btn-outline-primary'}`}
-                                        onClick={() => setIsChangingPassword(false)}
-                                    >
-                                        Profile Info
-                                    </button>
-                                    <button 
-                                        type="button" 
-                                        className={`btn ${isChangingPassword ? 'btn-primary' : 'btn-outline-primary'}`}
-                                        onClick={() => setIsChangingPassword(true)}
-                                    >
-                                        Change Password
-                                    </button>
-                                </div>
                             </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-5">
+                    <i className="fa-solid fa-box-open fa-3x text-muted mb-3"></i>
+                    <h5>No Orders Yet</h5>
+                    <p className="text-muted">You haven't placed any orders yet.</p>
+                    <Link to="/shop" className="btn btn-primary">Start Shopping</Link>
+                </div>
+            )}
+        </div>
+    );
 
-                            {!isChangingPassword ? (
-                                /* Profile Information Section */
-                                <form onSubmit={handleUpdateProfile} className="register-form">
-                                    <div className="row">
-                                        <div className="col-md-6">
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="firstName" className="form-label">First Name</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="firstName"
-                                                    name="firstName"
-                                                    value={user.firstName}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditing}
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="lastName" className="form-label">Last Name</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="lastName"
-                                                    name="lastName"
-                                                    value={user.lastName}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditing}
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
+    const renderPasswordSection = () => (
+        <div className="profile-content">
+            <h3 className="mb-4">Change Password</h3>
+            <form onSubmit={handleChangePassword}>
+                <div className="form-group mb-3">
+                    <label htmlFor="currentPassword" className="form-label">Current Password</label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        id="currentPassword"
+                        name="currentPassword"
+                        value={passwordData.currentPassword}
+                        onChange={handlePasswordChange}
+                        required
+                    />
+                </div>
+                <div className="form-group mb-3">
+                    <label htmlFor="newPassword" className="form-label">New Password</label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        id="newPassword"
+                        name="newPassword"
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordChange}
+                        required
+                    />
+                </div>
+                <div className="form-group mb-3">
+                    <label htmlFor="confirmPassword" className="form-label">Confirm New Password</label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordChange}
+                        required
+                    />
+                </div>
+                <button type="submit" className="btn btn-primary">
+                    Change Password
+                </button>
+            </form>
+        </div>
+    );
 
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="email" className="form-label">Email Address</label>
-                                        <input
-                                            type="email"
-                                            className="form-control"
-                                            id="email"
-                                            name="email"
-                                            value={user.email}
-                                            disabled
-                                        />
-                                        <small className="text-muted">Email cannot be changed</small>
-                                    </div>
+    const renderSettingsSection = () => (
+        <div className="profile-content">
+            <h3 className="mb-4">Account Settings</h3>
+            
+            {/* Security Settings */}
+            <div className="settings-section mb-5">
+                <div className="settings-header mb-3">
+                    <h5 className="settings-title">
+                        <i className="fa-solid fa-shield-alt me-2 text-primary"></i>
+                        Security
+                    </h5>
+                </div>
+                <div className="settings-item">
+                    <div className="settings-info">
+                        <h6 className="mb-1">Password</h6>
+                        <p className="text-muted mb-0">Update your password to keep your account secure</p>
+                    </div>
+                    <button 
+                        className="btn btn-outline-primary"
+                        onClick={() => setActiveSection('password')}
+                    >
+                        <i className="fa-solid fa-lock me-2"></i>
+                        Change Password
+                    </button>
+                </div>
+            </div>
 
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="phone" className="form-label">Phone Number</label>
-                                        <input
-                                            type="tel"
-                                            className="form-control"
-                                            id="phone"
-                                            name="phone"
-                                            value={user.phone}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditing}
-                                        />
-                                    </div>
+            {/* Account Management */}
+            <div className="settings-section">
+                <div className="settings-header mb-3">
+                    <h5 className="settings-title">
+                        <i className="fa-solid fa-exclamation-triangle me-2 text-warning"></i>
+                        Account Management
+                    </h5>
+                </div>
+                <div className="settings-item danger-zone">
+                    <div className="settings-info">
+                        <h6 className="mb-1 text-danger">Delete Account</h6>
+                        <p className="text-muted mb-0">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                    </div>
+                    <button className="btn btn-outline-danger">
+                        <i className="fa-solid fa-trash me-2"></i>
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
 
-                                    <h5 className="mt-4 mb-3">Address Information</h5>
-                                    
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="addressLine1" className="form-label">Address Line 1</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="addressLine1"
-                                            name="addressLine1"
-                                            value={user.addressLine1}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditing}
-                                        />
-                                    </div>
-
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="addressLine2" className="form-label">Address Line 2</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="addressLine2"
-                                            name="addressLine2"
-                                            value={user.addressLine2}
-                                            onChange={handleInputChange}
-                                            disabled={!isEditing}
-                                        />
-                                    </div>
-
-                                    <div className="row">
-                                        <div className="col-md-6">
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="city" className="form-label">City</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="city"
-                                                    name="city"
-                                                    value={user.city}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditing}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="state" className="form-label">State</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="state"
-                                                    name="state"
-                                                    value={user.state}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditing}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="row">
-                                        <div className="col-md-6">
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="country" className="form-label">Country</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="country"
-                                                    name="country"
-                                                    value={user.country}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditing}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="postalCode" className="form-label">Postal Code</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="postalCode"
-                                                    name="postalCode"
-                                                    value={user.postalCode}
-                                                    onChange={handleInputChange}
-                                                    disabled={!isEditing}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group mb-4">
-                                        {!isEditing ? (
-                                            <button
-                                                type="button"
-                                                className="btn btn-primary me-2"
-                                                onClick={() => setIsEditing(true)}
-                                            >
-                                                Edit Profile
-                                            </button>
-                                        ) : (
-                                            <div>
-                                                <button
-                                                    type="submit"
-                                                    className="btn btn-success me-2"
-                                                >
-                                                    Save Changes
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-secondary"
-                                                    onClick={() => {
-                                                        setIsEditing(false);
-                                                        loadUserProfile(); // Reset form
-                                                    }}
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </form>
-                            ) : (
-                                /* Change Password Section */
-                                <form onSubmit={handleChangePassword} className="register-form">
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="currentPassword" className="form-label">Current Password</label>
-                                        <input
-                                            type="password"
-                                            className="form-control"
-                                            id="currentPassword"
-                                            name="currentPassword"
-                                            value={passwordData.currentPassword}
-                                            onChange={handlePasswordChange}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="newPassword" className="form-label">New Password</label>
-                                        <input
-                                            type="password"
-                                            className="form-control"
-                                            id="newPassword"
-                                            name="newPassword"
-                                            value={passwordData.newPassword}
-                                            onChange={handlePasswordChange}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="confirmPassword" className="form-label">Confirm New Password</label>
-                                        <input
-                                            type="password"
-                                            className="form-control"
-                                            id="confirmPassword"
-                                            name="confirmPassword"
-                                            value={passwordData.confirmPassword}
-                                            onChange={handlePasswordChange}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="form-group mb-4">
-                                        <button type="submit" className="btn btn-primary">
-                                            Change Password
-                                        </button>
-                                    </div>
-                                </form>
-                            )}
-
-                            {/* Order History Section */}
-                            <div className="mt-5">
-                                <h5>Recent Orders</h5>
-                                {orders.length > 0 ? (
-                                    <div className="table-responsive">
-                                        <table className="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Order #</th>
-                                                    <th>Date</th>
-                                                    <th>Status</th>
-                                                    <th>Total</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {orders.slice(0, 5).map(order => (
-                                                    <tr key={order.order_id}>
-                                                        <td>{order.order_number}</td>
-                                                        <td>{new Date(order.placed_at).toLocaleDateString()}</td>
-                                                        <td>
-                                                            <span className={`badge ${order.status === 'Completed' ? 'bg-success' : 'bg-warning'}`}>
-                                                                {order.status}
-                                                            </span>
-                                                        </td>
-                                                        <td>${order.total_amount}</td>
-                                                        <td>
-                                                            <Link to={`/order-tracking?order=${order.order_number}`} className="btn btn-sm btn-outline-primary">
-                                                                View
-                                                            </Link>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                ) : (
-                                    <p className="text-muted">No orders found.</p>
-                                )}
+    return (
+        <div className="profile-page">
+            {/* Mobile Header */}
+            <div className="mobile-header d-md-none" ref={mobileMenuRef}>
+                <div className="container-fluid">
+                    <div className="mobile-header-content">
+                        <div className="mobile-user-info">
+                            <i className="fa-solid fa-user-circle fa-2x text-primary me-2"></i>
+                            <div>
+                                <h6 className="mb-0">{currentUser?.firstName} {currentUser?.lastName}</h6>
+                                <small className="text-muted">{getSectionTitle()}</small>
                             </div>
+                        </div>
+                        <button 
+                            className="mobile-menu-toggle"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        >
+                            <i className="fa-solid fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
 
-                            {/* Account Actions */}
-                            <div className="profile-actions mt-4 pt-4 border-top">
-                                <div className="d-flex justify-content-between">
-                                    <Link to="/" className="btn btn-outline-secondary">
-                                        Back to Home
-                                    </Link>
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-danger"
+                {/* Mobile Navigation Dropdown */}
+                {isMobileMenuOpen && (
+                    <div className="mobile-nav-dropdown">
+                        <nav className="mobile-nav">
+                            <ul className="nav flex-column">
+                                <li className="nav-item">
+                                    <button 
+                                        className={`nav-link ${activeSection === 'profile' ? 'active' : ''}`}
+                                        onClick={() => handleSectionChange('profile')}
+                                    >
+                                        <i className="fa-solid fa-user me-2"></i>
+                                        Personal Info
+                                    </button>
+                                </li>
+                                <li className="nav-item">
+                                    <button 
+                                        className={`nav-link ${activeSection === 'address' ? 'active' : ''}`}
+                                        onClick={() => handleSectionChange('address')}
+                                    >
+                                        <i className="fa-solid fa-map-marker-alt me-2"></i>
+                                        Address
+                                    </button>
+                                </li>
+                                <li className="nav-item">
+                                    <button 
+                                        className={`nav-link ${activeSection === 'orders' ? 'active' : ''}`}
+                                        onClick={() => handleSectionChange('orders')}
+                                    >
+                                        <i className="fa-solid fa-box me-2"></i>
+                                        Order History
+                                    </button>
+                                </li>
+                                <li className="nav-item">
+                                    <button 
+                                        className={`nav-link ${activeSection === 'settings' ? 'active' : ''}`}
+                                        onClick={() => handleSectionChange('settings')}
+                                    >
+                                        <i className="fa-solid fa-cog me-2"></i>
+                                        Settings
+                                    </button>
+                                </li>
+                                <li className="nav-item">
+                                    <button 
+                                        className="nav-link text-danger"
                                         onClick={handleLogout}
                                     >
+                                        <i className="fa-solid fa-sign-out-alt me-2"></i>
                                         Logout
                                     </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                )}
+            </div>
+
+            <div className="container-fluid">
+                <div className="row">
+                    {/* Desktop Sidebar */}
+                    <div className="col-md-3 col-lg-2 sidebar d-none d-md-block">
+                        <div className="profile-sidebar">
+                            <div className="user-info text-center mb-4">
+                                <div className="user-avatar">
+                                    <i className="fa-solid fa-user-circle fa-4x text-primary"></i>
                                 </div>
+                                <h5 className="mt-2">{currentUser?.firstName} {currentUser?.lastName}</h5>
+                                <p className="text-muted">{currentUser?.email}</p>
                             </div>
+                            
+                            <nav className="sidebar-nav">
+                                <ul className="nav flex-column">
+                                    <li className="nav-item">
+                                        <button 
+                                            className={`nav-link ${activeSection === 'profile' ? 'active' : ''}`}
+                                            onClick={() => setActiveSection('profile')}
+                                        >
+                                            <i className="fa-solid fa-user me-2"></i>
+                                            Personal Info
+                                        </button>
+                                    </li>
+                                    <li className="nav-item">
+                                        <button 
+                                            className={`nav-link ${activeSection === 'address' ? 'active' : ''}`}
+                                            onClick={() => setActiveSection('address')}
+                                        >
+                                            <i className="fa-solid fa-map-marker-alt me-2"></i>
+                                            Address
+                                        </button>
+                                    </li>
+                                    <li className="nav-item">
+                                        <button 
+                                            className={`nav-link ${activeSection === 'orders' ? 'active' : ''}`}
+                                            onClick={() => setActiveSection('orders')}
+                                        >
+                                            <i className="fa-solid fa-box me-2"></i>
+                                            Order History
+                                        </button>
+                                    </li>
+                                    <li className="nav-item">
+                                        <button 
+                                            className={`nav-link ${activeSection === 'settings' ? 'active' : ''}`}
+                                            onClick={() => setActiveSection('settings')}
+                                        >
+                                            <i className="fa-solid fa-cog me-2"></i>
+                                            Settings
+                                        </button>
+                                    </li>
+                                    <li className="nav-item">
+                                        <button 
+                                            className="nav-link text-danger"
+                                            onClick={handleLogout}
+                                        >
+                                            <i className="fa-solid fa-sign-out-alt me-2"></i>
+                                            Logout
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    
+                    {/* Main Content */}
+                    <div className="col-12 col-md-9 col-lg-10 main-content">
+                        <div className="content-wrapper">
+                            {renderContent()}
                         </div>
                     </div>
                 </div>
