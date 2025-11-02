@@ -7,6 +7,8 @@ ini_set('log_errors', 1);
 // Use database connection from config
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -79,7 +81,7 @@ try {
     }
     
     // JWT Configuration
-    $jwt_secret = 'your-super-secret-jwt-key-change-this-in-production-2024';
+    $jwt_secret = $_ENV['JWT_SECRET'] ?? 'your-super-secret-jwt-key-change-this-in-production-2024';
     $jwt_algorithm = 'HS256';
     
     // Generate JWT token

@@ -1,13 +1,16 @@
 <?php
 // JWT Authentication Middleware
 require_once __DIR__ . '/../vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
+
 require_once __DIR__ . '/../config/database.php';
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 function verifyJWTFromCookie() {
-    $jwt_secret = 'your-super-secret-jwt-key-change-this-in-production-2024';
+    $jwt_secret = $_ENV['JWT_SECRET'] ?? 'your-super-secret-jwt-key-change-this-in-production-2024';
     $jwt_algorithm = 'HS256';
     
     try {
