@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import '../assets/css/auth.css';
 
 const Header = () => {
+  const { currentUser } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -19,7 +22,7 @@ const Header = () => {
                   </div>
                   <div className="text">
                     <p>+041-982-3648</p>
-                  </div> 
+                  </div>
                 </li>
                 <li>
                   <div className="icon">
@@ -114,7 +117,7 @@ const Header = () => {
                         <ul>
                           <li><Link to="/cart">Cart</Link></li>
                           <li><Link to="/shop">Shop</Link></li>
-                          <li><Link to="/product-details/1">Product Details</Link></li>
+                          <li><Link to="/product-details">Product Details</Link></li>
                         </ul>
                       </li>
                       <li>
@@ -181,7 +184,13 @@ const Header = () => {
                 </div>
 
                 <div className="header__bottombtn d-xl-block d-none">
-                  <a href="login" className="custom-btn">Login/Register</a>
+                  {currentUser ? (
+                    <Link to="/profile" className="custom-btn">Profile</Link>
+                  ) : (
+                    <div className="auth-buttons">
+                      <Link to="/login" className="custom-btn login-btn">Login/Register</Link>
+                    </div>
+                  )}
                 </div>
 
                 <div className="ellepsis d-xl-none" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -209,15 +218,21 @@ const Header = () => {
             </div>
             <nav className="mobile-nav">
               <ul>
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/about">About</Link></li>
-                <li><Link to="/service">Services</Link></li>
-                <li><Link to="/project">Projects</Link></li>
-                <li><Link to="/team">Team</Link></li>
-                <li><Link to="/blog">Blog</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
-                <li><Link to="/login">Login</Link></li>
-                <li><Link to="/register">Register</Link></li>
+                <li><Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link></li>
+                <li><Link to="/about" onClick={() => setIsMenuOpen(false)}>About</Link></li>
+                <li><Link to="/service" onClick={() => setIsMenuOpen(false)}>Services</Link></li>
+                <li><Link to="/project" onClick={() => setIsMenuOpen(false)}>Projects</Link></li>
+                <li><Link to="/team" onClick={() => setIsMenuOpen(false)}>Team</Link></li>
+                <li><Link to="/blog" onClick={() => setIsMenuOpen(false)}>Blog</Link></li>
+                <li><Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link></li>
+                {currentUser ? (
+                  <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
+                ) : (
+                  <>
+                    <li><Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link></li>
+                    <li><Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link></li>
+                  </>
+                )}
               </ul>
             </nav>
           </div>
