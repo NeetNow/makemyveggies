@@ -1,25 +1,28 @@
 <?php
 // Production configuration for MakeMyVeggies
-
-// Load environment variables
-require_once __DIR__ . '/../vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-$dotenv->load();
-
 class ProductionConfig {
     // Email Configuration
     const EMAIL_HOST = "smtp.gmail.com";
     const EMAIL_PORT = 587;
+    const EMAIL_USERNAME = "nikhil.bava@makemyveggies.com";
+    const EMAIL_PASSWORD = "ivqt kxab vcjq wxcs"; // App password
     const EMAIL_FROM_NAME = "MakeMyVeggies";
     
     // Database Configuration
     const DB_HOST = "localhost";
     const DB_PORT = "3306";
+    const DB_NAME = "u913267094_mmv_dev";
+    const DB_USERNAME = "u913267094_mmv_developer";
+    const DB_PASSWORD = "MMV_shp@2025";
+    
+    // Security Configuration
+    const JWT_SECRET = "makemyveggies_jwt_secret_2025"; 
+    const ENCRYPTION_KEY = "makemyveggies_encryption_key"; 
     
     // Application Configuration
     const APP_NAME = "MakeMyVeggies";
-    const APP_URL = "https://makemyveggies.com"; // Change to your domain
-    const FRONTEND_URL = "http://localhost:3000"; // Change to your frontend URL
+    const APP_URL = "https://makemyveggies.com"; 
+    const FRONTEND_URL = "http://localhost:3000"; 
     
     // OTP Configuration
     const OTP_EXPIRY_MINUTES = 10;
@@ -36,35 +39,6 @@ class ProductionConfig {
     // Session Configuration
     const SESSION_LIFETIME = 86400; // 24 hours
     
-    // Environment variable accessors
-    public static function getEmailUsername() {
-        return $_ENV['EMAIL_USERNAME'] ?? '';
-    }
-    
-    public static function getEmailPassword() {
-        return $_ENV['EMAIL_PASSWORD'] ?? '';
-    }
-    
-    public static function getDatabaseName() {
-        return $_ENV['DB_NAME'] ?? '';
-    }
-    
-    public static function getDatabaseUsername() {
-        return $_ENV['DB_USERNAME'] ?? '';
-    }
-    
-    public static function getDatabasePassword() {
-        return $_ENV['DB_PASSWORD'] ?? '';
-    }
-    
-    public static function getJwtSecret() {
-        return $_ENV['JWT_SECRET'] ?? '';
-    }
-    
-    public static function getEncryptionKey() {
-        return $_ENV['ENCRYPTION_KEY'] ?? '';
-    }
-    
     public static function isProduction() {
         return !in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']);
     }
@@ -73,8 +47,8 @@ class ProductionConfig {
         return [
             'host' => self::EMAIL_HOST,
             'port' => self::EMAIL_PORT,
-            'username' => self::getEmailUsername(),
-            'password' => self::getEmailPassword(),
+            'username' => self::EMAIL_USERNAME,
+            'password' => self::EMAIL_PASSWORD,
             'from_name' => self::EMAIL_FROM_NAME
         ];
     }
@@ -83,9 +57,9 @@ class ProductionConfig {
         return [
             'host' => self::DB_HOST,
             'port' => self::DB_PORT,
-            'dbname' => self::getDatabaseName(),
-            'username' => self::getDatabaseUsername(),
-            'password' => self::getDatabasePassword()
+            'dbname' => self::DB_NAME,
+            'username' => self::DB_USERNAME,
+            'password' => self::DB_PASSWORD
         ];
     }
 }
