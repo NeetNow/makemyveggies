@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import '../assets/css/auth.css';
 
 const Header = () => {
   const { currentUser } = useAuth();
+  const cartContext = useCart();
+  const cartItems = cartContext?.cartItems || [];
+  const loading = cartContext?.loading || false;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Calculate total cart items
+  const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <div className="header">
@@ -44,10 +51,10 @@ const Header = () => {
             </div>
             <div className="right">
               <ul>
-                <li><a href="#"><i className="fa-brands fa-facebook-f"></i></a></li>
-                <li><a href="#"><i className="fa-sharp fa-regular fa-basketball"></i></a></li>
-                <li><a href="#"><i className="fa-brands fa-linkedin-in"></i></a></li>
-                <li><a href="#"><i className="fa-brands fa-instagram"></i></a></li>
+                <li><button type="button"><i className="fa-brands fa-facebook-f"></i></button></li>
+                <li><button type="button"><i className="fa-sharp fa-regular fa-basketball"></i></button></li>
+                <li><button type="button"><i className="fa-brands fa-linkedin-in"></i></button></li>
+                <li><button type="button"><i className="fa-brands fa-instagram"></i></button></li>
               </ul>
             </div>
           </div>
@@ -134,52 +141,48 @@ const Header = () => {
 
                 <div className="header__cart">
                   <div className="carticon">
-                    <a href="#" onClick={() => setIsCartOpen(!isCartOpen)}>
+                    <button type="button" onClick={() => setIsCartOpen(!isCartOpen)}>
                       <i className="fa-light fa-basket-shopping"></i>
-                    </a>
+                      {!loading && totalCartItems > 0 && (
+                        <span className="cart-count">{totalCartItems}</span>
+                      )}
+                    </button>
                   </div>
                   <div className={`cart-details ${isCartOpen ? 'show' : ''}`}>
                     <div className="close d-sm-none d-block" onClick={() => setIsCartOpen(false)}>
                       <i className="fa-sharp fa-solid fa-square-xmark"></i>
                     </div>
-                    <div className="item">
-                      <div className="thumb">
-                        <img src="/assets/img/cart/img1.jpg" alt="img" />
-                      </div>
-                      <div className="right">
-                        <div className="text">
-                          <h6><a href="#">Product title here</a></h6>
-                          <p>$20.00</p>
-                          <span>In Stock</span>
+                    
+                    {loading ? (
+                      <div className="cart-loading">Loading cart...</div>
+                    ) : cartItems.length === 0 ? (
+                      <div className="cart-empty">Your cart is empty</div>
+                    ) : (
+                      <>
+                        {cartItems.map((item) => (
+                          <div className="item" key={item.cart_id}>
+                            <div className="thumb">
+                              <img src={item.image} alt={item.name} />
+                            </div>
+                            <div className="right">
+                              <div className="text">
+                                <h6><Link to={`/product-details/${item.product_id}`}>{item.name}</Link></h6>
+                                <p>${item.price.toFixed(2)}</p>
+                                <span>Qty: {item.quantity}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <div className="total">
+                          <div className="subtotal">
+                            <p>Subtotal :<span> ${cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)}</span></p>
+                          </div>
+                          <div className="checkout">
+                            <Link to="/checkout">Checkout</Link>
+                          </div>
                         </div>
-                        <div className="cros">
-                          <i className="fa-sharp fa-solid fa-square-xmark"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="item">
-                      <div className="thumb">
-                        <img src="/assets/img/cart/img2.png" alt="img" />
-                      </div>
-                      <div className="right">
-                        <div className="text">
-                          <h6><a href="#">Product title here</a></h6>
-                          <p>$20.00</p>
-                          <span>In Stock</span>
-                        </div>
-                        <div className="cros">
-                          <i className="fa-sharp fa-solid fa-square-xmark"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="total">
-                      <div className="subtotal">
-                        <p>Subtotal :<span> $40.00</span></p>
-                      </div>
-                      <div className="checkout">
-                        <a href="#">Checkout</a>
-                      </div>
-                    </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -225,6 +228,7 @@ const Header = () => {
                 <li><Link to="/team" onClick={() => setIsMenuOpen(false)}>Team</Link></li>
                 <li><Link to="/blog" onClick={() => setIsMenuOpen(false)}>Blog</Link></li>
                 <li><Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link></li>
+                <li><Link to="/checkout" onClick={() => setIsMenuOpen(false)}>Checkout</Link></li>
                 {currentUser ? (
                   <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
                 ) : (

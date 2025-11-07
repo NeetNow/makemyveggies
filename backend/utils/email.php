@@ -1,12 +1,28 @@
 <?php
 // Email utility for sending OTP and other emails using PHPMailer
+
+// Load environment variables
+require_once __DIR__ . '/../vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
+
 class EmailService {
-    private $smtp_host = "smtp.gmail.com"; // Change to your SMTP server
-    private $smtp_port = 587;
-    private $smtp_username = "nikhil.bava@makemyveggies.com"; // Change to your email
-    private $smtp_password = "ivqt kxab vcjq wxcs"; // Change to your app password
-    private $from_email = "nikhil.bava@makemyveggies.com"; // Change to your email
-    private $from_name = "MakeMyVeggies";
+    private $smtp_host;
+    private $smtp_port;
+    private $smtp_username;
+    private $smtp_password;
+    private $from_email;
+    private $from_name;
+
+    public function __construct() {
+        // Load from environment variables
+        $this->smtp_host = $_ENV['EMAIL_HOST'] ?? "smtp.gmail.com";
+        $this->smtp_port = $_ENV['EMAIL_PORT'] ?? 587;
+        $this->smtp_username = $_ENV['EMAIL_USERNAME'] ?? "";
+        $this->smtp_password = $_ENV['EMAIL_PASSWORD'] ?? "";
+        $this->from_email = $_ENV['EMAIL_USERNAME'] ?? "";
+        $this->from_name = $_ENV['EMAIL_FROM_NAME'] ?? "MakeMyVeggies";
+    }
 
     public function sendOTP($to_email, $otp_code, $user_name = '') {
         $subject = "Email Verification - MakeMyVeggies";

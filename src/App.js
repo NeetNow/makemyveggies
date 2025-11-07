@@ -4,7 +4,10 @@ import './assets/css/bootstrap.min.css';
 import './assets/css/style.css';
 
 import { Fragment } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
 // Homepage Components
@@ -39,65 +42,86 @@ import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import UserProfile from './pages/UserProfile';
-import Order from './pages/Order';
+import Checkout from './pages/Checkout';
 import OrderTracking from './pages/OrderTracking';
+
+// Component to conditionally render header
+function ConditionalHeader() {
+  const location = useLocation();
+  
+  // Pages where header should be hidden
+  const hideHeaderRoutes = ['/login', '/register', '/verify-email', '/forgot-password', '/profile'];
+  
+  // Check if current route should hide header
+  const shouldHideHeader = hideHeaderRoutes.includes(location.pathname);
+  
+  return !shouldHideHeader ? <Header /> : null;
+}
 
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        <Fragment>
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <ConditionalHeader />
+          <Fragment>
+            <Routes>
+              {/* Homepage */}
+              <Route path="/" element={
+                <>
+                  <Banner />
+                  <Features />
+                  <NaturePlant />
+                  <Services />
+                  <Counter />
+                  <Project />
+                  <Team />
+                  <Feedback />
+                  <Partner />
+                  <Blog />
+                  <Newsletter />
+                  <Footer />
+                </>
+              } />
 
-        <Routes>
-          {/* Homepage */}
-          <Route path="/" element={
-            <>
-              <Header />
-              <Banner />
-              <Features />
-              <NaturePlant />
-              <Services />
-              <Counter />
-              <Project />
-              <Team />
-              <Feedback />
-              <Partner />
-              <Blog />
-              <Newsletter />
-              <Footer />
-
-              {/* Scroll To Top */}
-              <a href="#" className="scrollToTop">
-                <i className="fa-solid fa-arrow-up-long"></i>
-                <span className="pluse_1"></span>
-                <span className="pluse_2"></span>
-              </a>
-            </>
-          } />
-
-          {/* Individual Pages */}
-          <Route path="/about" element={<About />} />
-          <Route path="/service" element={<ServicesPage />} />
-          <Route path="/team" element={<TeamPage />} />
-          <Route path="/project" element={<ProjectPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/shop" element={<Shop />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/product-details/:id" element={<ProductDetails />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/order" element={<Order />} />
-          <Route path="/order-tracking" element={<OrderTracking />} />
-        </Routes>
+            {/* Individual Pages */}
+            <Route path="/about" element={<About />} />
+            <Route path="/service" element={<ServicesPage />} />
+            <Route path="/team" element={<TeamPage />} />
+            <Route path="/project" element={<ProjectPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/product-details/:id" element={<ProductDetails />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-tracking" element={<OrderTracking />} />
+          </Routes>
+          
+          {/* Toast Container for notifications */}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
         </Fragment>
-      </Router>
-    </CartProvider>
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

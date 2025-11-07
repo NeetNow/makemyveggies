@@ -17,7 +17,11 @@ $db = new Database();
 $conn = $db->getConnection();
 if (!$conn) {
   http_response_code(500);
+<<<<<<< HEAD
+  echo json_encode(['status' => 'error', 'message' => 'Database connection failed. Check DB credentials.']);
+=======
   echo json_encode(['success' => false, 'message' => 'Database connection failed. Check DB credentials.']);
+>>>>>>> origin/feature/shp_back
   exit();
 }
 
@@ -46,7 +50,15 @@ $sql = "
     COALESCE(
       (SELECT pi.image_url FROM product_images pi WHERE pi.product_id = p.product_id AND pi.is_primary = 1 ORDER BY pi.image_id DESC LIMIT 1),
       (SELECT pi2.image_url FROM product_images pi2 WHERE pi2.product_id = p.product_id ORDER BY pi2.image_id ASC LIMIT 1)
+<<<<<<< HEAD
+    ) AS image_url,
+    COALESCE(
+      (SELECT ROUND(AVG(r.rating), 1) FROM reviews r WHERE r.product_id = p.product_id),
+      0
+    ) AS avg_rating
+=======
     ) AS image_url
+>>>>>>> origin/feature/shp_back
   FROM products p
   LEFT JOIN categories c ON c.category_id = p.category_id
   $whereSql
@@ -80,13 +92,25 @@ try {
       'stock' => (int)$row['stock'],
       'sku' => $row['sku'],
       'status' => (int)$row['status'],
+<<<<<<< HEAD
+      'rating' => (float)$row['avg_rating'],
+=======
       'rating' => 4.5,
+>>>>>>> origin/feature/shp_back
       'discount' => max(0, (int)round(($originalPrice - $price) / ($originalPrice ?: 1) * 100))
     ];
   }, $rows);
 
+<<<<<<< HEAD
+  echo json_encode(['status' => 'success', 'data' => $products]);
+} catch (Exception $e) {
+  http_response_code(500);
+  echo json_encode(['status' => 'error', 'message' => 'Query failed: ' . $e->getMessage()]);
+}
+=======
   echo json_encode(['success' => true, 'data' => $products]);
 } catch (Exception $e) {
   http_response_code(500);
   echo json_encode(['success' => false, 'message' => 'Query failed: ' . $e->getMessage()]);
 }
+>>>>>>> origin/feature/shp_back
