@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const response = await fetch('/backend/api/check_auth.php', {
+        const response = await fetch('https://dev.makemyveggies.com/backend/api/check_auth.php', {
           method: 'GET',
           credentials: 'include', // Include cookies
           headers: {
