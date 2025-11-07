@@ -7,7 +7,7 @@ import { Fragment } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
 // Homepage Components
@@ -48,12 +48,16 @@ import OrderTracking from './pages/OrderTracking';
 // Component to conditionally render header
 function ConditionalHeader() {
   const location = useLocation();
+  const { loading } = useAuth();
   
   // Pages where header should be hidden
   const hideHeaderRoutes = ['/login', '/register', '/verify-email', '/forgot-password', '/profile'];
   
   // Check if current route should hide header
   const shouldHideHeader = hideHeaderRoutes.includes(location.pathname);
+  
+  // Don't render header while auth is loading
+  if (loading) return null;
   
   return !shouldHideHeader ? <Header /> : null;
 }
