@@ -1,84 +1,170 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
+import Footer from '../components/Footer';
 
 const ProductDetails = () => {
   const { id } = useParams();
-  const { addToCart } = useCart();
-
-  // Sample product data - in a real app this would come from an API or context
-  const [product] = useState({
-    id: parseInt(id) || 1,
-    name: 'Garden Rose Plant',
-    price: 25.99,
-    originalPrice: 35.99,
-    image: 'https://via.placeholder.com/400x400/4CAF50/ffffff?text=Rose+Plant',
-    images: [
-      'https://via.placeholder.com/400x400/4CAF50/ffffff?text=Rose+Plant',
-      'https://via.placeholder.com/400x400/2196F3/ffffff?text=Plant+View+2',
-      'https://via.placeholder.com/400x400/FF9800/ffffff?text=Plant+View+3'
-    ],
-    category: 'plants',
-    rating: 4.5,
-    reviews: 28,
-    inStock: true,
-    stockCount: 15,
-    description: 'Beautiful garden rose plant perfect for your garden. This premium rose variety produces stunning blooms throughout the season and is easy to care for. Ideal for borders, containers, or as a specimen plant.',
-    features: [
-      'Premium rose variety with stunning blooms',
-      'Easy to care for and maintain',
-      'Perfect for borders and containers',
-      'Disease resistant',
-      'Long blooming season'
-    ],
-    specifications: {
-      'Plant Height': '2-3 feet',
-      'Bloom Time': 'Spring to Fall',
-      'Sun Requirements': 'Full Sun',
-      'Water Needs': 'Moderate',
-      'USDA Hardiness Zone': '5-9'
-    }
-  });
+  const { addToCart: cartAddToCart } = useCart();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedTab, setSelectedTab] = useState('description');
 
+  // Fetch product data from API
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/backend/api/get_product.php?id=${id}`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+
+        if (data.status !== 'success') {
+          throw new Error(data.message || 'Failed to fetch product');
+        }
+
+        // Map API response to component state
+        const productData = {
+          id: data.product.id,
+          name: data.product.title,
+          price: data.product.price,
+          originalPrice: data.product.price * 1.2, // Calculate original price
+          image: data.product.primaryImage || 'https://via.placeholder.com/400x400/4CAF50/ffffff?text=Product',
+          images: [
+            data.product.primaryImage || 'https://via.placeholder.com/400x400/4CAF50/ffffff?text=Product',
+            'https://via.placeholder.com/400x400/2196F3/ffffff?text=Product+View+2',
+            'https://via.placeholder.com/400x400/FF9800/ffffff?text=Product+View+3'
+          ],
+          category: data.product.categoryName || 'others',
+          rating: data.product.rating,
+          reviews: data.product.reviews,
+          inStock: data.product.inStock,
+          stockCount: data.product.stock,
+          description: data.product.description,
+          features: data.product.keyFeatures ? data.product.keyFeatures.split(',') : [],
+          specifications: {
+            'Stock Available': data.product.stock,
+            'SKU': data.product.sku,
+            'Category': data.product.categoryName
+          }
+        };
+
+        setProduct(productData);
+        setError(null);
+      } catch (err) {
+        console.error('❌ Product fetch error:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProduct();
+    }
+  }, [id]);
+
   const updateQuantity = (newQuantity) => {
-    if (newQuantity >= 1 && newQuantity <= product.stockCount) {
+    if (newQuantity >= 1 && newQuantity <= (product?.stockCount || 1)) {
       setQuantity(newQuantity);
     }
   };
 
-  const handleAddToCart = () => {
-    const productForCart = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.images?.[0] || product.image,
-      description: product.description,
-    };
-    addToCart(productForCart, quantity);
+  const addToCart = async () => {
+    if (product) {
+      await cartAddToCart({
+        id: product.id,
+        product_id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image
+      }, quantity);
+      alert(`Added ${quantity} x ${product.name} to cart!`);
+    }
   };
+
+  if (loading) {
+    return (
+      <>
+        <main>
+          <div className="container padding-block">
+            <div className="row">
+              <div className="col-12">
+                <p>Loading product details...</p>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <main>
+          <div className="container padding-block">
+            <div className="row">
+              <div className="col-12">
+                <p>Error loading product: {error}</p>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!product) {
+    return (
+      <>
+        <main>
+          <div className="container padding-block">
+            <div className="row">
+              <div className="col-12">
+                <p>Product not found</p>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
-      <Header />
       <main>
         {/* Page Header */}
-        <section className="pageheader overflow-hidden">
+        <section className="pageheader padding-block">
           <div className="container">
-            <div className="pageheader__content">
-              <h2>{product.name}</h2>
-              <nav aria-label="breadcrumb">
-                <ul className="breadcrumb">
-                  <li><Link to="/">Home</Link></li>
-                  <li><Link to="/shop">Shop</Link></li>
-                  <li className="active" aria-current="page">{product.name}</li>
-                </ul>
-              </nav>
+            <div className="row">
+              <div className="col-12">
+                <div className="section__header">
+                  <ul className="breadcum">
+                    <li><Link to="/">Home</Link></li>
+                    <li><Link to="/shop">Shop</Link></li>
+                    <li>{product.name}</li>
+                  </ul>
+                  <h2>{product.name}</h2>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -126,7 +212,7 @@ const ProductDetails = () => {
                       ))}
                     </div>
                     <span className="rating-text">
-                      {product.rating} ({product.reviews} reviews)
+                      {product.rating > 0 ? `${product.rating} (${product.reviews} reviews)` : 'No ratings yet'}
                     </span>
                   </div>
 
@@ -182,7 +268,7 @@ const ProductDetails = () => {
                       </div>
 
                       <button
-                        onClick={handleAddToCart}
+                        onClick={addToCart}
                         className="add-to-cart-btn"
                       >
                         Add to Cart - ${(product.price * quantity).toFixed(2)}
@@ -207,10 +293,10 @@ const ProductDetails = () => {
                     <div className="meta-item">
                       <span>Share:</span>
                       <div className="social-links">
-                        <a href="#"><i className="fa-brands fa-facebook-f"></i></a>
-                        <a href="#"><i className="fa-brands fa-twitter"></i></a>
-                        <a href="#"><i className="fa-brands fa-instagram"></i></a>
-                        <a href="#"><i className="fa-brands fa-pinterest"></i></a>
+                        <button type="button"><i className="fa-brands fa-facebook-f"></i></button>
+                        <button type="button"><i className="fa-brands fa-twitter"></i></button>
+                        <button type="button"><i className="fa-brands fa-instagram"></i></button>
+                        <button type="button"><i className="fa-brands fa-pinterest"></i></button>
                       </div>
                     </div>
                   </div>
@@ -297,7 +383,7 @@ const ProductDetails = () => {
                                   ></i>
                                 ))}
                               </div>
-                              <span className="review-count">Based on {product.reviews} reviews</span>
+                              <span className="review-count">Based on {product.reviews} {product.reviews === 1 ? 'review' : 'reviews'}</span>
                             </div>
                           </div>
 
@@ -316,7 +402,11 @@ const ProductDetails = () => {
                                 <label>Your Review:</label>
                                 <textarea rows="4" placeholder="Share your thoughts about this product..."></textarea>
                               </div>
-                              <button type="submit" className="submit-review-btn">
+                              <button
+                                type="submit"
+                                className="submit-review-btn"
+                                disabled={!product || product.rating === 0}
+                              >
                                 Submit Review
                               </button>
                             </form>

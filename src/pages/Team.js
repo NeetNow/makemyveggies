@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const TeamPage = () => {
   return (
     <>
-      <Header />
       <main>
         <section className="pageheader padding-block">
           <div className="container">
@@ -42,10 +40,10 @@ const TeamPage = () => {
                             <i className="fa-sharp fa-regular fa-share-nodes"></i>
                           </div>
                           <ul>
-                            <li><a href="#"><i className="fa-sharp fa-regular fa-basketball"></i></a></li>
-                            <li><a href="#"><i className="fa-brands fa-instagram"></i></a></li>
-                            <li><a href="#"><i className="fa-brands fa-linkedin-in"></i></a></li>
-                            <li><a href="#"><i className="fa-brands fa-facebook-f"></i></a></li>
+                            <li><button type="button"><i className="fa-sharp fa-regular fa-basketball"></i></button></li>
+                            <li><button type="button"><i className="fa-brands fa-instagram"></i></button></li>
+                            <li><button type="button"><i className="fa-brands fa-linkedin-in"></i></button></li>
+                            <li><button type="button"><i className="fa-brands fa-facebook-f"></i></button></li>
                           </ul>
                         </div>
                       </div>

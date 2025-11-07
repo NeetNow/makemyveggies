@@ -4,8 +4,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
-require_once '../config/database.php';
-require_once '../utils/email_production.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../utils/email_production.php';
 
 setCorsHeaders();
 
@@ -87,8 +87,8 @@ try {
     $cleanup_stmt->execute([$email]);
     error_log("Cleaned up old OTPs for " . $email . ": Success");
     
-    // Store new OTP in database
-    $otp_query = "INSERT INTO otp_verification (email, otp_code, purpose, expires_at) VALUES (?, ?, 'registration', ?)";
+    // Store new OTP in database - matching exact schema
+    $otp_query = "INSERT INTO otp_verification (email, otp_code, purpose, expires_at, is_used, created_at) VALUES (?, ?, 'registration', ?, 0, CURRENT_TIMESTAMP)";
     $otp_stmt = $db->prepare($otp_query);
     if (!$otp_stmt->execute([$email, $otp_code, $expires_at])) {
         error_log("Failed to store new OTP in database for: " . $email);
@@ -106,7 +106,8 @@ try {
         error_log("Successfully sent OTP email to: " . $email);
         sendResponse(true, 'New OTP sent to your email successfully.', [
             'email' => $email,
-            'otp_expires_in' => 600 // 10 minutes in seconds
+            'otp_expires_in' => 600, // 10 minutes in seconds
+            'message' => 'A new 6-digit verification code has been sent to your email address.'
         ]);
     } else {
         error_log("Failed to send OTP email to: " . $email . " but OTP is stored in database");

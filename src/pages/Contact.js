@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Contact = () => {
   return (
     <>
-      <Header />
       <main>
         <section className="pageheader padding-block">
           <div className="container">

@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const BlogPage = () => {
   return (
     <>
-      <Header />
       <main>
         <section className="pageheader padding-block">
           <div className="container">
@@ -42,9 +40,9 @@ const BlogPage = () => {
                         <div className="text">
                           <h6><Link to="/blog-single">Blog Post Title {post}</Link></h6>
                           <ul>
-                            <li><a href="#"><i className="fa-solid fa-user"></i>Admin</a></li>
-                            <li><a href="#"><i className="fa-regular fa-eye"></i>25</a></li>
-                            <li><a href="#"><i className="fa-solid fa-message"></i>11 Comment</a></li>
+                            <li><button type="button"><i className="fa-solid fa-user"></i>Admin</button></li>
+                            <li><button type="button"><i className="fa-regular fa-eye"></i>25</button></li>
+                            <li><button type="button"><i className="fa-solid fa-message"></i>11 Comment</button></li>
                           </ul>
                           <p>Gardening tips and techniques for better results in your garden.</p>
                         </div>

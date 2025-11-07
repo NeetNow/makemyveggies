@@ -2,6 +2,11 @@
 // Production Email Service with fallback support
 require_once __DIR__ . '/email_fallback.php';
 
+// Load environment variables
+require_once __DIR__ . '/../vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
+
 // Check if PHPMailer is available
 $phpmailer_path = __DIR__ . '/../vendor/phpmailer/phpmailer/src/';
 $phpmailer_available = file_exists($phpmailer_path . 'PHPMailer.php') && 
@@ -15,17 +20,26 @@ if ($phpmailer_available) {
 }
 
 class ProductionEmailService {
-    private $smtp_host = "smtp.gmail.com";
-    private $smtp_port = 587;
-    private $smtp_username = "nikhil.bava@makemyveggies.com";
-    private $smtp_password = "ivqt kxab vcjq wxcs"; // App password
-    private $from_email = "nikhil.bava@makemyveggies.com";
-    private $from_name = "MakeMyVeggies";
+    private $smtp_host;
+    private $smtp_port;
+    private $smtp_username;
+    private $smtp_password;
+    private $from_email;
+    private $from_name;
     private $debug_mode = false;
     private $use_phpmailer = false;
 
     public function __construct($debug = false) {
         global $phpmailer_available;
+        
+        // Load from environment variables
+        $this->smtp_host = $_ENV['EMAIL_HOST'] ?? "smtp.gmail.com";
+        $this->smtp_port = $_ENV['EMAIL_PORT'] ?? 587;
+        $this->smtp_username = $_ENV['EMAIL_USERNAME'] ?? "";
+        $this->smtp_password = $_ENV['EMAIL_PASSWORD'] ?? "";
+        $this->from_email = $_ENV['EMAIL_USERNAME'] ?? "";
+        $this->from_name = $_ENV['EMAIL_FROM_NAME'] ?? "MakeMyVeggies";
+        
         $this->debug_mode = $debug;
         $this->use_phpmailer = $phpmailer_available;
         

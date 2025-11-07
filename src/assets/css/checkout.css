@@ -1,0 +1,196 @@
+.order-confirmation {
+  padding: 2rem 0;
+}
+
+.confirmation-header {
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.confirmation-header h2 {
+  color: #28a745;
+}
+
+.confirmation-details {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.confirmation-details h4 {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.checkoutpage__billingdetails,
+.checkoutpage__paymentmethod,
+.checkoutpage__order {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  margin-bottom: 1.5rem;
+}
+
+.checkoutpage__billingdetails h4,
+.checkoutpage__paymentmethod h4,
+.checkoutpage__order h4 {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.form-check-input {
+  margin-right: 0.5rem;
+}
+
+.payment-options {
+  margin-bottom: 1rem;
+}
+
+.credit-card-form {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  margin-top: 1rem;
+}
+
+.order-table .table {
+  margin-bottom: 0;
+}
+
+.order-table .table th,
+.order-table .table td {
+  border-top: 1px solid #dee2e6;
+  padding: 0.75rem;
+}
+
+.order-table .table thead th {
+  border-top: none;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.order-table .table .total td {
+  font-weight: bold;
+  border-top: 2px solid #dee2e6;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-cart p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.place-order {
+  text-align: center;
+}
+
+.checkoutpage .custom-btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.checkoutpage .custom-btn:hover {
+  background-color: #0056b3;
+  color: white;
+  text-decoration: none;
+}
+
+.checkoutpage .custom-btn.btn-outline {
+  background-color: transparent;
+  border: 1px solid #007bff;
+  color: #007bff;
+}
+
+.checkoutpage .custom-btn.btn-outline:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.checkoutpage .breadcrumb {
+  background-color: transparent;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.checkoutpage .breadcrumb li {
+  display: inline-block;
+}
+
+.checkoutpage .breadcrumb li:not(:last-child)::after {
+  content: ">";
+  margin: 0 0.5rem;
+  color: #6c757d;
+}
+
+.checkoutpage .breadcrumb li a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.checkoutpage .breadcrumb li a:hover {
+  text-decoration: underline;
+}
+
+.checkoutpage .breadcrumb li.active {
+  color: #6c757d;
+}
+
+@media (max-width: 768px) {
+  .confirmation-details,
+  .checkoutpage__billingdetails,
+  .checkoutpage__paymentmethod,
+  .checkoutpage__order {
+    padding: 1rem;
+  }
+  
+  .confirmation-header {
+    padding: 1rem;
+  }
+}

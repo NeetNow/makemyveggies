@@ -4,8 +4,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
-require_once '../config/database.php';
-require_once '../utils/email_production.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../utils/email_production.php';
 
 setCorsHeaders();
 
@@ -112,10 +112,10 @@ try {
         $update_otp_stmt->bindParam(':otp_id', $otp_data['otp_id']);
         $update_otp_stmt->execute();
         
-        // Update user verification status (email_verified=1 and is_active=1)
+        // Update user verification status (email_verified=1 and is_active=1) with updated_at timestamp
         error_log("Updating user verification status for email: " . $email);
         
-        $update_user_query = "UPDATE users SET email_verified = 1, is_active = 1 WHERE user_id = :user_id";
+        $update_user_query = "UPDATE users SET email_verified = 1, is_active = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = :user_id";
         $update_user_stmt = $db->prepare($update_user_query);
         $update_user_stmt->bindParam(':user_id', $user_info['user_id']);
         
@@ -149,9 +149,18 @@ try {
         }
         
         // Registration completed successfully
-        sendResponse(true, 'Registration completed successfully! Welcome to MakeMyVeggies.', [
-            'user' => $updated_user_info,
-            'message' => 'Your email has been verified and your account is now active.'
+        sendResponse(true, 'Email verification successful! Your account is now active.', [
+            'user' => [
+                'user_id' => $updated_user_info['user_id'],
+                'first_name' => $updated_user_info['first_name'],
+                'last_name' => $updated_user_info['last_name'],
+                'email' => $updated_user_info['email'],
+                'phone' => $updated_user_info['phone'],
+                'email_verified' => $updated_user_info['email_verified'],
+                'is_active' => $updated_user_info['is_active']
+            ],
+            'message' => 'Your email has been verified and your account is now active. You can now login.',
+            'redirect' => '/login'
         ]);
         
     } catch (Exception $e) {

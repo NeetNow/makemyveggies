@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import NaturePlant from '../components/NaturePlant';
 import Features from '../components/Features';
@@ -13,7 +12,6 @@ import Newsletter from '../components/Newsletter';
 const About = () => {
   return (
     <>
-      <Header />
       <main>
         {/* Page Header */}
         <section className="pageheader overflow-hidden">

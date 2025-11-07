@@ -15,10 +15,10 @@ const Footer = () => {
                   <div className="allsocialicon">
                     <h6>follow us</h6>
                     <ul>
-                      <li><a href="#"><i className="fa-brands fa-facebook-f"></i></a></li>
-                      <li><a href="#"><i className="fa-sharp fa-regular fa-basketball"></i></a></li>
-                      <li><a href="#"><i className="fa-brands fa-linkedin-in"></i></a></li>
-                      <li><a href="#"><i className="fa-brands fa-instagram"></i></a></li>
+                      <li><button type="button"><i className="fa-brands fa-facebook-f"></i></button></li>
+                      <li><button type="button"><i className="fa-sharp fa-regular fa-basketball"></i></button></li>
+                      <li><button type="button"><i className="fa-brands fa-linkedin-in"></i></button></li>
+                      <li><button type="button"><i className="fa-brands fa-instagram"></i></button></li>
                     </ul>
                   </div>
                 </div>
@@ -66,7 +66,7 @@ const Footer = () => {
                 <h6>photo gallery</h6>
                 <div className="allphoto">
                   <div className="item imghover">
-                    <a href="#"><img src="/assets/img/home-1/footer/gallery/img1.jpg" alt="bakul" /></a>
+                    <button type="button"><img src="/assets/img/home-1/footer/gallery/img1.jpg" alt="bakul" /></button>
                     <div className="inneritem go-up">
                       <div className="upitem search">
                         <a href="/assets/img/home-1/footer/gallery/img1.jpg" data-rel="lightcase:myCollection">
@@ -76,7 +76,7 @@ const Footer = () => {
                     </div>
                   </div>
                   <div className="item imghover">
-                    <a href="#"><img src="/assets/img/home-1/footer/gallery/img2.jpg" alt="bakul" /></a>
+                    <button type="button"><img src="/assets/img/home-1/footer/gallery/img2.jpg" alt="bakul" /></button>
                     <div className="inneritem go-up">
                       <div className="upitem search">
                         <a href="/assets/img/home-1/footer/gallery/img2.jpg" data-rel="lightcase:myCollection">
@@ -86,7 +86,7 @@ const Footer = () => {
                     </div>
                   </div>
                   <div className="item imghover">
-                    <a href="#"><img src="/assets/img/home-1/footer/gallery/img3.jpg" alt="bakul" /></a>
+                    <button type="button"><img src="/assets/img/home-1/footer/gallery/img3.jpg" alt="bakul" /></button>
                     <div className="inneritem go-up">
                       <div className="upitem search">
                         <a href="/assets/img/home-1/footer/gallery/img3.jpg" data-rel="lightcase:myCollection">
@@ -96,7 +96,7 @@ const Footer = () => {
                     </div>
                   </div>
                   <div className="item imghover">
-                    <a href="#"><img src="/assets/img/home-1/footer/gallery/img4.jpg" alt="bakul" /></a>
+                    <button type="button"><img src="/assets/img/home-1/footer/gallery/img4.jpg" alt="bakul" /></button>
                     <div className="inneritem go-up">
                       <div className="upitem search">
                         <a href="/assets/img/home-1/footer/gallery/img4.jpg" data-rel="lightcase:myCollection">
@@ -106,7 +106,7 @@ const Footer = () => {
                     </div>
                   </div>
                   <div className="item imghover">
-                    <a href="#"><img src="/assets/img/home-1/footer/gallery/img5.jpg" alt="bakul" /></a>
+                    <button type="button"><img src="/assets/img/home-1/footer/gallery/img5.jpg" alt="bakul" /></button>
                     <div className="inneritem go-up">
                       <div className="upitem search">
                         <a href="/assets/img/home-1/footer/gallery/img5.jpg" data-rel="lightcase:myCollection">
@@ -116,7 +116,7 @@ const Footer = () => {
                     </div>
                   </div>
                   <div className="item imghover">
-                    <a href="#"><img src="/assets/img/home-1/footer/gallery/img6.jpg" alt="bakul" /></a>
+                    <button type="button"><img src="/assets/img/home-1/footer/gallery/img6.jpg" alt="bakul" /></button>
                     <div className="inneritem go-up">
                       <div className="upitem search">
                         <a href="/assets/img/home-1/footer/gallery/img6.jpg" data-rel="lightcase:myCollection">

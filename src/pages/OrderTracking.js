@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../assets/css/style.css'; // Import original CSS
 import '../assets/css/order.css'; // Import order page CSS
@@ -106,25 +105,6 @@ const OrderTracking = () => {
     }, 1500);
   };
 
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 'order-placed':
-        return 'status-placed';
-      case 'processing':
-        return 'status-processing';
-      case 'shipped':
-        return 'status-shipped';
-      case 'in-transit':
-        return 'status-transit';
-      case 'out-for-delivery':
-        return 'status-out';
-      case 'delivered':
-        return 'status-delivered';
-      default:
-        return '';
-    }
-  };
-
   const getStatusText = (status) => {
     switch (status) {
       case 'order-placed':
@@ -146,7 +126,6 @@ const OrderTracking = () => {
 
   return (
     <>
-      <Header />
       <main>
         {/* Page Header */}
         <section className="pageheader overflow-hidden">
@@ -193,6 +172,9 @@ const OrderTracking = () => {
                     >
                       {isLoading ? 'Tracking...' : 'Track Order'}
                     </button>
+                    <div className="text-center mt-4">
+                      <Link to="/shop" className="custom-btn btn-outline">Continue Shopping</Link>
+                    </div>
                   </form>
 
                   {orderStatus && (
