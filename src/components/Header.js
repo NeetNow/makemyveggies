@@ -28,7 +28,7 @@ const Header = () => {
                     <i className="fa-solid fa-square-phone"></i>
                   </div>
                   <div className="text">
-                    <p>+041-982-3648</p>
+                    <p>77980-40848</p>
                   </div>
                 </li>
                 <li>
@@ -36,7 +36,7 @@ const Header = () => {
                     <i className="fa-sharp fa-regular fa-envelope-open"></i>
                   </div>
                   <div className="text">
-                    <p>+info@gmail.com</p>
+                    <p>sales@makemyveggies.com</p>
                   </div>
                 </li>
                 <li>
@@ -44,7 +44,7 @@ const Header = () => {
                     <i className="fa-sharp fa-solid fa-location-dot"></i>
                   </div>
                   <div className="text">
-                    <p>22 Vokte Street Building Melborn City</p>
+                    // <p>22 Vokte Street Building Melborn City</p>
                   </div>
                 </li>
               </ul>
