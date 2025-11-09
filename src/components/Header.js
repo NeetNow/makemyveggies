@@ -44,7 +44,7 @@ const Header = () => {
                     <i className="fa-sharp fa-solid fa-location-dot"></i>
                   </div>
                   <div className="text">
-                    // <p>22 Vokte Street Building Melborn City</p>
+                    <p>22 Vokte Street Building Melborn City</p>
                   </div>
                 </li>
               </ul>
