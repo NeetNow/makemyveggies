@@ -77,13 +77,11 @@ const Header = () => {
                         <Link to="/">Home</Link>
                         <ul>
                           <li><Link to="/" className="active">home-1</Link></li>
-                          <li><Link to="/">home-2</Link></li>
-                          <li><Link to="/">home-3</Link> </li>
                         </ul>
                       </li>
                       <li><Link to="/about">About</Link></li>
                       <li>
-                        <a href="#0">Pages</a>
+                        <a href="#0">DIY Kits</a>
                         <ul>
                           <li>
                             <a href="#0">portfolio</a>
@@ -113,7 +111,7 @@ const Header = () => {
                         </ul>
                       </li>
                       <li>
-                        <a href="#0">shop</a>
+                        <a href="#0">Supplements</a>
                         <ul>
                           <li><Link to="/cart">Cart</Link></li>
                           <li><Link to="/shop">Shop</Link></li>
@@ -184,7 +182,7 @@ const Header = () => {
                     <Link to="/profile" className="custom-btn">Profile</Link>
                   ) : (
                     <div className="auth-buttons">
-                      <Link to="/login" className="custom-btn login-btn">Login/Register</Link>
+                      <Link to="/login" className="custom-btn login-btn">Login</Link>
                     </div>
                   )}
                 </div>
