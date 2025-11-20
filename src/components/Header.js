@@ -39,14 +39,7 @@ const Header = () => {
                     <p>sales@makemyveggies.com</p>
                   </div>
                 </li>
-                <li>
-                  <div className="icon">
-                    <i className="fa-sharp fa-solid fa-location-dot"></i>
-                  </div>
-                  <div className="text">
-                    <p>22 Vokte Street Building Melborn City</p>
-                  </div>
-                </li>
+                
               </ul>
             </div>
             <div className="right">
