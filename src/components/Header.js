@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import '../assets/css/auth.css';
+import { ShoppingCart } from "lucide-react";
+
 
 const Header = () => {
   const { currentUser } = useAuth();
@@ -14,6 +16,7 @@ const Header = () => {
 
   // Calculate total cart items
   const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const hasItems = !loading && totalCartItems > 0;
 
   return (
     <div className="header">
@@ -77,6 +80,8 @@ const Header = () => {
                         <Link to="/">Home</Link>
                         <ul>
                           <li><Link to="/" className="active">home-1</Link></li>
+                          <li><Link to="/">home-2</Link></li>
+                          <li><Link to="/">home-3</Link> </li>
                         </ul>
                       </li>
                       <li><Link to="/about">About</Link></li>
@@ -111,7 +116,7 @@ const Header = () => {
                         </ul>
                       </li>
                       <li>
-                        <a href="#0">Supplements</a>
+                        <a href="#0">Suppliments</a>
                         <ul>
                           <li><Link to="/cart">Cart</Link></li>
                           <li><Link to="/shop">Shop</Link></li>
@@ -130,51 +135,71 @@ const Header = () => {
                   </div>
                 </div>
 
-                <div className="header__cart">
+                <div
+                  className="header__cart"
+                  onMouseEnter={() => {
+                    if (hasItems) {
+                      setIsCartOpen(true);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (hasItems) {
+                      setIsCartOpen(false);
+                    }
+                  }}
+                >
                   <div className="carticon">
-                    <button type="button" onClick={() => setIsCartOpen(!isCartOpen)}>
-                      <i className="fa-light fa-basket-shopping"></i>
-                      {!loading && totalCartItems > 0 && (
-                        <span className="cart-count">{totalCartItems}</span>
-                      )}
-                    </button>
+                    <Link to="/cart">
+                      <button
+                        type="button"
+                      >
+                        <ShoppingCart size={24} strokeWidth={1.5} />
+
+                        {hasItems && (
+                          <span className="cart-count">{totalCartItems}</span>
+                        )}
+                      </button>
+                    </Link>
                   </div>
-                  <div className={`cart-details ${isCartOpen ? 'show' : ''}`}>
-                    <div className="close d-sm-none d-block" onClick={() => setIsCartOpen(false)}>
-                      <i className="fa-sharp fa-solid fa-square-xmark"></i>
-                    </div>
+
+                  {(loading || hasItems) && (
+                    <div className={`cart-details ${isCartOpen ? 'show' : ''}`}>
+                      <div className="close d-sm-none d-block" onClick={() => setIsCartOpen(false)}>
+                        <i className="fa-sharp fa-solid fa-square-xmark"></i>
+                      </div>
                     
-                    {loading ? (
-                      <div className="cart-loading">Loading cart...</div>
-                    ) : cartItems.length === 0 ? (
-                      <div className="cart-empty">Your cart is empty</div>
-                    ) : (
-                      <>
-                        {cartItems.map((item) => (
-                          <div className="item" key={item.cart_id}>
-                            <div className="thumb">
-                              <img src={item.image} alt={item.name} />
-                            </div>
-                            <div className="right">
-                              <div className="text">
-                                <h6><Link to={`/product-details/${item.product_id}`}>{item.name}</Link></h6>
-                                <p>${item.price.toFixed(2)}</p>
-                                <span>Qty: {item.quantity}</span>
+                      {loading ? (
+                        <div className="cart-loading">Loading cart...</div>
+                      ) : cartItems.length === 0 ? (
+                        <div className="cart-empty">Your cart is empty</div>
+                      ) : (
+                        <>
+                          {cartItems.map((item) => (
+                            <div className="item" key={item.cart_id}>
+                              <div className="thumb">
+                                <img src={item.image} alt={item.name} />
+                              </div>
+                              <div className="right">
+                                <div className="text">
+                                  <h6><Link to={`/product-details/${item.product_id}`}>{item.name}</Link></h6>
+                                  <p>${item.price.toFixed(2)}</p>
+                                  <span>Qty: {item.quantity}</span>
+                                </div>
                               </div>
                             </div>
+                          ))}
+                          <div className="total">
+                            <div className="subtotal">
+                              <p>Subtotal :<span> ${cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)}</span></p>
+                            </div>
+                            <div className="checkout">
+                              <Link to="/checkout">Checkout</Link>
+                            </div>
                           </div>
-                        ))}
-                        <div className="total">
-                          <div className="subtotal">
-                            <p>Subtotal :<span> ${cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)}</span></p>
-                          </div>
-                          <div className="checkout">
-                            <Link to="/checkout">Checkout</Link>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="header__bottombtn d-xl-block d-none">

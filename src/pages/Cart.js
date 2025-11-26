@@ -14,21 +14,19 @@ const Cart = () => {
     return (
       <>
         <main>
-          <section className="pageheader padding-block">
-            <div className="container">
-              <div className="row">
-                <div className="col-12">
-                  <div className="section__header">
-                    <ul className="breadcum">
-                      <li><Link to="/">Home</Link></li>
-                      <li>Cart</li>
-                    </ul>
-                    <h2>Shopping Cart</h2>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+          <section className="pageheader overflow-hidden">
+                    <div className="container">
+                      <div className="pageheader__content">
+                        <h2>Shopping Cart</h2>
+                        <nav aria-label="breadcrumb">
+                          <ul className="breadcum">
+                            <li><Link to="/">Home</Link></li>
+                            <li className="active" aria-current="page">Cart</li>
+                          </ul>
+                        </nav>
+                      </div>
+                    </div>
+                  </section>
 
           <section className="cart-empty padding-block">
             <div className="container">

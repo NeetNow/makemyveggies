@@ -6,21 +6,19 @@ const Contact = () => {
   return (
     <>
       <main>
-        <section className="pageheader padding-block">
-          <div className="container">
-            <div className="row">
-              <div className="col-12">
-                <div className="section__header">
-                  <ul className="breadcum">
-                    <li><Link to="/">Home</Link></li>
-                    <li>Contact</li>
-                  </ul>
-                  <h2>Contact Us</h2>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <section className="pageheader overflow-hidden">
+                  <div className="container">
+                    <div className="pageheader__content">
+                      <h2>Contact Make My Veggies</h2>
+                      <nav aria-label="breadcrumb">
+                        <ul className="breadcum">
+                          <li><Link to="/">Home</Link></li>
+                          <li className="active" aria-current="page">Contact</li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+                </section>
 
         <section className="contact padding-block">
           <div className="container">
@@ -61,7 +59,7 @@ const Contact = () => {
                     </div>
                     <div className="text">
                       <h6>Phone</h6>
-                      <p>+041-982-3648</p>
+                      <p>77980-40848</p>
                     </div>
                   </div>
                   <div className="contact__item">
@@ -70,7 +68,7 @@ const Contact = () => {
                     </div>
                     <div className="text">
                       <h6>Email</h6>
-                      <p>info@gmail.com</p>
+                      <p>sales@makemyveggies.com</p>
                     </div>
                   </div>
                   <div className="contact__item">
@@ -79,7 +77,7 @@ const Contact = () => {
                     </div>
                     <div className="text">
                       <h6>Address</h6>
-                      <p>22 Vokte Street Building Melborn City</p>
+                      <p>City</p>
                     </div>
                   </div>
                 </div>
