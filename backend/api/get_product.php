@@ -33,7 +33,7 @@ try {
         exit;
     }
 
-    // Fetch product with average rating
+    // Fetch product with average rating and active discount (if any)
     $sql = "
         SELECT 
             p.product_id,
@@ -54,7 +54,23 @@ try {
             COALESCE(
                 (SELECT COUNT(r.review_id) FROM reviews r WHERE r.product_id = p.product_id),
                 0
-            ) AS review_count
+            ) AS review_count,
+            (
+                SELECT d.dis_percent
+                FROM discounts d
+                WHERE d.product_id = p.product_id
+                  AND CURDATE() BETWEEN d.from_date AND d.to_date
+                ORDER BY d.from_date DESC
+                LIMIT 1
+            ) AS dis_percent,
+            (
+                SELECT d.dis_amount
+                FROM discounts d
+                WHERE d.product_id = p.product_id
+                  AND CURDATE() BETWEEN d.from_date AND d.to_date
+                ORDER BY d.from_date DESC
+                LIMIT 1
+            ) AS dis_amount
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.category_id
         LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
@@ -72,12 +88,31 @@ try {
         exit;
     }
 
+    // Compute discount-aware pricing using discounts table (same as get_products.php)
+    $basePrice = (float)$product['price'];
+    $disPercent = isset($product['dis_percent']) ? (float)$product['dis_percent'] : 0.0;
+    $disAmount  = isset($product['dis_amount'])  ? (float)$product['dis_amount']  : 0.0;
+
+    $hasDiscount = $disPercent > 0 && $disAmount > 0;
+
+    if ($hasDiscount) {
+        $price = $disAmount;
+        $originalPrice = $basePrice;
+        $discount = (int)round($disPercent);
+    } else {
+        $price = $basePrice;
+        $originalPrice = $basePrice;
+        $discount = 0;
+    }
+
     // Format product for frontend
     $formattedProduct = [
         'id' => (int)$product['product_id'],
         'title' => $product['title'],
         'description' => $product['description'],
-        'price' => (float)$product['price'],
+        'price' => $price,
+        'originalPrice' => $originalPrice,
+        'discount' => $discount,
         'keyFeatures' => $product['key_features'],
         'stock' => (int)$product['stock'],
         'sku' => $product['sku'],

@@ -41,7 +41,7 @@ try {
         exit;
     }
 
-    // Get cart items for the user
+    // Get cart items for the user, including active discount info (if any)
     $sql = "
         SELECT 
             c.cart_id,
@@ -50,12 +50,28 @@ try {
             c.added_at,
             c.updated_at,
             p.title as product_name,
-            p.price as product_price,
+            p.price as base_price,
             p.stock as product_stock,
             COALESCE(
                 (SELECT pi.image_url FROM product_images pi WHERE pi.product_id = p.product_id AND pi.is_primary = 1 ORDER BY pi.image_id DESC LIMIT 1),
                 (SELECT pi2.image_url FROM product_images pi2 WHERE pi2.product_id = p.product_id ORDER BY pi2.image_id ASC LIMIT 1)
-            ) AS product_image
+            ) AS product_image,
+            (
+                SELECT d.dis_percent
+                FROM discounts d
+                WHERE d.product_id = p.product_id
+                  AND CURDATE() BETWEEN d.from_date AND d.to_date
+                ORDER BY d.from_date DESC
+                LIMIT 1
+            ) AS dis_percent,
+            (
+                SELECT d.dis_amount
+                FROM discounts d
+                WHERE d.product_id = p.product_id
+                  AND CURDATE() BETWEEN d.from_date AND d.to_date
+                ORDER BY d.from_date DESC
+                LIMIT 1
+            ) AS dis_amount
         FROM cart c
         JOIN products p ON c.product_id = p.product_id
         WHERE c.user_id = ? AND p.status = 1
@@ -66,15 +82,24 @@ try {
     $stmt->execute([$userId]);
     $cartItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Format cart items for frontend
+    // Format cart items for frontend, using discounted price when applicable
     $formattedCartItems = [];
     foreach ($cartItems as $item) {
+        $basePrice = (float)$item['base_price'];
+        $disPercent = isset($item['dis_percent']) ? (float)$item['dis_percent'] : 0.0;
+        $disAmount  = isset($item['dis_amount'])  ? (float)$item['dis_amount']  : 0.0;
+
+        $hasDiscount = $disPercent > 0 && $disAmount > 0;
+
+        // Final unit price for cart: discounted if there is an active discount, otherwise base price
+        $finalPrice = $hasDiscount ? $disAmount : $basePrice;
+
         $formattedCartItems[] = [
             'cart_id' => (int)$item['cart_id'],
             'product_id' => (int)$item['product_id'],
             'quantity' => (int)$item['quantity'],
             'name' => $item['product_name'],
-            'price' => (float)$item['product_price'],
+            'price' => $finalPrice,
             'image' => $item['product_image'] ?: 'https://via.placeholder.com/80x80/eeeeee/888888?text=Product',
             'stock' => (int)$item['product_stock'],
             'added_at' => $item['added_at'],

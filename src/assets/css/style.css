@@ -3736,17 +3736,26 @@ select {
     font-size: 1.25rem;
 }
 
-.header__cart .carticon:after {
-    top: -15px;
-    left: 0;
-    width: 20px;
+.header__cart .carticon button {
+    position: relative;
+}
+
+.header__cart .carticon .cart-count {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    min-width: 20px;
     height: 20px;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
-    content: "3";
+    padding: 0 5px;
+    border-radius: 999px;
     background: #1E1E1E;
-    font-size: 14px;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .header__cart .cart-details {
@@ -7891,8 +7900,128 @@ select {
     margin-bottom: 0.625rem;
 }
 
+/* Contact page layout & form styling */
+.contact {
+    background: #ffffff;
+}
+
+.contact .contact__form,
+.contact .contact__info {
+    background: #ffffff;
+    border-radius: 8px;
+}
+
+.contact .contact__info {
+    background: #ffffff;
+    border-radius: 8px;
+}
+
+.contact .contact__form {
+    padding: 2rem 2.25rem;
+    background: #F8F5F0;
+    border: 1px solid #E2E0D8;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.contact .contact__form h3 {
+    margin-bottom: 1.5rem;
+}
+
+.contact .contact__info {
+    padding: 2rem 2.25rem;
+    border: 1px solid #F2F6F9;
+}
+
+.contact .contact__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #F2F6F9;
+}
+
+.contact .contact__item:last-child {
+    border-bottom: none;
+}
+
+.contact .contact__item .icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #F8F5F0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #31381A;
+    flex-shrink: 0;
+}
+
+.contact .contact__item .text h6 {
+    margin: 0 0 0.25rem;
+}
+
+.contact .contact__item .text p {
+    margin: 0;
+}
+
+.contact .contact__form input,
+.contact .contact__form textarea {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #D9E2EC;
+    background: #ffffff;
+    padding: 0.75rem 0.9rem;
+    font-size: 0.95rem;
+    color: #272727;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.contact .contact__form textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+.contact .contact__form input::placeholder,
+.contact .contact__form textarea::placeholder {
+    color: #97A6B5;
+}
+
+.contact .contact__form input:focus,
+.contact .contact__form textarea:focus {
+    border-color: #84A33C;
+    box-shadow: 0 0 0 2px rgba(132, 163, 60, 0.18);
+    background-color: #ffffff;
+}
+
+.contact .contact__form .custom-btn {
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 991.98px) {
+    .contact .contact__form,
+    .contact .contact__info {
+        padding: 1.5rem 1.25rem;
+    }
+}
+
 .map iframe {
     min-height: 600px;
+}
+
+/* Breadcrumb cleanup: remove default list bullets/dots for .breadcum */
+.breadcum {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.breadcum li {
+    list-style: none;
+}
+
+.breadcum li::before {
+    content: none !important;
 }
 
 /* Full width header fix - remove side spacing */
@@ -7992,4 +8121,19 @@ select {
     .header__top .container-xl {
         max-width: 100% !important;
     }
+}
+
+/* Final override: completely disable any pseudo-badge on the cart icon */
+.header__cart .carticon::after {
+    content: none !important;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    line-height: 0 !important;
 }

@@ -132,7 +132,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="footer__bottom">
-        <p><i className="fa-regular fa-copyright"></i> Make My Veggies is a brand developed by SAANVI CROP SCIENCE PVT. LTD., registered in India and operating since 2024</p>
+        <p><i className="fa-regular fa-copyright"></i> Copyright 2024. All Rights Reserved</p>
       </div>
     </section>
   );

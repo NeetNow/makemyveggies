@@ -37,12 +37,12 @@ const ProductDetails = () => {
           throw new Error(data.message || 'Failed to fetch product');
         }
 
-        // Map API response to component state
+        // Map API response to component state (use backend discount/originalPrice)
         const productData = {
           id: data.product.id,
           name: data.product.title,
-          price: data.product.price,
-          originalPrice: data.product.price * 1.2, // Calculate original price
+          price: data.product.price, // already discounted if applicable
+          originalPrice: data.product.originalPrice || data.product.price,
           image: data.product.primaryImage || 'https://via.placeholder.com/400x400/4CAF50/ffffff?text=Product',
           images: [
             data.product.primaryImage || 'https://via.placeholder.com/400x400/4CAF50/ffffff?text=Product',

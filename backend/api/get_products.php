@@ -85,7 +85,28 @@ try {
             p.sku,
             p.created_at,
             c.name as category_name,
-            pi.image_url as primary_image
+            pi.image_url as primary_image,
+            COALESCE(
+                (SELECT ROUND(AVG(r.rating), 1) FROM reviews r WHERE r.product_id = p.product_id),
+                0
+            ) AS avg_rating,
+            -- Active discount (if any) from discounts table
+            (
+                SELECT d.dis_percent
+                FROM discounts d
+                WHERE d.product_id = p.product_id
+                  AND CURDATE() BETWEEN d.from_date AND d.to_date
+                ORDER BY d.from_date DESC
+                LIMIT 1
+            ) AS dis_percent,
+            (
+                SELECT d.dis_amount
+                FROM discounts d
+                WHERE d.product_id = p.product_id
+                  AND CURDATE() BETWEEN d.from_date AND d.to_date
+                ORDER BY d.from_date DESC
+                LIMIT 1
+            ) AS dis_amount
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.category_id
         LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
@@ -115,11 +136,34 @@ try {
     // Format products for frontend
     $formattedProducts = [];
     foreach ($products as $product) {
+        // Base/original price always from products.price
+        $basePrice = (float)$product['price'];
+
+        // Read active discount values from discounts table (if any)
+        $disPercent = isset($product['dis_percent']) ? (float)$product['dis_percent'] : 0.0;
+        $disAmount  = isset($product['dis_amount'])  ? (float)$product['dis_amount']  : 0.0;
+
+        $hasDiscount = $disPercent > 0 && $disAmount > 0;
+
+        // When discounted: price = dis_amount, originalPrice = base price, discount% = dis_percent
+        if ($hasDiscount) {
+            $price = $disAmount;
+            $originalPrice = $basePrice;
+            $discount = (int)round($disPercent);
+        } else {
+            // No active discount: simple price, no discount
+            $price = $basePrice;
+            $originalPrice = $basePrice;
+            $discount = 0;
+        }
+
         $formattedProducts[] = [
             'id' => (int)$product['product_id'],
             'title' => $product['title'],
             'description' => $product['description'],
-            'price' => (float)$product['price'],
+            'price' => $price,
+            'originalPrice' => $originalPrice,
+            'discount' => $discount,
             // If 'key_features' is stored as JSON, you should decode it:
             // 'keyFeatures' => json_decode($product['key_features']),
             'keyFeatures' => $product['key_features'],
@@ -128,7 +172,8 @@ try {
             'categoryName' => $product['category_name'],
             'primaryImage' => $product['primary_image'] ?: '/images/placeholder-product.jpg',
             'createdAt' => $product['created_at'],
-            'inStock' => (int)$product['stock'] > 0
+            'inStock' => (int)$product['stock'] > 0,
+            'rating' => isset($product['avg_rating']) ? (float)$product['avg_rating'] : 0.0
         ];
     }
 

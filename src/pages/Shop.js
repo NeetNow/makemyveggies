@@ -38,57 +38,93 @@ const Shop = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/backend/api/products.php', {
+      const res = await fetch('/backend/api/get_products.php', {
         method: 'GET',
         credentials: 'include',
         headers: {
+          // Content-Type for GET is unnecessary, but harmless. You can remove if you prefer.
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (!res.ok) {
         throw new Error(`Server returned ${res.status}: ${res.statusText}`);
       }
-      
+
       const data = await res.json();
-      
+
+      console.log('💬 fetchProducts response:', data); // <--- helpful for debugging
+
       if (data.status !== 'success') {
         throw new Error(data.message || 'Failed to fetch products');
       }
-      
-      if (!data.data || data.data.length === 0) {
+
+      // Backend returns { status, products, pagination }
+      if (!data.products || data.products.length === 0) {
         setProducts([]);
         setFilteredProducts([]);
         setError('No products found in the database');
         return;
       }
-      
-      const mapped = data.data.map(p => ({
-        id: p.id,
-        name: p.name,
-        price: parseFloat(p.price),
-        originalPrice: parseFloat(p.originalPrice),
-        image: p.image || 'https://via.placeholder.com/300x300/eeeeee/888888?text=Product',
-        category: (p.category || 'others').toLowerCase(),
-        rating: p.rating || 0,
-        inStock: p.inStock === true,
-        discount: p.discount || 0,
-        brand: p.category || 'Unknown',
-        description: p.description,
-        stock: p.stock,
-        sku: p.sku
-      }));
-      
+
+      const mapped = data.products.map(p => {
+        // safe parsing with fallbacks
+        const rawPrice = Number(p.price);
+        const rawOriginalPrice = Number(p.originalPrice);
+        const rawDiscount = Number(p.discount);
+
+        const safePrice = Number.isFinite(rawPrice) ? rawPrice : 0;
+        // Prefer backend originalPrice if valid and greater than price; otherwise fall back to price
+        const backendOriginal = Number.isFinite(rawOriginalPrice) ? rawOriginalPrice : safePrice;
+        const safeOriginalPrice = backendOriginal > safePrice ? backendOriginal : safePrice;
+
+        // Normalize discount: use backend value if valid
+        let discount = Number.isFinite(rawDiscount) ? rawDiscount : 0;
+
+        // If discount is not positive, treat product as non-discounted
+        if (discount <= 0) {
+          discount = 0;
+        }
+
+        // normalize category & brand from backend fields
+        const category = (p.categoryName || 'others').toString().toLowerCase();
+        const brand = (p.brand || p.categoryName || 'Unknown').toString();
+
+        // rating comes from backend avg_rating (mapped to p.rating)
+        const ratingNum = Number(p.rating);
+        const rating = Number.isFinite(ratingNum) ? ratingNum : 0;
+
+        // inStock is already provided by get_products.php
+        const inStock = !!p.inStock;
+
+        return {
+          id: p.id,
+          name: p.title || p.name || 'Unnamed product',
+          price: safePrice,
+          // If no discount, keep originalPrice equal to price so UI shows simple price
+          originalPrice: discount > 0 ? safeOriginalPrice : safePrice,
+          image: p.primaryImage || p.image || 'https://via.placeholder.com/300x300/eeeeee/888888?text=Product',
+          category,
+          rating,
+          inStock,
+          discount,
+          brand,
+          description: p.description || '',
+          stock: p.stock ?? null,
+          sku: p.sku ?? null,
+        };
+      });
+
       setProducts(mapped);
       setFilteredProducts(mapped);
-      
+
       // Extract unique categories and brands from products
       const uniqueCategories = [...new Set(mapped.map(p => p.category))].filter(Boolean);
       const uniqueBrands = [...new Set(mapped.map(p => p.brand))].filter(Boolean);
-      
+
       setCategories(uniqueCategories);
       setBrands(uniqueBrands);
-      
+
       setError(null);
     } catch (e) {
       console.error('❌ Fetch error:', e);
@@ -99,6 +135,7 @@ const Shop = () => {
       setLoading(false);
     }
   }, []);
+
 
   useEffect(() => {
     fetchProducts();
@@ -251,18 +288,18 @@ const Shop = () => {
       <main>
         {/* Page Header */}
         <section className="pageheader overflow-hidden">
-          <div className="container">
-            <div className="pageheader__content">
-              <h2>Shop</h2>
-              <nav aria-label="breadcrumb">
-                <ul className="breadcrumb">
-                  <li><Link to="/">Home</Link></li>
-                  <li className="active" aria-current="page">Shop</li>
-                </ul>
-              </nav>
-            </div>
-          </div>
-        </section>
+                  <div className="container">
+                    <div className="pageheader__content">
+                      <h2>Shop</h2>
+                      <nav aria-label="breadcrumb">
+                        <ul className="breadcum">
+                          <li><Link to="/">Home</Link></li>
+                          <li className="active" aria-current="page">Shop</li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+                </section>
 
         {/* Shop Content */}
         <div className="container">

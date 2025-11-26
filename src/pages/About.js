@@ -19,7 +19,7 @@ const About = () => {
             <div className="pageheader__content">
               <h2>about our company</h2>
               <nav aria-label="breadcrumb">
-                <ul className="breadcrumb">
+                <ul className="breadcum">
                   <li><Link to="/">Home</Link></li>
                   <li className="active" aria-current="page">About us</li>
                 </ul>
