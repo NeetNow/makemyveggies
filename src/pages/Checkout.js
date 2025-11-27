@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useCart } from '../context/CartContext';
 import Footer from '../components/Footer';
 import '../assets/css/style.css';
@@ -8,52 +9,137 @@ import '../assets/css/checkout.css';
 
 const Checkout = () => {
   const { cartItems, clearCart, getCartTotal } = useCart();
-  
+
+  const [billingMode, setBillingMode] = useState('saved'); // 'saved' or 'new'
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
-    address: '',
+    addressLine1: '',
+    addressLine2: '',
     city: '',
     state: '',
-    zipCode: '',
+    postalCode: '',
     country: '',
-    paymentMethod: 'credit-card',
-    cardNumber: '',
-    cardName: '',
-    expiryDate: '',
-    cvv: '',
+    paymentMethod: 'COD',
     notes: ''
   });
-  
+
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [orderId, setOrderId] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
+  const [placingOrder, setPlacingOrder] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        const res = await fetch('/backend/api/get_addresses.php', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.success) {
+          setAddresses(data.data || []);
+          if (data.data && data.data.length > 0) {
+            setSelectedAddressId(data.data[0].address_id);
+            setBillingMode('saved');
+          } else {
+            setBillingMode('new');
+          }
+        } else {
+          setBillingMode('new');
+        }
+      } catch (err) {
+        setBillingMode('new');
+      }
+    };
+
+    fetchAddresses();
+  }, []);
+
   const subtotal = getCartTotal();
-  const shipping = subtotal > 0 && subtotal < 200 ? 15.00 : 0.00;
+  const shipping = subtotal > 0 && subtotal < 200 ? 15.0 : 0.0;
   const total = subtotal + shipping;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // In a real application, this would submit the order to the backend
-    // For now, we'll simulate a successful order placement
-    
-    // Generate a random order ID
-    const newOrderId = 'MMV-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 900000);
-    setOrderId(newOrderId);
-    setOrderPlaced(true);
-    
-    // Clear the cart after successful order
-    clearCart();
+    if (cartItems.length === 0) {
+      setError('Your cart is empty');
+      return;
+    }
+
+    setError('');
+    setPlacingOrder(true);
+
+    try {
+      const payload = {
+        paymentMethod: formData.paymentMethod === 'ONLINE' ? 'ONLINE' : 'COD',
+        billingMode,
+        address_id: billingMode === 'saved' ? selectedAddressId : null,
+        notes: formData.notes || null,
+        billing: {
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address_line1: formData.addressLine1,
+          address_line2: formData.addressLine2,
+          city: formData.city,
+          state: formData.state,
+          country: formData.country,
+          postal_code: formData.postalCode
+        }
+      };
+
+      const res = await fetch('/backend/api/place_order.php', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.message || 'Failed to place order');
+        setPlacingOrder(false);
+        return;
+      }
+
+      setOrderNumber(data.data.order_number);
+      setOrderPlaced(true);
+      await clearCart();
+
+      // Scroll to top so user sees the order confirmation section
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Show success toast using react-toastify
+      toast.success('Order placed successfully!', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } catch (err) {
+      setError('Something went wrong while placing the order');
+    } finally {
+      setPlacingOrder(false);
+    }
   };
 
   return (
@@ -88,7 +174,7 @@ const Checkout = () => {
                         <i className="fa-solid fa-check-circle fa-2x text-success"></i>
                       </div>
                       <h2 className="mb-3">Thank You! Your Order Has Been Placed</h2>
-                      <p className="mb-4">Order ID: <strong>{orderId}</strong></p>
+                      <p className="mb-4">Order ID: <strong>{orderNumber}</strong></p>
                       <p>A confirmation email has been sent to <strong>{formData.email}</strong></p>
                     </div>
                     
@@ -97,8 +183,9 @@ const Checkout = () => {
                         <div className="col-md-6 mb-4">
                           <h4>Billing Details</h4>
                           <p><strong>{formData.firstName} {formData.lastName}</strong></p>
-                          <p>{formData.address}</p>
-                          <p>{formData.city}, {formData.state} {formData.zipCode}</p>
+                          <p>{formData.addressLine1}</p>
+                          {formData.addressLine2 && <p>{formData.addressLine2}</p>}
+                          <p>{formData.city}, {formData.state} {formData.postalCode}</p>
                           <p>{formData.country}</p>
                           <p>Email: {formData.email}</p>
                           <p>Phone: {formData.phone}</p>
@@ -110,27 +197,11 @@ const Checkout = () => {
                             <table className="table">
                               <thead>
                                 <tr>
-                                  <th>Product</th>
-                                  <th>Total</th>
+                                  <th>Description</th>
+                                  <th>Amount</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {cartItems.map((item) => (
-                                  <tr key={item.cart_id || item.id}>
-                                    <td>
-                                      {item.name} <strong>× {item.quantity}</strong>
-                                    </td>
-                                    <td>${(item.price * item.quantity).toFixed(2)}</td>
-                                  </tr>
-                                ))}
-                                <tr>
-                                  <td>Subtotal</td>
-                                  <td>${subtotal.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                  <td>Shipping</td>
-                                  <td>${shipping.toFixed(2)}</td>
-                                </tr>
                                 <tr className="total">
                                   <td><strong>Total</strong></td>
                                   <td><strong className="primary-color">${total.toFixed(2)}</strong></td>
@@ -153,8 +224,8 @@ const Checkout = () => {
                 <div className="row g-4">
                   <div className="col-lg-8">
                     <div className="checkoutpage__billingdetails">
-                      <h4 className="mb-4">Billing Details</h4>
-                      
+                      <h4 className="mb-3">Billing Details</h4>
+
                       <div className="row g-3">
                         <div className="col-md-6">
                           <div className="form-group">
@@ -211,82 +282,150 @@ const Checkout = () => {
                             />
                           </div>
                         </div>
-                        
-                        <div className="col-12">
-                          <div className="form-group">
-                            <label>Address *</label>
-                            <input 
-                              type="text" 
-                              name="address" 
-                              className="form-control" 
-                              placeholder="Street address"
-                              value={formData.address}
-                              onChange={handleChange}
-                              required
-                            />
+                        {/* Address mode options: only show when user has saved addresses */}
+                      {addresses.length > 0 && (
+                        <div className="mt-4">
+                          <div className="mb-2">
+                            <strong>Select billing / shipping address</strong>
                           </div>
-                        </div>
-                        
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label>Town / City *</label>
-                            <input 
-                              type="text" 
-                              name="city" 
-                              className="form-control" 
-                              value={formData.city}
-                              onChange={handleChange}
-                              required
-                            />
+                          <div className="mb-2">
+                            <div className="form-check form-check-inline">
+                              <input
+                                className="form-check-input"
+                                type="radio"
+                                name="billingMode"
+                                id="billing-saved"
+                                value="saved"
+                                checked={billingMode === 'saved'}
+                                onChange={() => setBillingMode('saved')}
+                              />
+                              <label className="form-check-label" htmlFor="billing-saved">
+                                Use saved address
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline">
+                              <input
+                                className="form-check-input"
+                                type="radio"
+                                name="billingMode"
+                                id="billing-new"
+                                value="new"
+                                checked={billingMode === 'new'}
+                                onChange={() => setBillingMode('new')}
+                              />
+                              <label className="form-check-label" htmlFor="billing-new">
+                                Use different billing address
+                              </label>
+                            </div>
                           </div>
+
+                          {billingMode === 'saved' && (
+                            <div className="mb-3">
+                              <label className="form-label">Choose from your saved addresses</label>
+                              <div className="list-group">
+                                {addresses.map(addr => (
+                                  <button
+                                    type="button"
+                                    key={addr.address_id}
+                                    className={`list-group-item list-group-item-action ${selectedAddressId === addr.address_id ? 'active' : ''}`}
+                                    onClick={() => setSelectedAddressId(addr.address_id)}
+                                  >
+                                    <div>
+                                      <div>{addr.address_line1}</div>
+                                      {addr.address_line2 && <div>{addr.address_line2}</div>}
+                                      <div>{addr.city}, {addr.state} {addr.postal_code}</div>
+                                      <div>{addr.country}</div>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label>State *</label>
-                            <input 
-                              type="text" 
-                              name="state" 
-                              className="form-control" 
-                              value={formData.state}
-                              onChange={handleChange}
-                              required
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label>Postcode / ZIP *</label>
-                            <input 
-                              type="text" 
-                              name="zipCode" 
-                              className="form-control" 
-                              value={formData.zipCode}
-                              onChange={handleChange}
-                              required
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label>Country *</label>
-                            <select 
-                              name="country" 
-                              className="form-control" 
-                              value={formData.country}
-                              onChange={handleChange}
-                              required
-                            >
-                              <option value="">Select Country</option>
-                              <option value="India">India</option>
-                              <option value="Bangladesh">Bangladesh</option>
-                              <option value="UK">United Kingdom</option>
-                              <option value="USA">United States</option>
-                            </select>
-                          </div>
-                        </div>
+                      )}
+                        {/* Address fields logic:
+                           - If no saved addresses: always show fields
+                           - If saved addresses: show fields only when billingMode === 'new'
+                        */}
+                        {(addresses.length === 0 || billingMode === 'new') && (
+                          <>
+                            <div className="col-12">
+                              <div className="form-group">
+                                <label>Address Line 1 *</label>
+                                <input 
+                                  type="text" 
+                                  name="addressLine1" 
+                                  className="form-control" 
+                                  placeholder="Street address"
+                                  value={formData.addressLine1}
+                                  onChange={handleChange}
+                                  required
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label>Town / City *</label>
+                                <input 
+                                  type="text" 
+                                  name="city" 
+                                  className="form-control" 
+                                  value={formData.city}
+                                  onChange={handleChange}
+                                  required
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label>State *</label>
+                                <input 
+                                  type="text" 
+                                  name="state" 
+                                  className="form-control" 
+                                  value={formData.state}
+                                  onChange={handleChange}
+                                  required
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label>Postcode / ZIP *</label>
+                                <input 
+                                  type="text" 
+                                  name="postalCode" 
+                                  className="form-control" 
+                                  value={formData.postalCode}
+                                  onChange={handleChange}
+                                  required
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label>Country *</label>
+                                <select 
+                                  name="country" 
+                                  className="form-control" 
+                                  value={formData.country}
+                                  onChange={handleChange}
+                                  required
+                                >
+                                  <option value="">Select Country</option>
+                                  <option value="India">India</option>
+                                  <option value="Bangladesh">Bangladesh</option>
+                                  <option value="UK">United Kingdom</option>
+                                  <option value="USA">United States</option>
+                                </select>
+                              </div>
+                            </div>
+                          </>
+                        )}
                         
                         <div className="col-12">
                           <div className="form-group">
@@ -302,112 +441,60 @@ const Checkout = () => {
                           </div>
                         </div>
                       </div>
+
+                      
                     </div>
                     
                     <div className="checkoutpage__paymentmethod mt-4">
                       <h4 className="mb-4">Payment Method</h4>
-                      
+
                       <div className="payment-options">
-                        <div className="form-check mb-3">
-                          <input 
-                            type="radio" 
-                            id="credit-card" 
-                            name="paymentMethod" 
-                            className="form-check-input" 
-                            value="credit-card"
-                            checked={formData.paymentMethod === 'credit-card'}
+                        <div className="form-check mb-2">
+                          <input
+                            type="radio"
+                            id="cod"
+                            name="paymentMethod"
+                            className="form-check-input"
+                            value="COD"
+                            checked={formData.paymentMethod === 'COD'}
                             onChange={handleChange}
                           />
-                          <label className="form-check-label" htmlFor="credit-card">
-                            Credit Card
+                          <label className="form-check-label" htmlFor="cod">
+                            Cash on Delivery (COD)
                           </label>
                         </div>
-                        
-                        <div className="form-check mb-3">
-                          <input 
-                            type="radio" 
-                            id="paypal" 
-                            name="paymentMethod" 
-                            className="form-check-input" 
-                            value="paypal"
-                            checked={formData.paymentMethod === 'paypal'}
+
+                        <div className="form-check mb-2">
+                          <input
+                            type="radio"
+                            id="online"
+                            name="paymentMethod"
+                            className="form-check-input"
+                            value="ONLINE"
+                            checked={formData.paymentMethod === 'ONLINE'}
                             onChange={handleChange}
                           />
-                          <label className="form-check-label" htmlFor="paypal">
-                            PayPal
+                          <label className="form-check-label" htmlFor="online">
+                            Online Payment (Coming Soon)
                           </label>
                         </div>
-                        
-                        {formData.paymentMethod === 'credit-card' && (
-                          <div className="credit-card-form">
-                            <div className="row g-3">
-                              <div className="col-12">
-                                <div className="form-group">
-                                  <label>Card Number *</label>
-                                  <input 
-                                    type="text" 
-                                    name="cardNumber" 
-                                    className="form-control" 
-                                    placeholder="1234 5678 9012 3456"
-                                    value={formData.cardNumber}
-                                    onChange={handleChange}
-                                    required={formData.paymentMethod === 'credit-card'}
-                                  />
-                                </div>
-                              </div>
-                              
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label>Name on Card *</label>
-                                  <input 
-                                    type="text" 
-                                    name="cardName" 
-                                    className="form-control" 
-                                    placeholder="John Doe"
-                                    value={formData.cardName}
-                                    onChange={handleChange}
-                                    required={formData.paymentMethod === 'credit-card'}
-                                  />
-                                </div>
-                              </div>
-                              
-                              <div className="col-md-3">
-                                <div className="form-group">
-                                  <label>Expiry Date *</label>
-                                  <input 
-                                    type="text" 
-                                    name="expiryDate" 
-                                    className="form-control" 
-                                    placeholder="MM/YY"
-                                    value={formData.expiryDate}
-                                    onChange={handleChange}
-                                    required={formData.paymentMethod === 'credit-card'}
-                                  />
-                                </div>
-                              </div>
-                              
-                              <div className="col-md-3">
-                                <div className="form-group">
-                                  <label>CVV *</label>
-                                  <input 
-                                    type="text" 
-                                    name="cvv" 
-                                    className="form-control" 
-                                    placeholder="123"
-                                    value={formData.cvv}
-                                    onChange={handleChange}
-                                    required={formData.paymentMethod === 'credit-card'}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+
+                        {formData.paymentMethod === 'ONLINE' && (
+                          <p className="text-muted small mt-2">
+                            Online payment is not enabled yet. Your order will be placed with payment status "Pending" and you will pay later.
+                          </p>
                         )}
                       </div>
-                      
+
+                      {error && (
+                        <div className="alert alert-danger mt-3" role="alert">
+                          {error}
+                        </div>
+                      )}
+
                       <div className="place-order mt-4">
-                        <button type="submit" className="custom-btn w-100">
-                          Place Order
+                        <button type="submit" className="custom-btn w-100" disabled={placingOrder}>
+                          {placingOrder ? 'Placing Order...' : 'Place Order'}
                         </button>
                       </div>
                     </div>
