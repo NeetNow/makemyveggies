@@ -9,7 +9,7 @@ const NaturePlant = () => {
           <div className="col-lg-10 col-xl-7 col-xxl-6">
             <div className="section__header natureplant__header">
               <div className="col-md-11 col-xl-12 col-xxl-8">
-                <span>Welcome To natureplant<img src="/assets/img/logo/newlogo.png" alt="bakul" style={{width: "7rem", height: "5rem"}}/></span>
+                <span>Welcome To makemyveggies</span>
                 <h3>Beautiful Garden is a Work of Heart.</h3>
               </div>
             </div>
