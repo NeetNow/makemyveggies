@@ -51,17 +51,8 @@ var fixed_header = $(".header--headerpage2");
 		
 });
 
-// banner garden
-var swiper = new Swiper(".hostbanner", {
-	spaceBetween: 0,
-	loop: true,
-	slidesPerView: 1,
-	freeMode: true,
-	watchSlidesProgress: true,
-	autoplay: {
-		delay: 7000,
-	},
-});
+// banner garden - Moved to React component
+// This initialization is now handled in the React component
 
 //Odometer
 $(".odometer").each(function () {

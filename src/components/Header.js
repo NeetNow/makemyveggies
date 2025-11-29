@@ -76,14 +76,7 @@ const Header = () => {
                   </div>
                   <div className="mainactive activescroll">
                     <ul>
-                      <li>
-                        <Link to="/">Home</Link>
-                        <ul>
-                          <li><Link to="/" className="active">home-1</Link></li>
-                          <li><Link to="/">home-2</Link></li>
-                          <li><Link to="/">home-3</Link> </li>
-                        </ul>
-                      </li>
+                      <li><Link to="/">Home</Link></li>
                       <li><Link to="/about">About</Link></li>
                       <li>
                         <a href="#0">DIY Kits</a>
