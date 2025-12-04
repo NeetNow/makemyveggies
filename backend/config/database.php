@@ -1,25 +1,28 @@
 <?php
 // Database configuration for MakeMyVeggies
 
-// Load environment variables
-require_once __DIR__ . '/../vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-$dotenv->load();
-
 class Database {
-    private $host;
-    private $port;
-    private $db_name;
-    private $username;
-    private $password;
+    private $host = 'localhost';
+    private $port = '3306';
+    private $db_name = 'makemyveggies';
+    private $username = 'root';
+    private $password = '';
     public $conn;
 
     public function __construct() {
-        $this->host = $_ENV['DB_HOST'];
-        $this->port = $_ENV['DB_PORT'];
-        $this->db_name = $_ENV['DB_NAME'];
-        $this->username = $_ENV['DB_USERNAME'];
-        $this->password = $_ENV['DB_PASSWORD'];
+        // You can uncomment and use environment variables if needed
+        /*
+        if (file_exists(__DIR__ . '/../.env')) {
+            $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+            $dotenv->load();
+            
+            $this->host = $_ENV['DB_HOST'] ?? $this->host;
+            $this->port = $_ENV['DB_PORT'] ?? $this->port;
+            $this->db_name = $_ENV['DB_NAME'] ?? $this->db_name;
+            $this->username = $_ENV['DB_USERNAME'] ?? $this->username;
+            $this->password = $_ENV['DB_PASSWORD'] ?? $this->password;
+        }
+        */
     }
 
     public function getConnection() {

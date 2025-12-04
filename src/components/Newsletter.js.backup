@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import '../assets/css/Newsletter.css';
 
 const Newsletter = () => {
   const [email, setEmail] = useState('');
@@ -23,32 +22,31 @@ const Newsletter = () => {
     setIsSubmitting(true);
 
     try {
+      // Create form data
+      const formData = new FormData();
+      formData.append('email', email);
+
       const response = await fetch('http://localhost/makemyveggies-main/backend/api/subscribe_newsletter.php', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ email }),
+        body: formData
       });
 
-      // First, get the response as text
-      const responseText = await response.text();
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
       let data;
       
-      try {
-        // Try to parse it as JSON
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Failed to parse JSON:', responseText);
-        throw new Error('Invalid response from server');
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error('Invalid response from server');
+        }
       }
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to subscribe');
-      }
-      
-      if (data.success) {
+      if (response.ok) {
         toast.success(data.message || 'Thank you for subscribing!');
         setEmail('');
       } else {
@@ -56,11 +54,7 @@ const Newsletter = () => {
       }
     } catch (error) {
       console.error('Subscription error:', error);
-      if (error.message.includes('JSON')) {
-        toast.error('Server error: Invalid response format');
-      } else {
-        toast.error(error.message || 'An error occurred. Please try again later.');
-      }
+      toast.error(error.message || 'An error occurred. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
@@ -71,22 +65,16 @@ const Newsletter = () => {
       <ToastContainer
         position="top-center"
         autoClose={3000}
-        hideProgressBar
-        newestOnTop
+        hideProgressBar={false}
+        newestOnTop={true}
         closeOnClick
         rtl={false}
-        pauseOnFocusLoss={false}
-        draggable={false}
-        pauseOnHover={false}
-        closeButton={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
         style={{
-          width: '100%',
-          maxWidth: '400px',
           top: '80px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          padding: '0 15px',
-          boxSizing: 'border-box'
+          zIndex: 9999
         }}
       />
       <section className="newslatter bg-white go-up">
