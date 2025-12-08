@@ -47,9 +47,9 @@ const Header = () => {
             </div>
             <div className="right">
               <ul>
-                <li><button type="button"><i className="fa-brands fa-facebook-f"></i></button></li>
+                <li><a href="https://www.facebook.com/makemyveggies/" target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-facebook-f"></i></a></li>
                 <li><button type="button"><i className="fa-sharp fa-regular fa-basketball"></i></button></li>
-                <li><button type="button"><i className="fa-brands fa-linkedin-in"></i></button></li>
+                <li><a href="https://www.linkedin.com/company/makemyveggies/" target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-linkedin-in"></i></a></li>
                 <li><button type="button"><i className="fa-brands fa-instagram"></i></button></li>
               </ul>
             </div>
@@ -78,51 +78,9 @@ const Header = () => {
                     <ul>
                       <li><Link to="/">Home</Link></li>
                       <li><Link to="/about">About</Link></li>
-                      <li>
-                        <a href="#0">DIY Kits</a>
-                        <ul>
-                          <li>
-                            <a href="#0">portfolio</a>
-                            <ul>
-                              <li><Link to="/project">Portfolio</Link></li>
-                              <li><Link to="/project-mas">Portfolio Masonary</Link></li>
-                              <li><Link to="/project-details">Project Details</Link></li>
-                            </ul>
-                          </li>
-                          <li>
-                            <a href="#0">Service</a>
-                            <ul>
-                              <li><Link to="/service">Service</Link></li>
-                              <li><Link to="/service-details">Service Single</Link></li>
-                            </ul>
-                          </li>
-                          <li>
-                            <a href="#0">Team</a>
-                            <ul>
-                              <li><Link to="/team">Team</Link></li>
-                              <li><Link to="/team-single">Team Single</Link></li>
-                            </ul>
-                          </li>
-                          <li><Link to="/history">history</Link></li>
-                          <li><Link to="/faq">FAQ</Link></li>
-                          <li><Link to="/404">404</Link></li>
-                        </ul>
-                      </li>
-                      <li>
-                        <a href="#0">Suppliments</a>
-                        <ul>
-                          <li><Link to="/cart">Cart</Link></li>
-                          <li><Link to="/shop">Shop</Link></li>
-                          <li><Link to="/product-details">Product Details</Link></li>
-                        </ul>
-                      </li>
-                      <li>
-                        <a href="#0">Blog</a>
-                        <ul>
-                          <li><Link to="/blog">Blog</Link></li>
-                          <li><Link to="/blog-single">Blog Single</Link></li>
-                        </ul>
-                      </li>
+                      <li><Link to="/shop">DIY Kits</Link></li>
+                      <li><Link to="/shop">Suppliments</Link></li>
+                      <li><Link to="/Blog">Blog</Link></li>
                       <li><Link to="/contact">Contact</Link></li>
                     </ul>
                   </div>

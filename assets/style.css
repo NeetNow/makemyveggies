@@ -94,11 +94,11 @@ textarea {
 }
 
 .contactus__inner .thumb::after {
-  border: 1px solid #73B611;
+  border: 1px solid #31381A  ;
 }
 
 .header__cart .cart-details .total .checkout a {
-  border: 2px solid #73B611;
+  border: 2px solid #31381A  ;
 }
 
 .blog__inner:hover .thumb::after, .blog__inner:hover .thumb::before, .projectfilter__item::after, .natureplant__innerimg .counteritem, .imghover:hover::after, .imghover:hover::before {
@@ -513,11 +513,11 @@ textarea {
 }
 
 .contactus__inner .text ul li span, .contactus__inner .thumb i, .cartpage__paymentitem .content form .totall ul li span:last-child, .cartpage__paymentitem .content form .totall ul li span, .cartpage__paymentitem .content form .update button, .cartpage__paymentitem .content form .country p, .cartpage__paymentitem .header ul li:last-child, .cartpage__body ul li .remove i, .cartpage__header ul li, .cartdesk__content ul li i, .cartdesk__header nav .nav .nav-link, .cartdesk__text .nametext .allstar .star i, .shopdetails__content ul li i, .shopdetails__content .rating span i, .shopdetails__content h6 span, .shoppagenav .nav-tab .nav-link.active, .shoppage__item .content .allstar i, .shoppage__item .thum .shoppagelink a i, .shoppage__item:hover .content a, .testmonial__content .profile .star ul li i, .skill__item .skill-title .right span, .process__inner:hover h6, .blogsingle__leavecoments--addreview .formarea form .alliput input, .blogsingle__author .author-content .text ul li a, .blogsingle__content .tagbutton-icon .tagbutton ul li a:hover, .blogsingle__content .heading ul li i, .blogsingle__catagory .content ul li:hover span, .blogsingle__catagory .content ul li:hover h6 a, .blogsingle__popularpost .postitem > ul > li:hover .content h6 a, .blogsingle__search .search-area .icon i, .blog__inner:hover .content .text h6 a, .blog__inner .content .text ul li i, .feedback2__inner:hover .text .profile .name h6, .feedback2__inner .text .profile .name ul li i, .feedback__inner .top .profile .star ul li i, .teamprofile__personalcontent .data > ul li .allicon ul li a i, .team__inner:hover .text h6 a, .team__inner .thumb .allicon ul li a:hover i, .portfoliosingle__right ul li span, .projectfilter__item .inneritem .upitem a i, .project__item:hover .content .content-inner h6 a, .servicesingle__sidebar .brouchore.brouchoreneedhelp .text ul li .icon i, .servicesingle__sidebar .allheading ul li a i, .service2__item:hover h6 a, .service__inner:hover .text a, .service__inner:hover .text h6 a, .natureplant__innerimg .counteritem .text h5 span, .natureplant__gardingmake .item .text span, .natureplant__content ul li i, .feature__inner:hover .text h6, .footer__photo .allphoto .item .inneritem .upitem a:hover i, .footer__news ul li:hover .text h6 a, .footer__news ul li .text p, .footer__link ul li:hover a, .footer__link ul li i, .header .menu-item-has-children.open > a::after, .header .menu-item-has-children.open > a::before, .header__nav .mainactive > ul li > ul li:hover::after, .header__cart .cart-details .total .subtotal p span, .header__cart .cart-details .item:hover .right .text h6 a, .header__cart .cart-details .item .right .text p, .header__cart .carticon a i, .header__bottom .right .ellepsis i, .header__bottom .right .bar i, .header__topcontent--topcontentpage2 .right ul li a i, .header__topcontent .left ul li .icon i, .pagi .pagi-inner ul li:last-child a i, .pagi .pagi-inner ul li:first-child a i, .pagi .pagi-inner ul li a, .pageheader__content ul li.active, .fourzero__content form i, .section__header span {
-  color: #73B611;
+  color: #31381A  ;
 }
 
 .blogsingle__leavecoments--addreview .formarea form .alliput ::placeholder, .blogsingle__content .tagbutton-icon .tagicon ul li:first-child, .blogsingle__content .tagbutton-icon .tagbutton ul li:first-child {
-  color: #73B611;
+  color: #31381A  ;
 }
 
 .cartdesk__header nav .nav .nav-link, .testmonial__item, .process__item .base, .process__inner, .blogsingle__search .search-area input, .servicesingle__sidebar .brouchore .pdf-icon, .servicesingle__sidebar .allheading ul li, .service--historypage, .swiper-pagination-bullet-active, .header__cart .cart-details .total .checkout a, .pagi .pagi-inner ul li a, .newslatter__form form input, .fourzero__content form input, body {
@@ -525,11 +525,11 @@ textarea {
 }
 
 .cartpage__body ul li .countadd .cart-plus-minus .qtybutton:hover, .cartdesk__header nav .nav .nav-link.active, .shopdetails__content .countadd .cart-plus-minus .qtybutton:hover, .shoppagenav, .shoppage__item .thum:after, .testmonial .thum .quode, .accordion-item--itme2Serpage .accordion-button:not(.collapsed), .accordion-item--itme2Serpage .accordion-button .plus-icon:before, .accordion-item--itme2Serpage .accordion-button .plus-icon:after, .accordion-item .accordion-button .plus-icon:active, .accordion-item .accordion-button .plus-icon, .blogsingle__leavecoments .formarea form textarea, .blogsingle__leavecoments .formarea form .alliput input, .blogsingle__alltag .alltaginner a:hover, .teamprofile__personalcontent .data > ul li .allicon ul li a:hover, .team__inner .thumb .allicon .fixedicon:hover i, .projectfilter__header ul li.active, .service2__item .thumb .icon, .footer__photo .allphoto .item .inneritem .upitem a, .footer__about .text .allsocialicon ul li a:hover, .custom-btn, .header .menu-item-has-children > a::before, .header .menu-item-has-children > a::after, .header__nav .mainactive > ul li > ul li:hover > a, .header__nav .mainactive > ul li > ul li a.active, .header__cart .cart-details .close i, .header__topcontent--topcontentpage2 .right ul li a:hover, .header__topcontent .right ul li a:hover, .pagi .pagi-inner ul li a:hover, .pagi .pagi-inner ul li a.active, .nav-pills .nav-link.active, .newslatter__form form button, .plybtn a:after, .plybtn a:before, .plybtn a {
-  background: #73B611;
+  background: #31381A  ;
 }
 
 .accordion-item .accordion-button:not(.collapsed) .plus-icon:after, .projectfilter__item .inneritem .upitem a:hover, .header__top--toppage2 {
-  background: #73B611 !important;
+  background: #31381A   !important;
 }
 
 .contactus__inner, .cartpage__paymentitem .content form .checkout a, .cartpage__paymentitem .content form .update button, .cartpage__body ul li .countadd .cart-plus-minus input.cart-plus-minus-box, .cartpage__body ul li, .cartpage__header ul li, .cartdesk__itemheading, .shopdetails__content .countadd a, .shopdetails__content .countadd .cart-plus-minus .qtybutton, .shopdetails__content .countadd .cart-plus-minus input.cart-plus-minus-box, .shopdetails__innerthumb, .shoppage__item .content, .shoppage__item .thum .shoppagelink a, .testmonial .thum .quode, .testmonial__header, .skill__item .skillbar-container, .request__header--headercontactpage, .request__form--contactpage p, .request__form--contactpage form, .process__inner, .process__header, .blogsingle__content .tagbutton-icon .tagicon ul li a, .blogsingle__content .quode .text h6, .blogsingle__content .quode .icon, .feedback2__inner .icon, .teamprofile__personalcontent .data > ul li .allicon ul li a, .team__inner .text, .team__inner .thumb .allicon ul li a, .team__inner .thumb .allicon .fixedicon i, .projectfilter__btn a, .projectfilter__btn, .projectfilter__item .inneritem .upitem a, .project__btn, .project__item .content .content-inner, .servicesingle__sidebar .brouchore .pdf-icon, .service2__item .text, .service2__item .thumb .icon, .service2__header p, .service2__header, .service__inner .thumb, .counter__inner .thumb, .counter__inner, .natureplant__innerimg .counteritem .thumb, .natureplant__gardingmake .item .thumb, .feature__inner, .footer__bottom, .footer__photo .allphoto .item .inneritem .upitem a, .footer__about .text .allsocialicon ul li a, .banner__content--contentpage2, .header__nav .mainactive > ul li > ul li::after, .header__cart .cart-details .item .right .text span, .header__cart .cart-details .close i, .header__cart .carticon:after, .header__topcontent .right ul li a, .pagi .pagi-inner ul li a, .faqcontent__header, .mission__inner .text, .pageheader__content, .newslatter .text h3, .partner__inner, .partner__item, .plybtn a, .scrollToTop, .section__header--header2 {
@@ -1207,7 +1207,7 @@ input, textarea, select {
   bottom: -30%;
   right: 5%;
   z-index: 9;
-  background: linear-gradient(99deg, #73B611 25.27%, #73B611 96.39%);
+  background: linear-gradient(99deg, #31381A   25.27%, #31381A   96.39%);
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
   border-radius: 50%;
@@ -1247,7 +1247,7 @@ input, textarea, select {
 .pluse_1::after, .pluse_1::before,
 .pluse_2::after,
 .pluse_2::before {
-  background: #73B611;
+  background: #31381A  ;
   border-radius: 50%;
   margin-left: -20px;
   margin-top: -20px;
@@ -2192,9 +2192,9 @@ input, textarea, select {
 }
 @media (max-width: 1199px) {
   .header__nav .mobilelogo {
-    background: #73B611;
+    background: #31381A  ;
     padding: 0.9375rem 1.25rem;
-    border-bottom: 2px solid #73B611;
+    border-bottom: 2px solid #31381A  ;
   }
 }
 @media (max-width: 1199px) {
@@ -2270,7 +2270,7 @@ input, textarea, select {
     overflow: visible;
   }
   .header__nav .mainactive > ul li:hover a {
-    color: #73B611;
+    color: #31381A  ;
   }
 }
 .header__nav .mainactive > ul li > ul {
@@ -2281,7 +2281,7 @@ input, textarea, select {
 }
 @media (min-width: 1200px) {
   .header__nav .mainactive > ul li > ul {
-    background: #73B611;
+    background: #31381A  ;
   }
 }
 @media (min-width: 1200px) {
@@ -2455,7 +2455,7 @@ input, textarea, select {
   }
 }
 .header .menu-item-has-children:hover > a::after {
-  background: #73B611;
+  background: #31381A  ;
 }
 @media (max-width: 1199px) {
   .header .menu-item-has-children.open > a:before {
@@ -2937,7 +2937,7 @@ input, textarea, select {
   }
 }
 .feature__inner .icon::after {
-  border: 1.7px solid #73B611;
+  border: 1.7px solid #31381A  ;
   border-style: dashed;
   -webkit-border-radius: 40px;
   -moz-border-radius: 40px;
@@ -2947,7 +2947,7 @@ input, textarea, select {
   font-weight: 300;
 }
 .feature__inner:hover .icon::after {
-  border: 1.9px solid #73B611;
+  border: 1.9px solid #31381A  ;
   border-style: dashed;
 }
 .feature__inner:hover .icon img {
@@ -3041,7 +3041,7 @@ input, textarea, select {
   gap: 20px;
 }
 .natureplant__gardingmake .item .thumb::after {
-  border: 1.7px solid #73B611;
+  border: 1.7px solid #31381A  ;
   border-style: dashed;
   -webkit-border-radius: 40px;
   -moz-border-radius: 40px;
@@ -3104,7 +3104,7 @@ input, textarea, select {
   }
 }
 .natureplant__innerimg .counteritem .thumb::after {
-  border: 1.7px solid #73B611;
+  border: 1.7px solid #31381A  ;
   border-style: dashed;
   -webkit-border-radius: 40px;
   -moz-border-radius: 40px;
@@ -3214,7 +3214,7 @@ input, textarea, select {
   margin-bottom: 1.25rem;
 }
 .counter__inner .thumb::after {
-  border: 1.7px solid #73B611;
+  border: 1.7px solid #31381A  ;
   border-style: dashed;
   -webkit-border-radius: 50px;
   -moz-border-radius: 50px;
@@ -3259,7 +3259,7 @@ input, textarea, select {
   margin-top: 1.25rem;
 }
 .service__inner .thumb::after {
-  border: 1.7px solid #73B611;
+  border: 1.7px solid #31381A  ;
   border-style: dashed;
   -webkit-border-radius: 40px;
   -moz-border-radius: 40px;
@@ -3574,7 +3574,7 @@ input, textarea, select {
   }
 }
 .projectfilter__header ul li.active {
-  border: 1px solid #73B611;
+  border: 1px solid #31381A  ;
 }
 .projectfilter__item .inneritem {
   transform: translate(-50%, -50%);
@@ -4083,7 +4083,7 @@ input, textarea, select {
   margin-top: -60px;
 }
 .feedback2__inner .icon::after {
-  border: 1px solid #73B611;
+  border: 1px solid #31381A  ;
   -webkit-border-radius: 35px;
   -moz-border-radius: 35px;
   border-radius: 35px;
@@ -4411,7 +4411,7 @@ input, textarea, select {
 .blogsingle__content .quode {
   gap: 20px;
   margin: calc(1.34375rem + 1.125vw) 0;
-  background: #73B611;
+  background: #31381A  ;
   padding: calc(1.3125rem + 0.75vw) 1.25rem;
 }
 @media (min-width: 1200px) {
@@ -4476,7 +4476,7 @@ input, textarea, select {
   transition: all 0.3s ease;
 }
 .blogsingle__content .tagbutton-icon .tagbutton ul li a:hover {
-  border-color: #73B611;
+  border-color: #31381A  ;
 }
 .blogsingle__content .tagbutton-icon .tagicon ul {
   gap: 10px;
@@ -4576,7 +4576,7 @@ input, textarea, select {
   margin-top: 0.125rem;
 }
 .blogsingle__comments .content ul li .commentsarea .name-replaybtn .replaybtn a {
-  background: #73B611;
+  background: #31381A  ;
   padding: 0.3125rem 1.25rem;
   margin-block: 10px 0;
   display: inline-block;
@@ -4701,7 +4701,7 @@ input, textarea, select {
 .process__inner::after {
   width: 225px;
   height: 225px;
-  border: 1.5px solid #73B611;
+  border: 1.5px solid #31381A  ;
   border-style: dashed;
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;

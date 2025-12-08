@@ -27,8 +27,8 @@ const ServicesPage = () => {
         <section className="service bg-white padding-block">
           <div className="container">
             <div className="section__header text-center">
-              <span>Natureplant Services</span>
-              <h3>Nature plant Best Services For Gardening.</h3>
+              <span>makemyveggies Services</span>
+              <h3>makemyveggies Best Services For Gardening.</h3>
               <p>Continually productize compelling quality for packed in business consulting Setting up to website and creating pages.</p>
             </div>
             <div className="row g-4">

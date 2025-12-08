@@ -24,7 +24,7 @@ const ProjectPage = () => {
         <section className="project padding-block">
           <div className="container">
             <div className="section__header text-center">
-              <span>Natureplant Projects</span>
+              <span>makemyveggies Projects</span>
               <h3>Our Garden Projects</h3>
               <p>Showcasing our best gardening and landscaping work.</p>
             </div>

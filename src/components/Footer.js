@@ -132,7 +132,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="footer__bottom">
-        <p><i className="fa-regular fa-copyright"></i> Copyright 2024. All Rights Reserved</p>
+        <p><i className="fa-regular fa-copyright"></i> Copyright 2026. All Rights Reserved to MakeMyVeggies.com</p>
       </div>
     </section>
   );

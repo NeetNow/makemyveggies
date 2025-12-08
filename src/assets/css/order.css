@@ -18,13 +18,13 @@
 }
 
 .ordertracking__form h4 {
-  color: #1E1E1E;
+  color: #939E5B;
   font-weight: 700;
   margin-bottom: 15px;
 }
 
 .ordertracking__form p {
-  color: #1E1E1E;
+  color: #939E5B;
   margin-bottom: 25px;
 }
 
@@ -32,7 +32,7 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #1E1E1E;
+  color: #939E5B;
 }
 
 .ordertracking__form .form-control {
@@ -46,13 +46,13 @@
 }
 
 .ordertracking__form .form-control:focus {
-  border-color: #73B611;
+  border-color: #31381A  ;
   outline: none;
   box-shadow: 0 0 0 3px rgba(115, 182, 17, 0.1);
 }
 
 .custom-btn {
-  background: #73B611;
+  background: #31381A  ;
   color: #fff;
   border: none;
   padding: 12px 25px;
@@ -65,7 +65,7 @@
 }
 
 .custom-btn:hover {
-  background: #1E1E1E;
+  background: #939E5B;
   color: #fff;
 }
 
@@ -78,18 +78,18 @@
 }
 
 .order-header h5 {
-  color: #1E1E1E;
+  color: #939E5B;
   font-weight: 700;
   margin-bottom: 15px;
 }
 
 .order-header p {
-  color: #1E1E1E;
+  color: #939E5B;
   margin-bottom: 5px;
 }
 
 .status-highlight {
-  color: #73B611;
+  color: #31381A  ;
   font-weight: 700;
 }
 
@@ -113,7 +113,7 @@
 }
 
 .timeline-steps .completed::before {
-  background: #73B611;
+  background: #31381A  ;
 }
 
 .timeline-step {
@@ -132,21 +132,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1E1E1E;
+  color: #939E5B;
   font-size: 16px;
   border: 3px solid #F8F5F0;
 }
 
 .timeline-step.completed .timeline-icon {
-  background: #73B611;
+  background: #31381A  ;
   color: #fff;
-  border-color: #73B611;
+  border-color: #31381A  ;
 }
 
 .timeline-step.active .timeline-icon {
   background: #fff;
-  color: #73B611;
-  border-color: #73B611;
+  color: #31381A  ;
+  border-color: #31381A  ;
   animation: pulse 2s infinite;
 }
 
@@ -163,7 +163,7 @@
 }
 
 .timeline-content h6 {
-  color: #1E1E1E;
+  color: #939E5B;
   font-weight: 600;
   margin-bottom: 5px;
   font-size: 14px;
@@ -176,7 +176,7 @@
 }
 
 .timeline-date {
-  color: #73B611;
+  color: #31381A  ;
   font-size: 11px;
   font-weight: 500;
 }
@@ -199,7 +199,7 @@
 }
 
 .item-details h6 {
-  color: #1E1E1E;
+  color: #939E5B;
   font-weight: 600;
   margin-bottom: 5px;
 }
@@ -211,7 +211,7 @@
 }
 
 .item-price p {
-  color: #1E1E1E;
+  color: #939E5B;
   font-weight: 600;
   margin-bottom: 0;
 }
@@ -227,7 +227,7 @@
 .checkoutpage__billingdetails h4,
 .checkoutpage__paymentmethod h4,
 .checkoutpage__order h4 {
-  color: #1E1E1E;
+  color: #939E5B;
   font-weight: 700;
   margin-bottom: 20px;
 }
@@ -240,7 +240,7 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #1E1E1E;
+  color: #939E5B;
 }
 
 .checkoutpage__billingdetails .form-control {
@@ -253,7 +253,7 @@
 }
 
 .checkoutpage__billingdetails .form-control:focus {
-  border-color: #73B611;
+  border-color: #31381A  ;
   outline: none;
 }
 
@@ -268,7 +268,7 @@
 
 .checkoutpage__paymentmethod .form-check-label {
   font-weight: 500;
-  color: #1E1E1E;
+  color: #939E5B;
   margin-left: 10px;
 }
 
@@ -289,7 +289,7 @@
 
 .checkoutpage__order .order-header ul li {
   font-weight: 700;
-  color: #1E1E1E;
+  color: #939E5B;
   padding-bottom: 15px;
   border-bottom: 1px solid #F2F6F9;
 }
@@ -302,12 +302,12 @@
 }
 
 .checkoutpage__order .order-body ul li .product span {
-  color: #1E1E1E;
+  color: #939E5B;
 }
 
 .checkoutpage__order .order-body ul li .total span {
   font-weight: 600;
-  color: #1E1E1E;
+  color: #939E5B;
 }
 
 .checkoutpage__order .order-subtotal ul li {
@@ -327,11 +327,11 @@
 .checkoutpage__order .order-total ul li span:last-child {
   font-weight: 700;
   font-size: 1.2rem;
-  color: #73B611;
+  color: #31381A  ;
 }
 
 .place-order .custom-btn {
-  background: #73B611;
+  background: #31381A  ;
   color: #fff;
   border: none;
   padding: 15px 20px;
@@ -344,7 +344,7 @@
 }
 
 .place-order .custom-btn:hover {
-  background: #1E1E1E;
+  background: #939E5B;
   color: #fff;
 }
 

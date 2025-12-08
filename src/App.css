@@ -3,32 +3,6 @@
   overflow-x: hidden;
 }
 
-/* Toast Notifications */
-.Toastify__toast-container {
-  z-index: 9999 !important;
-  top: 80px; /* Position below the navbar */
-}
-
-.Toastify__toast {
-  border-radius: 8px !important;
-  font-family: inherit !important;
-  min-height: 50px !important;
-  padding: 12px 20px !important;
-}
-
-.Toastify__toast--success {
-  background: #4caf50 !important;
-}
-
-.Toastify__toast--error {
-  background: #f44336 !important;
-}
-
-.Toastify__close-button {
-  color: white !important;
-  opacity: 0.8 !important;
-}
-
 /* Override project image sizing to display at original size - higher specificity */
 .project__item .thum img {
   width: auto !important;
@@ -42,7 +16,7 @@
   position: relative;
   width: 100%;
   min-height: 500px;
-  background:#EDF8CA;
+  background:#BCCD88;
   overflow: hidden;
 }
 

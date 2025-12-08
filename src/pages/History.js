@@ -28,10 +28,10 @@ const History = () => {
                 <div className="section__header text-center">
                   <span>Our Journey</span>
                   <h3>15 Years of Excellence in Gardening</h3>
-                  <p>Discover how NaturePlant has grown from a small local business to a trusted name in professional landscaping.</p>
+                  <p>Discover how makemyveggies has grown from a small local business to a trusted name in professional landscaping.</p>
                 </div>
                 <div className="history__content">
-                  <p>Founded in 2009, NaturePlant began as a small family business with a passion for creating beautiful gardens. Over the years, we've grown into one of the region's most trusted landscaping companies, serving thousands of satisfied customers.</p>
+                  <p>Founded in 2009, makemyveggies began as a small family business with a passion for creating beautiful gardens. Over the years, we've grown into one of the region's most trusted landscaping companies, serving thousands of satisfied customers.</p>
                   <p>Our commitment to quality, sustainability, and customer satisfaction has been the cornerstone of our success. We've completed over 5,000 projects and continue to innovate in the field of landscape design and garden maintenance.</p>
                 </div>
               </div>

@@ -163,13 +163,13 @@ textarea {
 .pageheader__content ul li.active,
 .fourzero__content form i,
 .section__header span {
-    color: #1E1E1E;
+    color: #939E5B;
 }
 
 .blogsingle__leavecoments--addreview .formarea form .alliput ::placeholder,
 .blogsingle__content .tagbutton-icon .tagicon ul li:first-child,
 .blogsingle__content .tagbutton-icon .tagbutton ul li:first-child {
-    color: #1E1E1E !important;
+    color: #939E5B !important;
 }
 
 .project__item:hover .content,
@@ -200,11 +200,11 @@ textarea {
 }
 
 .contactus__inner .thumb::after {
-    border: 1px solid #73B611;
+    border: 1px solid #31381A  ;
 }
 
 .header__cart .cart-details .total .checkout a {
-    border: 2px solid #73B611;
+    border: 2px solid #31381A  ;
 }
 
 .blog__inner:hover .thumb::after,
@@ -1485,7 +1485,7 @@ textarea {
 .header__topcontent .left ul li .text p,
 .faqcontent__content h4,
 .nav-pills .nav-link {
-    color: #1E1E1E;
+    color: #939E5B;
 }
 
 .contactus__inner .text ul li span,
@@ -1560,13 +1560,13 @@ textarea {
 .pageheader__content ul li.active,
 .fourzero__content form i,
 .section__header span {
-    color: #73B611;
+    color: #31381A  ;
 }
 
 .blogsingle__leavecoments--addreview .formarea form .alliput ::placeholder,
 .blogsingle__content .tagbutton-icon .tagicon ul li:first-child,
 .blogsingle__content .tagbutton-icon .tagbutton ul li:first-child {
-    color: #73B611;
+    color: #31381A  ;
 }
 
 .cartdesk__header nav .nav .nav-link,
@@ -1621,13 +1621,13 @@ body {
 .plybtn a:after,
 .plybtn a:before,
 .plybtn a {
-    background: #73B611;
+    background: #31381A  ;
 }
 
 .accordion-item .accordion-button:not(.collapsed) .plus-icon:after,
 .projectfilter__item .inneritem .upitem a:hover,
 .header__top--toppage2 {
-    background: #73B611 !important;
+    background: #31381A   !important;
 }
 
 .contactus__inner,
@@ -2383,7 +2383,7 @@ input,
 select,
 optgroup,
 textarea {
-    color: #555555;
+    color: #939E5B;
     font-size: 1rem;
     line-height: 1.5;
 }
@@ -2409,7 +2409,7 @@ a h6 {
     clear: both;
     line-height: 1.3;
     font-family: "Poppins", sans-serif;
-    color: #1E1E1E;
+    color: #939E5B;
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;
     transition: all 0.3s ease;
@@ -2666,7 +2666,7 @@ select {
     bottom: -30%;
     right: 5%;
     z-index: 9;
-    background: linear-gradient(99deg, #73B611 25.27%, #73B611 96.39%);
+    background: linear-gradient(99deg, #31381A   25.27%, #31381A   96.39%);
     -webkit-border-radius: 50%;
     -moz-border-radius: 50%;
     border-radius: 50%;
@@ -2710,7 +2710,7 @@ select {
 .pluse_1::before,
 .pluse_2::after,
 .pluse_2::before {
-    background: #73B611;
+    background: #31381A  ;
     border-radius: 50%;
     margin-left: -20px;
     margin-top: -20px;
@@ -3589,7 +3589,7 @@ select {
 }
 
 .header__topcontent .right ul li a {
-    background: #1E1E1E;
+    background: #939E5B;
     -webkit-border-radius: 20px;
     -moz-border-radius: 20px;
     border-radius: 20px;
@@ -3736,7 +3736,7 @@ select {
     -moz-border-radius: 10px;
     border-radius: 10px;
     content: "3";
-    background: #1E1E1E;
+    background: #939E5B;
     font-size: 14px;
 }
 
@@ -3807,9 +3807,9 @@ select {
 
 @media (max-width: 1199px) {
     .header__nav .mobilelogo {
-        background: #73B611;
+        background: #31381A  ;
         padding: 0.9375rem 1.25rem;
-        border-bottom: 2px solid #73B611;
+        border-bottom: 2px solid #31381A  ;
     }
 }
 
@@ -3898,7 +3898,7 @@ select {
         overflow: visible;
     }
     .header__nav .mainactive>ul li:hover a {
-        color: #73B611;
+        color: #31381A  ;
     }
 }
 
@@ -3911,7 +3911,7 @@ select {
 
 @media (min-width: 1200px) {
     .header__nav .mainactive>ul li>ul {
-        background: #73B611;
+        background: #31381A  ;
     }
 }
 
@@ -3955,7 +3955,7 @@ select {
 }
 
 .header__nav .mainactive>ul li>ul li a {
-    color: #1E1E1E;
+    color: #939E5B;
     padding: 0.75rem calc(1.375rem + 1.5vw);
 }
 
@@ -3978,7 +3978,7 @@ select {
 
 @media (min-width: 1200px) {
     .header__nav .mainactive>ul li>ul li a.active {
-        background: #1E1E1E;
+        background: #939E5B;
     }
 }
 
@@ -4002,7 +4002,7 @@ select {
 
 @media (min-width: 1200px) {
     .header__nav .mainactive>ul li>ul li:hover>a {
-        background: #1E1E1E;
+        background: #939E5B;
     }
 }
 
@@ -4089,7 +4089,7 @@ select {
         right: 9px;
         width: 10px;
         height: 2px;
-        background: #1E1E1E;
+        background: #939E5B;
     }
     .header .menu-item-has-children>a::before {
         position: absolute;
@@ -4098,7 +4098,7 @@ select {
         right: 13px;
         width: 2px;
         height: 10px;
-        background: #1E1E1E;
+        background: #939E5B;
         -webkit-transition: all 0.3s ease;
         -moz-transition: all 0.3s ease;
         transition: all 0.3s ease;
@@ -4113,7 +4113,7 @@ select {
 }
 
 .header .menu-item-has-children:hover>a::after {
-    background: #73B611;
+    background: #31381A  ;
 }
 
 @media (max-width: 1199px) {
@@ -4497,7 +4497,7 @@ select {
 }
 
 .footer__about .text .allsocialicon ul li a {
-    background: #1E1E1E;
+    background: #939E5B;
     -webkit-border-radius: 20px;
     -moz-border-radius: 20px;
     border-radius: 20px;
@@ -4682,7 +4682,7 @@ select {
 }
 
 .feature__inner .icon::after {
-    border: 1.7px solid #73B611;
+    border: 1.7px solid #31381A  ;
     border-style: dashed;
     -webkit-border-radius: 40px;
     -moz-border-radius: 40px;
@@ -4694,7 +4694,7 @@ select {
 }
 
 .feature__inner:hover .icon::after {
-    border: 1.9px solid #73B611;
+    border: 1.9px solid #31381A  ;
     border-style: dashed;
 }
 
@@ -4809,7 +4809,7 @@ select {
 }
 
 .natureplant__gardingmake .item .thumb::after {
-    border: 1.7px solid #73B611;
+    border: 1.7px solid #31381A  ;
     border-style: dashed;
     -webkit-border-radius: 40px;
     -moz-border-radius: 40px;
@@ -4884,7 +4884,7 @@ select {
 }
 
 .natureplant__innerimg .counteritem .thumb::after {
-    border: 1.7px solid #73B611;
+    border: 1.7px solid #31381A  ;
     border-style: dashed;
     -webkit-border-radius: 40px;
     -moz-border-radius: 40px;
@@ -5016,7 +5016,7 @@ select {
 }
 
 .counter__inner .thumb::after {
-    border: 1.7px solid #73B611;
+    border: 1.7px solid #31381A  ;
     border-style: dashed;
     -webkit-border-radius: 50px;
     -moz-border-radius: 50px;
@@ -5071,7 +5071,7 @@ select {
 }
 
 .service__inner .thumb::after {
-    border: 1.7px solid #73B611;
+    border: 1.7px solid #31381A  ;
     border-style: dashed;
     -webkit-border-radius: 40px;
     -moz-border-radius: 40px;
@@ -5453,7 +5453,7 @@ select {
 }
 
 .projectfilter__header ul li.active {
-    border: 1px solid #73B611;
+    border: 1px solid #31381A  ;
 }
 
 .projectfilter__item .inneritem {
@@ -5701,7 +5701,7 @@ select {
 }
 
 .team__inner .thumb .allicon .fixedicon i {
-    background: #1E1E1E;
+    background: #939E5B;
 }
 
 .team__inner .thumb .allicon ul {
@@ -6067,7 +6067,7 @@ select {
 }
 
 .feedback2__inner .icon::after {
-    border: 1px solid #73B611;
+    border: 1px solid #31381A  ;
     -webkit-border-radius: 35px;
     -moz-border-radius: 35px;
     border-radius: 35px;
@@ -6366,7 +6366,7 @@ select {
 }
 
 .blogsingle__popularpost--relatedPost .postitem ul li .content span {
-    color: #555555;
+    color: #939E5B;
     font-size: 1rem;
 }
 
@@ -6473,7 +6473,7 @@ select {
 .blogsingle__content .quode {
     gap: 20px;
     margin: calc(1.34375rem + 1.125vw) 0;
-    background: #73B611;
+    background: #31381A  ;
     padding: calc(1.3125rem + 0.75vw) 1.25rem;
 }
 
@@ -6552,7 +6552,7 @@ select {
 }
 
 .blogsingle__content .tagbutton-icon .tagbutton ul li a:hover {
-    border-color: #73B611;
+    border-color: #31381A  ;
 }
 
 .blogsingle__content .tagbutton-icon .tagicon ul {
@@ -6678,7 +6678,7 @@ select {
 }
 
 .blogsingle__comments .content ul li .commentsarea .name-replaybtn .replaybtn a {
-    background: #73B611;
+    background: #31381A  ;
     padding: 0.3125rem 1.25rem;
     margin-block: 10px 0;
     display: inline-block;
@@ -6831,7 +6831,7 @@ select {
 .process__inner::after {
     width: 225px;
     height: 225px;
-    border: 1.5px solid #73B611;
+    border: 1.5px solid #31381A;
     border-style: dashed;
     -webkit-border-radius: 50%;
     -moz-border-radius: 50%;
