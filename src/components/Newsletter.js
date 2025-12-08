@@ -1,122 +1,22 @@
-import React, { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import '../assets/css/Newsletter.css';
+import React from 'react';
 
 const Newsletter = () => {
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!email) {
-      toast.error('Please enter your email address');
-      return;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error('Please enter a valid email address');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch('http://localhost/makemyveggies-main/backend/api/subscribe_newsletter.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      // First, get the response as text
-      const responseText = await response.text();
-      let data;
-      
-      try {
-        // Try to parse it as JSON
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Failed to parse JSON:', responseText);
-        throw new Error('Invalid response from server');
-      }
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to subscribe');
-      }
-      
-      if (data.success) {
-        toast.success(data.message || 'Thank you for subscribing!');
-        setEmail('');
-      } else {
-        throw new Error(data.message || 'Failed to subscribe');
-      }
-    } catch (error) {
-      console.error('Subscription error:', error);
-      if (error.message.includes('JSON')) {
-        toast.error('Server error: Invalid response format');
-      } else {
-        toast.error(error.message || 'An error occurred. Please try again later.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
-    <>
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss={false}
-        draggable={false}
-        pauseOnHover={false}
-        closeButton={false}
-        style={{
-          width: '100%',
-          maxWidth: '400px',
-          top: '80px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          padding: '0 15px',
-          boxSizing: 'border-box'
-        }}
-      />
-      <section className="newslatter bg-white go-up">
+    <section className="newslatter bg-white go-up">
       <div className="container">
         <div className="newslatter__bg">
           <div className="text">
             <h3>Get Latest Updates and Deals</h3>
           </div>
           <div className="newslatter__form">
-            <form onSubmit={handleSubmit}>
-              <input 
-                type="email" 
-                placeholder="Enter your Email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-              <button 
-                type="submit" 
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Subscribing...' : 'Subscribe Now'}
-              </button>
+            <form action="#0">
+              <input type="email" placeholder="Enter your Email" />
+              <button type="submit">Subscribe Now</button>
             </form>
           </div>
         </div>
       </div>
     </section>
-    </>
   );
 };
 

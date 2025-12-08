@@ -8,8 +8,8 @@ const Services = () => {
         <div className="row g-4 align-items-xxl-center align-items-end justify-content-center">
           <div className="col-lg-10 col-xl-7 col-xxl-6">
             <div className="section__header">
-              <span>Natureplant Services</span>
-              <h3>Nature plant Best Services For Gardening.</h3>
+              <span>makemyveggies Services</span>
+              <h3>makemyveggies Best Services For Gardening.</h3>
             </div>
             <div className="section__wrapper service__wrapper">
               <p>Continually productize compelling quality for packed in business consulting Setting up to

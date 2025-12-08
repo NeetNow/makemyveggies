@@ -5,8 +5,8 @@ const Project = () => {
     <section className="project overflow-hidden padding-block">
       <div className="container">
         <div className="section__header section__header--header2">
-          <span>Natureplant Project<img src="/assets/img/logo/pata.png" alt="bakul" /></span>
-          <h3>Nature plant Our Garden Project</h3>
+          <span>makemyveggies Project<img src="/assets/img/logo/pata.png" alt="bakul" /></span>
+          <h3>makemyveggies Our Garden Project</h3>
           <p>Continually productize compelling quality for packed business consulting
             Setting up to website and creating pages.</p>
         </div>
