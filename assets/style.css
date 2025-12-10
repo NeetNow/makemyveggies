@@ -61,11 +61,11 @@ textarea {
 }
 
 .contactus__inner .text ul li span, .contactus__inner .thumb i, .cartpage__paymentitem .content form .totall ul li span:last-child, .cartpage__paymentitem .content form .totall ul li span, .cartpage__paymentitem .content form .update button, .cartpage__paymentitem .content form .country p, .cartpage__paymentitem .header ul li:last-child, .cartpage__body ul li .remove i, .cartpage__header ul li, .cartdesk__content ul li i, .cartdesk__header nav .nav .nav-link, .cartdesk__text .nametext .allstar .star i, .shopdetails__content ul li i, .shopdetails__content .rating span i, .shopdetails__content h6 span, .shoppagenav .nav-tab .nav-link.active, .shoppage__item .content .allstar i, .shoppage__item .thum .shoppagelink a i, .shoppage__item:hover .content a, .testmonial__content .profile .star ul li i, .skill__item .skill-title .right span, .process__inner:hover h6, .blogsingle__leavecoments--addreview .formarea form .alliput input, .blogsingle__author .author-content .text ul li a, .blogsingle__content .tagbutton-icon .tagbutton ul li a:hover, .blogsingle__content .heading ul li i, .blogsingle__catagory .content ul li:hover span, .blogsingle__catagory .content ul li:hover h6 a, .blogsingle__popularpost .postitem > ul > li:hover .content h6 a, .blogsingle__search .search-area .icon i, .blog__inner:hover .content .text h6 a, .blog__inner .content .text ul li i, .feedback2__inner:hover .text .profile .name h6, .feedback2__inner .text .profile .name ul li i, .feedback__inner .top .profile .star ul li i, .teamprofile__personalcontent .data > ul li .allicon ul li a i, .team__inner:hover .text h6 a, .team__inner .thumb .allicon ul li a:hover i, .portfoliosingle__right ul li span, .projectfilter__item .inneritem .upitem a i, .project__item:hover .content .content-inner h6 a, .servicesingle__sidebar .brouchore.brouchoreneedhelp .text ul li .icon i, .servicesingle__sidebar .allheading ul li a i, .service2__item:hover h6 a, .service__inner:hover .text a, .service__inner:hover .text h6 a, .natureplant__innerimg .counteritem .text h5 span, .natureplant__gardingmake .item .text span, .natureplant__content ul li i, .feature__inner:hover .text h6, .footer__photo .allphoto .item .inneritem .upitem a:hover i, .footer__news ul li:hover .text h6 a, .footer__news ul li .text p, .footer__link ul li:hover a, .footer__link ul li i, .header .menu-item-has-children.open > a::after, .header .menu-item-has-children.open > a::before, .header__nav .mainactive > ul li > ul li:hover::after, .header__cart .cart-details .total .subtotal p span, .header__cart .cart-details .item:hover .right .text h6 a, .header__cart .cart-details .item .right .text p, .header__cart .carticon a i, .header__bottom .right .ellepsis i, .header__bottom .right .bar i, .header__topcontent--topcontentpage2 .right ul li a i, .header__topcontent .left ul li .icon i, .pagi .pagi-inner ul li:last-child a i, .pagi .pagi-inner ul li:first-child a i, .pagi .pagi-inner ul li a, .pageheader__content ul li.active, .fourzero__content form i, .section__header span {
-  color: #1E1E1E;
+  color: #31381A;
 }
 
 .blogsingle__leavecoments--addreview .formarea form .alliput ::placeholder, .blogsingle__content .tagbutton-icon .tagicon ul li:first-child, .blogsingle__content .tagbutton-icon .tagbutton ul li:first-child {
-  color: #1E1E1E !important;
+  color: #31381A !important;
 }
 
 .project__item:hover .content, .header__nav .mainactive > ul li > ul {
@@ -509,7 +509,7 @@ textarea {
 }
 
 .shoppage__item .content a, .request__form form .allinput ::placeholder, .accordion-item .accordion-button, .blog__inner .content .text ul li a, .teamprofile__personalcontent .data > ul li span, .team__inner .text h6 a, .portfoliosingle__right ul li p, .servicesingle__middle .text h4, .servicesingle__top .text h4, .servicesingle__sidebar .brouchore.brouchoreneedhelp .text ul li .textinner h6, .servicesingle__sidebar .allheading ul li a, .service__inner .text a, .footer__link ul li a, .header__topcontent .left ul li .text p, .faqcontent__content h4, .nav-pills .nav-link {
-  color: #1E1E1E;
+  color: #31381A;
 }
 
 .contactus__inner .text ul li span, .contactus__inner .thumb i, .cartpage__paymentitem .content form .totall ul li span:last-child, .cartpage__paymentitem .content form .totall ul li span, .cartpage__paymentitem .content form .update button, .cartpage__paymentitem .content form .country p, .cartpage__paymentitem .header ul li:last-child, .cartpage__body ul li .remove i, .cartpage__header ul li, .cartdesk__content ul li i, .cartdesk__header nav .nav .nav-link, .cartdesk__text .nametext .allstar .star i, .shopdetails__content ul li i, .shopdetails__content .rating span i, .shopdetails__content h6 span, .shoppagenav .nav-tab .nav-link.active, .shoppage__item .content .allstar i, .shoppage__item .thum .shoppagelink a i, .shoppage__item:hover .content a, .testmonial__content .profile .star ul li i, .skill__item .skill-title .right span, .process__inner:hover h6, .blogsingle__leavecoments--addreview .formarea form .alliput input, .blogsingle__author .author-content .text ul li a, .blogsingle__content .tagbutton-icon .tagbutton ul li a:hover, .blogsingle__content .heading ul li i, .blogsingle__catagory .content ul li:hover span, .blogsingle__catagory .content ul li:hover h6 a, .blogsingle__popularpost .postitem > ul > li:hover .content h6 a, .blogsingle__search .search-area .icon i, .blog__inner:hover .content .text h6 a, .blog__inner .content .text ul li i, .feedback2__inner:hover .text .profile .name h6, .feedback2__inner .text .profile .name ul li i, .feedback__inner .top .profile .star ul li i, .teamprofile__personalcontent .data > ul li .allicon ul li a i, .team__inner:hover .text h6 a, .team__inner .thumb .allicon ul li a:hover i, .portfoliosingle__right ul li span, .projectfilter__item .inneritem .upitem a i, .project__item:hover .content .content-inner h6 a, .servicesingle__sidebar .brouchore.brouchoreneedhelp .text ul li .icon i, .servicesingle__sidebar .allheading ul li a i, .service2__item:hover h6 a, .service__inner:hover .text a, .service__inner:hover .text h6 a, .natureplant__innerimg .counteritem .text h5 span, .natureplant__gardingmake .item .text span, .natureplant__content ul li i, .feature__inner:hover .text h6, .footer__photo .allphoto .item .inneritem .upitem a:hover i, .footer__news ul li:hover .text h6 a, .footer__news ul li .text p, .footer__link ul li:hover a, .footer__link ul li i, .header .menu-item-has-children.open > a::after, .header .menu-item-has-children.open > a::before, .header__nav .mainactive > ul li > ul li:hover::after, .header__cart .cart-details .total .subtotal p span, .header__cart .cart-details .item:hover .right .text h6 a, .header__cart .cart-details .item .right .text p, .header__cart .carticon a i, .header__bottom .right .ellepsis i, .header__bottom .right .bar i, .header__topcontent--topcontentpage2 .right ul li a i, .header__topcontent .left ul li .icon i, .pagi .pagi-inner ul li:last-child a i, .pagi .pagi-inner ul li:first-child a i, .pagi .pagi-inner ul li a, .pageheader__content ul li.active, .fourzero__content form i, .section__header span {
@@ -949,7 +949,7 @@ input,
 select,
 optgroup,
 textarea {
-  color: #555555;
+  color: #939E5B;
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -975,7 +975,7 @@ a h6 {
   clear: both;
   line-height: 1.3;
   font-family: "Poppins", sans-serif;
-  color: #1E1E1E;
+  color: #31381A;
   -webkit-transition: all 0.3s ease;
   -moz-transition: all 0.3s ease;
   transition: all 0.3s ease;
@@ -2012,7 +2012,7 @@ input, textarea, select {
   }
 }
 .header__topcontent .right ul li a {
-  background: #1E1E1E;
+  background: #31381A;
   -webkit-border-radius: 20px;
   -moz-border-radius: 20px;
   border-radius: 20px;
@@ -2134,7 +2134,7 @@ input, textarea, select {
   -moz-border-radius: 10px;
   border-radius: 10px;
   content: "3";
-  background: #1E1E1E;
+  background: #31381A;
   font-size: 14px;
 }
 .header__cart .cart-details {
@@ -2320,7 +2320,7 @@ input, textarea, select {
   }
 }
 .header__nav .mainactive > ul li > ul li a {
-  color: #1E1E1E;
+  color: #31381A;
   padding: 0.75rem calc(1.375rem + 1.5vw);
 }
 @media (min-width: 1200px) {
@@ -2339,7 +2339,7 @@ input, textarea, select {
 }
 @media (min-width: 1200px) {
   .header__nav .mainactive > ul li > ul li a.active {
-    background: #1E1E1E;
+    background: #31381A;
   }
 }
 .header__nav .mainactive > ul li > ul li.menu-item-has-children > a::after {
@@ -2358,7 +2358,7 @@ input, textarea, select {
 }
 @media (min-width: 1200px) {
   .header__nav .mainactive > ul li > ul li:hover > a {
-    background: #1E1E1E;
+    background: #31381A;
   }
 }
 .header__nav .mainactive > ul li > ul li:hover::after {
@@ -2433,7 +2433,7 @@ input, textarea, select {
     right: 9px;
     width: 10px;
     height: 2px;
-    background: #1E1E1E;
+    background: #31381A;
   }
   .header .menu-item-has-children > a::before {
     position: absolute;
@@ -2442,7 +2442,7 @@ input, textarea, select {
     right: 13px;
     width: 2px;
     height: 10px;
-    background: #1E1E1E;
+    background: #31381A;
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;
     transition: all 0.3s ease;
@@ -2784,7 +2784,7 @@ input, textarea, select {
   gap: 10px;
 }
 .footer__about .text .allsocialicon ul li a {
-  background: #1E1E1E;
+  background: #31381A;
   -webkit-border-radius: 20px;
   -moz-border-radius: 20px;
   border-radius: 20px;
@@ -3782,7 +3782,7 @@ input, textarea, select {
   top: 30px;
 }
 .team__inner .thumb .allicon .fixedicon i {
-  background: #1E1E1E;
+  background: #31381A;
 }
 .team__inner .thumb .allicon ul {
   visibility: hidden;
@@ -4324,7 +4324,7 @@ input, textarea, select {
   width: calc(100% - 140px);
 }
 .blogsingle__popularpost--relatedPost .postitem ul li .content span {
-  color: #555555;
+  color: #939E5B;
   font-size: 1rem;
 }
 .blogsingle__popularpost--popularpostshoppage .postitem ul li .content .allstar i {
