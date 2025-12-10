@@ -52,7 +52,7 @@ const Banner = () => {
 
       {/* Background Images */}
       <div className="position_bshape contentrightimg imghover d-md-block d-none">
-        <img src="/assets/img/home-1/banner/bannerightimg.png" alt="bakul" />
+        <img src="/assets/img/home-1/banner/bannerightimg.jpeg" alt="bakul" />
       </div>
       <div className="position_bshape topleftimg dnone">
         <img src="/assets/img/home-1/banner/shape1.png" alt="bakul" />

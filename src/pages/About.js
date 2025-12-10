@@ -43,9 +43,6 @@ const About = () => {
         {/* Question Section */}
         <Question />
 
-        {/* Partner Section */}
-        <Partner />
-
         {/* Newsletter Section */}
         <Newsletter />
       </main>
