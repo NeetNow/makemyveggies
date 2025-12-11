@@ -12,9 +12,9 @@ setCorsHeaders();
 function sendWhatsAppOtp($country_code, $phone, $otp_code)
 {
     // Fast2SMS WhatsApp credentials / config
-    $apiKey        = 'lFHzTKBtOADpSwrZkWc9suv1hfNg6xL2PdV7QMIaGj3eCynRUXliazCgN8DdU4WoTPEHm7u10QfJIjtF';              // from Fast2SMS Dev API section
-    $messageId     = '8855';                 // Fast2SMS WhatsApp template / message ID
-    $phoneNumberId = '908580938995112';      // WABA phone number ID configured in Fast2SMS
+    $apiKey        = '';              // from Fast2SMS Dev API section
+    $messageId     = '';                 // Fast2SMS WhatsApp template / message ID
+    $phoneNumberId = '';      // WABA phone number ID configured in Fast2SMS
 
     // In the example URL Fast2SMS expects just the mobile number in `numbers`
     $numbers          = preg_replace('/\D/', '', $phone);
