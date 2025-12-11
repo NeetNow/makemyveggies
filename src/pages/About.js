@@ -6,7 +6,6 @@ import Features from '../components/Features';
 import Skill from '../components/Skill';
 import Testimonial from '../components/Testimonial';
 import Question from '../components/Question';
-import Partner from '../components/Partner';
 import Newsletter from '../components/Newsletter';
 
 const About = () => {

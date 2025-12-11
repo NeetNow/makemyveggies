@@ -147,7 +147,7 @@ const Register = () => {
             otp_code: smsOtp,
         };
 
-        const result = await fetchApi(
+        await fetchApi(
             '/backend/api/verify_sms_otp.php', 
             payload, 
             'SMS OTP Verification', 
