@@ -125,7 +125,7 @@ try {
     try {
         // Create user account - exactly matching database schema
         $create_user_query = "INSERT INTO users (first_name, last_name, email, password, phone, email_verified, is_active, created_at, updated_at) 
-                             VALUES (?, ?, ?, ?, ?, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                             VALUES (?, ?, ?, ?, ?, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         
         $create_user_stmt = $db->prepare($create_user_query);
         

@@ -112,10 +112,14 @@ try {
         $update_otp_stmt->bindParam(':otp_id', $otp_data['otp_id']);
         $update_otp_stmt->execute();
         
-        // Update user verification status (email_verified=1 and is_active=1) with updated_at timestamp
+        // Update user verification status: mark email_verified=1 and activate only if number_verified already 1
         error_log("Updating user verification status for email: " . $email);
         
-        $update_user_query = "UPDATE users SET email_verified = 1, is_active = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = :user_id";
+        $update_user_query = "UPDATE users
+                              SET email_verified = 1,
+                                  is_active = CASE WHEN number_verified = 1 THEN 1 ELSE 0 END,
+                                  updated_at = CURRENT_TIMESTAMP
+                              WHERE user_id = :user_id";
         $update_user_stmt = $db->prepare($update_user_query);
         $update_user_stmt->bindParam(':user_id', $user_info['user_id']);
         

@@ -1,0 +1,112 @@
+<?php
+// Verify WhatsApp / SMS OTP and update number_verified
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+require_once __DIR__ . '/../config/database.php';
+
+setCorsHeaders();
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    sendResponse(false, 'Method not allowed', null, 405);
+}
+
+try {
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (!$input) {
+        sendResponse(false, 'Invalid JSON data', null, 400);
+    }
+
+    if (empty($input['email']) || empty($input['otp_code'])) {
+        sendResponse(false, 'Email and OTP code are required', null, 400);
+    }
+
+    $email    = trim(strtolower($input['email']));
+    $otp_code = trim($input['otp_code']);
+
+    $database = new Database();
+    $db = $database->getConnection();
+
+    if (!$db) {
+        sendResponse(false, 'Database connection failed', null, 500);
+    }
+
+    $verify_query = "SELECT otp_id, otp_code, expires_at, is_used, created_at FROM otp_verification 
+                     WHERE email = :email 
+                     AND otp_code = :otp_code 
+                     AND purpose = 'whatsapp_registration'
+                     ORDER BY created_at DESC 
+                     LIMIT 1";
+
+    $verify_stmt = $db->prepare($verify_query);
+    $verify_stmt->bindParam(':email', $email);
+    $verify_stmt->bindParam(':otp_code', $otp_code);
+    $verify_stmt->execute();
+
+    if ($verify_stmt->rowCount() === 0) {
+        sendResponse(false, 'Invalid OTP code', null, 400);
+    }
+
+    $otp_data = $verify_stmt->fetch();
+
+    if ($otp_data['is_used'] == 1) {
+        sendResponse(false, 'OTP code has already been used', null, 400);
+    }
+
+    $current_time = time();
+    $expiry_time  = strtotime($otp_data['expires_at']);
+
+    if ($expiry_time <= $current_time) {
+        sendResponse(false, 'OTP code has expired', null, 400);
+    }
+
+    $user_query = 'SELECT user_id, number_verified FROM users WHERE email = :email';
+    $user_stmt = $db->prepare($user_query);
+    $user_stmt->bindParam(':email', $email);
+    $user_stmt->execute();
+
+    if ($user_stmt->rowCount() === 0) {
+        sendResponse(false, 'User not found. Please register first.', null, 400);
+    }
+
+    $user_info = $user_stmt->fetch();
+
+    if (isset($user_info['number_verified']) && $user_info['number_verified'] == 1) {
+        sendResponse(false, 'Mobile number already verified.', null, 400);
+    }
+
+    $db->beginTransaction();
+
+    try {
+        $update_otp_query = 'UPDATE otp_verification SET is_used = 1 WHERE otp_id = :otp_id';
+        $update_otp_stmt = $db->prepare($update_otp_query);
+        $update_otp_stmt->bindParam(':otp_id', $otp_data['otp_id']);
+        $update_otp_stmt->execute();
+
+        $update_user_query = 'UPDATE users SET number_verified = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = :user_id';
+        $update_user_stmt = $db->prepare($update_user_query);
+        $update_user_stmt->bindParam(':user_id', $user_info['user_id']);
+
+        if (!$update_user_stmt->execute()) {
+            $error_info = $update_user_stmt->errorInfo();
+            throw new Exception('Failed to verify mobile number: ' . $error_info[2]);
+        }
+
+        $db->commit();
+
+        sendResponse(true, 'Mobile number verification successful.', [
+            'user_id'         => $user_info['user_id'],
+            'number_verified' => 1
+        ]);
+
+    } catch (Exception $e) {
+        $db->rollback();
+        throw $e;
+    }
+
+} catch (Exception $e) {
+    error_log('Verify WhatsApp OTP error: ' . $e->getMessage());
+    sendResponse(false, 'WhatsApp OTP verification failed. Please try again.', null, 500);
+}
