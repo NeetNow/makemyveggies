@@ -58,7 +58,7 @@ try {
     // Connect to database
     $database = new Database();
     $db = $database->getConnection();
-    
+
     if (!$db) {
         sendResponse(false, 'Database connection failed', null, 500);
     }
