@@ -34,6 +34,7 @@ class Database {
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $this->conn->exec("set names utf8mb4");
+            $this->conn->exec("SET time_zone = '+05:30'");
         } catch(PDOException $exception) {
             error_log("Connection error: " . $exception->getMessage());
             return null;
