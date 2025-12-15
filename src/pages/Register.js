@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
@@ -14,10 +14,17 @@ const Register = () => {
     // Email OTP State
     const [showOtpForm, setShowOtpForm] = useState(false);
     const [otpCode, setOtpCode] = useState(''); // For Email OTP
+    const [emailOtpVerified, setEmailOtpVerified] = useState(false);
+    const [otpStep, setOtpStep] = useState(1); // 1: Email OTP, 2: WhatsApp OTP
 
     // SMS/Text OTP State (Renamed from whatsappOtp)
     const [smsOtp, setSmsOtp] = useState('');
     const [isVerifyingSmsOtp, setIsVerifyingSmsOtp] = useState(false);
+    const [smsOtpVerified, setSmsOtpVerified] = useState(false);
+    const [whatsappOtpSent, setWhatsappOtpSent] = useState(false);
+    const [isSendingWhatsappOtp, setIsSendingWhatsappOtp] = useState(false);
+
+    const smsOtpInputRef = useRef(null);
 
     const navigate = useNavigate();
 
@@ -101,11 +108,9 @@ const Register = () => {
         setIsSubmitting(false);
 
         if (result.success) {
-            // Show OTP form for email immediately
+            // Show OTP form for email OTP first. WhatsApp OTP will be sent only
+            // after successful email OTP verification.
             setShowOtpForm(true);
-
-            // Fire-and-forget WhatsApp OTP send; do not block email OTP UI on this
-            handleSendSmsOtp();
         }
     };
 
@@ -115,17 +120,26 @@ const Register = () => {
             return;
         }
 
+        setIsSendingWhatsappOtp(true);
         const payload = {
             phone,
             country_code: '+91',
         };
 
-        await fetchApi(
+        const result = await fetchApi(
             '/backend/api/send_sms_otp.php', 
             payload, 
             'SMS OTP Send', 
             'OTP sent to your mobile number via Whatsapp.'
         );
+
+        setIsSendingWhatsappOtp(false);
+        if (result.success) {
+            setWhatsappOtpSent(true);
+            if (smsOtpInputRef.current) {
+                smsOtpInputRef.current.focus();
+            }
+        }
     };
 
     // Renamed from handleVerifyWhatsappOtp
@@ -147,7 +161,7 @@ const Register = () => {
             otp_code: smsOtp,
         };
 
-        await fetchApi(
+        const result = await fetchApi(
             '/backend/api/verify_sms_otp.php', 
             payload, 
             'SMS OTP Verification', 
@@ -155,6 +169,17 @@ const Register = () => {
         );
 
         setIsVerifyingSmsOtp(false);
+
+        if (result.success) {
+            setSmsOtpVerified(true);
+
+            // Both OTPs (email + WhatsApp/SMS) are now verified.
+            // Show final success and redirect to login.
+            setMessage('Registration completed successfully! Redirecting to login...');
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
+        }
     };
 
     const handleOtpSubmit = async (e) => {
@@ -177,15 +202,18 @@ const Register = () => {
             '/backend/api/verify_otp.php', 
             otpData, 
             'Email OTP Verification', 
-            'Registration completed successfully! Redirecting to login...'
+            'Email OTP verified successfully. Sending WhatsApp OTP...'
         );
         
         setIsSubmitting(false);
 
         if (result.success) {
-            setTimeout(() => {
-                navigate('/login');
-            }, 2000);
+            setEmailOtpVerified(true);
+
+            // After email OTP is verified, send WhatsApp/SMS OTP and move user
+            // to the separate WhatsApp OTP step/screen.
+            await handleSendSmsOtp();
+            setOtpStep(2);
         }
     };
 
@@ -236,8 +264,21 @@ const Register = () => {
                     <div className="col-md-6 col-lg-5">
                         <div className="register-box">
                             <div className="register-header text-center">
-                                <h2>{showOtpForm ? 'Verify Your Account' : 'Create an Account'}</h2>
-                                <p>{showOtpForm ? 'Enter the verification code(s)' : 'Please fill in the information below'}</p>
+                                {showOtpForm ? (
+                                    <>
+                                        <h2>{otpStep === 1 ? 'Verify Email' : 'Verify WhatsApp Number'}</h2>
+                                        <p>
+                                            {otpStep === 1
+                                                ? 'Enter the verification code sent to your email.'
+                                                : 'Enter the verification code sent to your WhatsApp number.'}
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h2>Create an Account</h2>
+                                        <p>Please fill in the information below</p>
+                                    </>
+                                )}
                             </div>
 
                             {message && (
@@ -343,84 +384,93 @@ const Register = () => {
                                 </form>
                             ) : (
                                 <form className="otp-form">
-                                    {/* Email OTP Verification */}
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="otpCode" className="form-label">Email OTP Code</label>
-                                        <div className="d-flex gap-2">
-                                            <input 
-                                                type="text"
-                                                className="form-control text-center"
-                                                id="otpCode"
-                                                placeholder="Email 6-digit code"
-                                                maxLength="6"
-                                                value={otpCode}
-                                                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                                                required 
-                                            />
-                                            <button 
-                                                type="button"
-                                                className="btn btn-primary"
-                                                style={{ minWidth: '140px' }}
-                                                onClick={handleOtpSubmit}
-                                                disabled={isSubmitting}
-                                            >
-                                                {isSubmitting ? 'Verifying Email...' : 'Verify'}
-                                            </button>
-                                        </div>
-                                        <small className="form-text text-muted mt-1 d-block">
-                                            Enter the 6-digit code sent to {email} to complete registration.
-                                        </small>
-                                    </div>
+                                    {otpStep === 1 && (
+                                        <>
+                                            {/* Email OTP Verification - step 1 */}
+                                            <div className="form-group mb-3">
+                                                <label htmlFor="otpCode" className="form-label">Email OTP Code</label>
+                                                <div className="d-flex gap-2">
+                                                    <input 
+                                                        type="text"
+                                                        className="form-control text-center"
+                                                        id="otpCode"
+                                                        placeholder="Email 6-digit code"
+                                                        maxLength="6"
+                                                        value={otpCode}
+                                                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                                                        required 
+                                                    />
+                                                    <button 
+                                                        type="button"
+                                                        className="btn btn-primary"
+                                                        style={{ minWidth: '140px' }}
+                                                        onClick={handleOtpSubmit}
+                                                        disabled={isSubmitting || emailOtpVerified}
+                                                    >
+                                                        {emailOtpVerified ? 'Email Verified' : (isSubmitting ? 'Verifying Email...' : 'Verify')}
+                                                    </button>
+                                                </div>
+                                                <small className="form-text text-muted mt-1 d-block">
+                                                    Enter the 6-digit code sent to {email} to complete registration.
+                                                </small>
+                                            </div>
 
-                                    {/* SMS/Phone OTP Verification */}
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="smsOtp" className="form-label">SMS OTP (Phone Verification)</label>
-                                        <div className="d-flex gap-2">
-                                            <input
-                                                type="text"
-                                                className="form-control text-center"
-                                                id="smsOtp"
-                                                placeholder="SMS 6-digit code"
-                                                maxLength="6"
-                                                value={smsOtp}
-                                                onChange={(e) => setSmsOtp(e.target.value.replace(/\D/g, ''))}
-                                                disabled={isVerifyingSmsOtp}
-                                            />
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success"
-                                                style={{ minWidth: '140px' }}
-                                                onClick={handleVerifySmsOtp}
-                                                disabled={isVerifyingSmsOtp || !smsOtp}
-                                            >
-                                                {isVerifyingSmsOtp ? 'Verifying SMS OTP...' : 'Verify'}
-                                            </button>
-                                        </div>
-                                        <small className="form-text text-muted mt-1 d-block">
-                                            Enter the 6-digit code sent to your Whatsapp number {phone}.
-                                        </small>
-                                    </div>
+                                            <div className="form-group mb-3 text-center">
+                                                <button 
+                                                    type="button"
+                                                    className="btn btn-outline-secondary btn-sm"
+                                                    onClick={handleResendOtp}
+                                                    disabled={isSubmitting || emailOtpVerified}
+                                                >
+                                                    Resend Email OTP
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
 
-                                    <div className="form-group mb-3 text-center">
-                                        <button 
-                                            type="button"
-                                            className="btn btn-outline-secondary btn-sm"
-                                            onClick={handleResendOtp}
-                                            disabled={isSubmitting}
-                                        >
-                                            Resend Email OTP
-                                        </button>
-                                    </div>
-
-                                    <div className="form-group mb-4">
-                                        <button
-                                            type="button"
-                                            className="btn btn-success w-100"
-                                            onClick={() => navigate('/login')}
-                                        >
-                                            Continue
-                                        </button>
-                                    </div>
+                                    {otpStep === 2 && (
+                                        <>
+                                            {/* WhatsApp/SMS OTP Verification - step 2 */}
+                                            <div className="form-group mb-3">
+                                                <label htmlFor="smsOtp" className="form-label">SMS OTP (Phone Verification)</label>
+                                                <div className="d-flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        className="form-control text-center"
+                                                        id="smsOtp"
+                                                        placeholder="SMS 6-digit code"
+                                                        maxLength="6"
+                                                        value={smsOtp}
+                                                        onChange={(e) => setSmsOtp(e.target.value.replace(/\D/g, ''))}
+                                                        disabled={isVerifyingSmsOtp || smsOtpVerified || !whatsappOtpSent || isSendingWhatsappOtp}
+                                                        ref={smsOtpInputRef}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-success"
+                                                        style={{ minWidth: '140px' }}
+                                                        onClick={handleVerifySmsOtp}
+                                                        disabled={isVerifyingSmsOtp || !smsOtp || smsOtpVerified || !whatsappOtpSent || isSendingWhatsappOtp}
+                                                    >
+                                                        {smsOtpVerified ? 'SMS Verified' : (isVerifyingSmsOtp ? 'Verifying SMS OTP...' : 'Verify')}
+                                                    </button>
+                                                </div>
+                                                <small className="form-text text-muted mt-1 d-block">
+                                                    Enter the 6-digit code sent to your Whatsapp number {phone}.
+                                                </small>
+                                                <div className="mt-2 text-end">
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-secondary btn-sm"
+                                                        onClick={handleSendSmsOtp}
+                                                        disabled={isSendingWhatsappOtp}
+                                                    >
+                                                        {isSendingWhatsappOtp ? 'Resending WhatsApp OTP...' : 'Resend WhatsApp OTP'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
                                 </form>
                             )}
                         </div>
