@@ -1,7 +1,8 @@
 <?php
 // Request password reset OTP
 error_reporting(E_ALL);
-ini_set('display_errors', 0);
+ini_set('display_errors', 1); // TEMP: enable errors for debugging
+ini_set('display_startup_errors', 1);
 ini_set('log_errors', 1);
 
 // Use database connection from config
@@ -71,10 +72,15 @@ try {
     $cleanup_stmt = $db->prepare($cleanup_query);
     $cleanup_stmt->execute([$email]);
     
-    // Store new OTP in database
-    $otp_query = "INSERT INTO otp_verification (email, otp_code, purpose, expires_at) VALUES (?, ?, 'password_reset', ?)";
+    // Store new OTP in database, matching updated schema (email + optional number + is_used_email/number)
+    $otp_query = "INSERT INTO otp_verification (email, number, otp_code, purpose, expires_at, is_used_email, is_used_number, created_at)
+                  VALUES (?, NULL, ?, 'password_reset', ?, 0, 0, CURRENT_TIMESTAMP)";
     $otp_stmt = $db->prepare($otp_query);
-    $otp_stmt->execute([$email, $otp_code, $expires_at]);
+    
+    if (!$otp_stmt->execute([$email, $otp_code, $expires_at])) {
+        $errorInfo = $otp_stmt->errorInfo();
+        throw new Exception('Failed to store password reset OTP: ' . ($errorInfo[2] ?? 'Unknown error'));
+    }
     
     // Send OTP email using EmailService
     $emailService = new ProductionEmailService();

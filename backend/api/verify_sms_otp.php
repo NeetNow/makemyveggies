@@ -38,10 +38,12 @@ try {
     // Normalize phone digits as stored in otp_verification.number
     $stored_number = preg_replace('/\D/', '', $phone);
 
-    $verify_query = "SELECT otp_id, otp_code, expires_at, is_used, created_at FROM otp_verification
+    // Allow verification using either legacy 'number_verification' OTPs
+    // or the shared registration OTP row (purpose 'registration')
+    $verify_query = "SELECT otp_id, otp_code, expires_at, is_used_number, created_at FROM otp_verification
                      WHERE number = :number
                      AND otp_code = :otp_code
-                     AND purpose = 'number_verification'
+                     AND purpose IN ('number_verification', 'registration')
                      ORDER BY created_at DESC
                      LIMIT 1";
 
@@ -56,8 +58,9 @@ try {
 
     $otp_data = $verify_stmt->fetch();
 
-    if ($otp_data['is_used'] == 1) {
-        sendResponse(false, 'OTP code has already been used', null, 400);
+    // Check if OTP has already been used for number/phone
+    if (isset($otp_data['is_used_number']) && $otp_data['is_used_number'] == 1) {
+        sendResponse(false, 'SMS OTP code has already been used', null, 400);
     }
 
     $current_time = time();
@@ -85,10 +88,13 @@ try {
     $db->beginTransaction();
 
     try {
-        $update_otp_query = 'UPDATE otp_verification SET is_used = 1 WHERE otp_id = :otp_id';
-        $update_otp_stmt = $db->prepare($update_otp_query);
-        $update_otp_stmt->bindParam(':otp_id', $otp_data['otp_id']);
-        $update_otp_stmt->execute();
+        // Mark OTP as used for number channel (if column exists)
+        if (array_key_exists('is_used_number', $otp_data)) {
+            $update_otp_query = 'UPDATE otp_verification SET is_used_number = 1 WHERE otp_id = :otp_id';
+            $update_otp_stmt = $db->prepare($update_otp_query);
+            $update_otp_stmt->bindParam(':otp_id', $otp_data['otp_id']);
+            $update_otp_stmt->execute();
+        }
 
         $update_user_query = 'UPDATE users SET number_verified = 1, is_active = CASE WHEN email_verified = 1 THEN 1 ELSE 0 END, updated_at = CURRENT_TIMESTAMP WHERE user_id = :user_id';
         $update_user_stmt = $db->prepare($update_user_query);

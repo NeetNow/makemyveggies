@@ -9,6 +9,8 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,18 +23,54 @@ const Login = () => {
     setMessage('');
 
     try {
-      const response = await fetch('/backend/api/login.php', {
-        method: 'POST',
-        credentials: 'include', // Include cookies
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          email: loginType === 'email' ? email : null,
-          mobile: loginType === 'mobile' ? mobile : null,
-          password 
-        }),
-      });
+      let response;
+
+      if (loginType === 'email') {
+        // Existing email + password login
+        response = await fetch('/backend/api/login.php', {
+          method: 'POST',
+          credentials: 'include', // Include cookies
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            mobile: null,
+            password,
+          }),
+        });
+      } else {
+        // Mobile login via OTP
+        if (!isOtpSent) {
+          setIsSubmitting(false);
+          toast.error('Please send OTP to your mobile number first.', {
+            position: 'top-right',
+            autoClose: 5000,
+          });
+          return;
+        }
+
+        if (!otp) {
+          setIsSubmitting(false);
+          toast.error('Please enter the OTP received on WhatsApp.', {
+            position: 'top-right',
+            autoClose: 5000,
+          });
+          return;
+        }
+
+        response = await fetch('/backend/api/verify_login_otp.php', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            mobile,
+            otp_code: otp,
+          }),
+        });
+      }
 
       const data = await response.json();
       setIsSubmitting(false);
@@ -76,6 +114,57 @@ const Login = () => {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
+      });
+    }
+  };
+
+  const handleSendMobileOtp = async () => {
+    if (!mobile) {
+      toast.error('Please enter your mobile number.', {
+        position: 'top-right',
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setMessage('');
+
+      const response = await fetch('/backend/api/send_login_otp.php', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mobile,
+        }),
+      });
+
+      const data = await response.json();
+      setIsSubmitting(false);
+
+      if (data.success) {
+        setIsOtpSent(true);
+        toast.success('OTP sent to your WhatsApp number.', {
+          position: 'top-right',
+          autoClose: 3000,
+        });
+      } else {
+        setIsOtpSent(false);
+        toast.error(data.message || 'Failed to send OTP', {
+          position: 'top-right',
+          autoClose: 5000,
+        });
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      setIsOtpSent(false);
+      console.error('Send OTP error:', error);
+      toast.error('Failed to send OTP. Please try again.', {
+        position: 'top-right',
+        autoClose: 5000,
       });
     }
   };
@@ -160,33 +249,64 @@ const Login = () => {
 
                 {/* Mobile Input */}
                 {loginType === 'mobile' && (
+                  <>
+                    <div className="form-group mb-3">
+                      <label htmlFor="mobile" className="form-label">Mobile Number</label>
+                      <div className="row g-2 align-items-center">
+                        <div className="col-8 col-md-9">
+                          <input
+                            type="tel"
+                            className="form-control"
+                            id="mobile"
+                            placeholder="Enter your mobile number"
+                            value={mobile}
+                            onChange={(e) => setMobile(e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="col-4 col-md-3">
+                          <button
+                            type="button"
+                            className="btn btn-secondary w-100"
+                            onClick={handleSendMobileOtp}
+                            disabled={isSubmitting}
+                          >
+                            {isSubmitting ? 'Sending...' : 'Send OTP'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="form-group mb-3">
+                      <label htmlFor="otp" className="form-label">OTP</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="otp"
+                        placeholder="Enter OTP received on WhatsApp"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Password Input for email login only */}
+                {loginType === 'email' && (
                   <div className="form-group mb-3">
-                    <label htmlFor="mobile" className="form-label">Mobile Number</label>
+                    <label htmlFor="password" className="form-label">Password</label>
                     <input
-                      type="tel"
+                      type="password"
                       className="form-control"
-                      id="mobile"
-                      placeholder="Enter your mobile number"
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
+                      id="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                   </div>
                 )}
-
-                {/* Password Input */}
-                <div className="form-group mb-3">
-                  <label htmlFor="password" className="form-label">Password</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
 
                 {/* Remember Me Checkbox */}
                 <div className="form-group mb-3">
