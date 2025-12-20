@@ -5,9 +5,51 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../utils/whatsapp_service.php';
 
 setCorsHeaders();
+
+function sendWhatsAppOtp($country_code, $phone, $otp_code)
+{
+    // Fast2SMS WhatsApp credentials / config
+    $apiKey        = $_ENV['FAST2SMS_WHATSAPP_API_KEY'] ?? '';
+    $messageId     = $_ENV['FAST2SMS_WHATSAPP_MESSAGE_ID'] ?? '';
+    $phoneNumberId = $_ENV['FAST2SMS_WHATSAPP_PHONE_NUMBER_ID'] ?? '';
+
+    // Fast2SMS expects just the mobile number in `numbers`
+    $numbers          = preg_replace('/\D/', '', $phone);
+    $variables_values = $otp_code;
+
+    $baseUrl = 'https://www.fast2sms.com/dev/whatsapp';
+
+    $queryParams = http_build_query([
+        'authorization'    => $apiKey,
+        'message_id'       => $messageId,
+        'phone_number_id'  => $phoneNumberId,
+        'numbers'          => $numbers,
+        'variables_values' => $variables_values,
+    ]);
+
+    $url = $baseUrl . '?' . $queryParams;
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPGET        => true,
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error    = curl_error($ch);
+    curl_close($ch);
+    error_log("Fast2SMS WhatsApp response: HTTP {$httpCode}, error={$error}, body={$response}");
+
+    if ($error || $httpCode < 200 || $httpCode >= 300) {
+        error_log('Fast2SMS WhatsApp OTP send failed. HTTP ' . $httpCode . ' Error: ' . $error . ' Response: ' . $response);
+        return false;
+    }
+
+    return true;
+}
 
 // Only allow POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -22,28 +64,23 @@ try {
         sendResponse(false, 'Invalid JSON data', null, 400);
     }
 
-    // Validate required fields
-    if (empty($input['email']) || empty($input['phone']) || empty($input['country_code'])) {
-        sendResponse(false, 'Email, country code and phone are required', null, 400);
+    // Mobile-only reset: only phone is required from client
+    if (empty($input['phone'])) {
+        sendResponse(false, 'Phone is required', null, 400);
     }
 
-    $email        = trim(strtolower($input['email']));
-    $phone        = trim($input['phone']);
-    $country_code = trim($input['country_code']);
+    $phone = trim($input['phone']);
 
-    // Validate email format
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        sendResponse(false, 'Invalid email format', null, 400);
-    }
-
-    // Basic validation similar to send_whatsapp_otp.php
-    if (!preg_match('/^[0-9]{1,4}$/', preg_replace('/\D/', '', $country_code))) {
-        sendResponse(false, 'Invalid country code', null, 400);
-    }
-
+    // Basic phone validation (6-15 digits)
     if (!preg_match('/^[0-9]{6,15}$/', preg_replace('/\D/', '', $phone))) {
         sendResponse(false, 'Invalid phone number format', null, 400);
     }
+
+    // Normalize phone digits for storage in otp_verification.number
+    $stored_number = preg_replace('/\D/', '', $phone);
+
+    // Default country code for WhatsApp sending (can be adjusted via env later)
+    $country_code = '+91';
 
     try {
         $database = new Database();
@@ -56,13 +93,13 @@ try {
         sendResponse(false, 'Database connection failed: ' . $e->getMessage(), null, 500);
     }
 
-    // Check if user exists and is active / verified (same as email password reset)
-    $check_query = "SELECT user_id, first_name, last_name, email_verified, is_active FROM users WHERE email = ?";
+    // Check if user exists by phone and is active / verified
+    $check_query = "SELECT user_id, first_name, last_name, email, email_verified, is_active FROM users WHERE phone = ?";
     $check_stmt = $db->prepare($check_query);
-    $check_stmt->execute([$email]);
+    $check_stmt->execute([$stored_number]);
 
     if ($check_stmt->rowCount() == 0) {
-        sendResponse(false, 'Email not found. Please register first.', null, 404);
+        sendResponse(false, 'Phone not found. Please register first.', null, 404);
     }
 
     $user = $check_stmt->fetch();
@@ -78,19 +115,19 @@ try {
     // Clean up old OTPs for this email for password reset
     $cleanup_query = "DELETE FROM otp_verification WHERE email = ? AND purpose = 'password_reset'";
     $cleanup_stmt = $db->prepare($cleanup_query);
-    $cleanup_stmt->execute([$email]);
+    $cleanup_stmt->execute([$user['email']]);
 
-    // Store new OTP in database with purpose password_reset so existing verification APIs work
-    $otp_query = "INSERT INTO otp_verification (email, otp_code, purpose, expires_at, is_used, created_at) VALUES (?, ?, 'password_reset', ?, 0, CURRENT_TIMESTAMP)";
+    // Store new OTP in database using unified schema (email + number + is_used_email/number)
+    $otp_query = "INSERT INTO otp_verification (email, number, otp_code, purpose, expires_at, is_used_email, is_used_number, created_at)
+                  VALUES (?, ?, ?, 'password_reset', ?, 0, 0, CURRENT_TIMESTAMP)";
     $otp_stmt  = $db->prepare($otp_query);
 
-    if (!$otp_stmt->execute([$email, $otp_code, $expires_at])) {
+    if (!$otp_stmt->execute([$user['email'], $stored_number, $otp_code, $expires_at])) {
         sendResponse(false, 'Failed to store WhatsApp OTP', null, 500);
     }
 
-    // Send OTP via WhatsApp
-    $whatsappService = new WhatsappService();
-    $sent = $whatsappService->sendOTP($country_code, $phone, $otp_code);
+    // Send OTP via WhatsApp using Fast2SMS helper (same as send_sms_otp.php)
+    $sent = sendWhatsAppOtp($country_code, $phone, $otp_code);
 
     if (!$sent) {
         sendResponse(false, 'Failed to send OTP via WhatsApp. Please try again.', null, 500);
@@ -98,7 +135,7 @@ try {
 
     // Return success
     sendResponse(true, 'OTP sent to your WhatsApp number.', [
-        'email'          => $email,
+        'email'          => $user['email'],
         'otp_expires_in' => 600,
         'country_code'   => $country_code,
         'phone'          => $phone,

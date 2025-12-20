@@ -41,7 +41,7 @@ try {
     error_log("OTP Verification attempt - Email: " . $email . ", OTP: " . $otp_code);
     
     // Verify OTP with detailed checking
-    $verify_query = "SELECT otp_id, otp_code, expires_at, is_used, created_at FROM otp_verification 
+    $verify_query = "SELECT otp_id, otp_code, expires_at, is_used_email, created_at FROM otp_verification 
                      WHERE email = :email 
                      AND otp_code = :otp_code 
                      AND purpose = 'registration'
@@ -59,11 +59,11 @@ try {
     }
     
     $otp_data = $verify_stmt->fetch();
-    
-    // Check if OTP is already used
-    if ($otp_data['is_used'] == 1) {
-        error_log("OTP already used for email: " . $email);
-        sendResponse(false, 'OTP code has already been used', null, 400);
+
+    // Check if OTP has already been used for email
+    if (isset($otp_data['is_used_email']) && $otp_data['is_used_email'] == 1) {
+        error_log("Email OTP already used for email: " . $email);
+        sendResponse(false, 'Email OTP code has already been used', null, 400);
     }
     
     // Check if OTP is expired
@@ -106,12 +106,14 @@ try {
     $db->beginTransaction();
     
     try {
-        // Mark OTP as used
-        $update_otp_query = "UPDATE otp_verification SET is_used = 1 WHERE otp_id = :otp_id";
-        $update_otp_stmt = $db->prepare($update_otp_query);
-        $update_otp_stmt->bindParam(':otp_id', $otp_data['otp_id']);
-        $update_otp_stmt->execute();
-        
+        // Mark OTP as used for email channel (if column exists)
+        if (array_key_exists('is_used_email', $otp_data)) {
+            $update_otp_query = "UPDATE otp_verification SET is_used_email = 1 WHERE otp_id = :otp_id";
+            $update_otp_stmt = $db->prepare($update_otp_query);
+            $update_otp_stmt->bindParam(':otp_id', $otp_data['otp_id']);
+            $update_otp_stmt->execute();
+        }
+
         // Update user verification status: mark email_verified=1 and activate only if number_verified already 1
         error_log("Updating user verification status for email: " . $email);
         

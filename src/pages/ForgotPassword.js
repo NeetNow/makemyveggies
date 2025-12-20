@@ -12,21 +12,20 @@ const ForgotPassword = () => {
     const [step, setStep] = useState(1); // 1: Choose channel & enter details, 2: Enter OTP, 3: Set new password
     const [channel, setChannel] = useState('email'); // 'email' or 'whatsapp'
     const [phone, setPhone] = useState('');
-    const [countryCode, setCountryCode] = useState('+91');
     const navigate = useNavigate();
 
-    const handleEmailSubmit = async(e) => {
+    const handleEmailSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setMessage('');
 
         try {
             const endpoint = channel === 'whatsapp'
-                ? 'http://localhost/gard_1/makemyveggies-feature-bhavesh_react/mmv/makemyveggies/backend/api/request_password_reset_whatsapp.php'
-                : 'http://localhost/gard_1/makemyveggies-feature-bhavesh_react/mmv/makemyveggies/backend/api/request_password_reset.php';
+                ? '/backend/api/request_password_reset_whatsapp.php'
+                : '/backend/api/request_password_reset.php';
 
             const payload = channel === 'whatsapp'
-                ? { email, phone, country_code: countryCode }
+                ? { email, phone }
                 : { email };
 
             const response = await fetch(endpoint, {
@@ -37,16 +36,32 @@ const ForgotPassword = () => {
                 body: JSON.stringify(payload),
             });
 
-            const data = await response.json();
+            let data = null;
+            try {
+                // Try to parse JSON only if there is a body
+                const text = await response.text();
+                data = text ? JSON.parse(text) : null;
+            } catch (parseError) {
+                console.error('Failed to parse OTP request response as JSON:', parseError);
+            }
+
             setIsSubmitting(false);
 
-            if (data.success) {
-                setMessage(channel === 'whatsapp'
-                    ? 'OTP sent to your WhatsApp number. Please check your WhatsApp.'
-                    : 'OTP sent to your email. Please check your inbox.');
+            if (!response.ok) {
+                const message = data?.message || `Failed to send OTP (HTTP ${response.status})`;
+                setMessage(message);
+                return;
+            }
+
+            if (data && data.success) {
+                setMessage(
+                    channel === 'whatsapp'
+                        ? 'OTP sent to your WhatsApp number. Please check your WhatsApp.'
+                        : 'OTP sent to your email. Please check your inbox.'
+                );
                 setStep(2);
             } else {
-                setMessage(data.message || 'Failed to send OTP');
+                setMessage(data?.message || 'Failed to send OTP');
             }
         } catch (error) {
             setIsSubmitting(false);
@@ -55,28 +70,41 @@ const ForgotPassword = () => {
         }
     };
 
-    const handleOtpSubmit = async(e) => {
+    const handleOtpSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost/gard_1/makemyveggies-feature-bhavesh_react/mmv/makemyveggies/backend/api/verify_password_reset_otp.php', {
+            const response = await fetch('/backend/api/verify_password_reset_otp.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, otp }),
+                body: JSON.stringify({ email, phone, otp }),
             });
 
-            const data = await response.json();
+            let data = null;
+            try {
+                const text = await response.text();
+                data = text ? JSON.parse(text) : null;
+            } catch (parseError) {
+                console.error('Failed to parse OTP verify response as JSON:', parseError);
+            }
+
             setIsSubmitting(false);
 
-            if (data.success) {
+            if (!response.ok) {
+                const message = data?.message || `OTP verification failed (HTTP ${response.status})`;
+                setMessage(message);
+                return;
+            }
+
+            if (data && data.success) {
                 setMessage('OTP verified successfully. Please set your new password.');
                 setStep(3);
             } else {
-                setMessage(data.message || 'OTP verification failed');
+                setMessage(data?.message || 'OTP verification failed');
             }
         } catch (error) {
             setIsSubmitting(false);
@@ -85,7 +113,7 @@ const ForgotPassword = () => {
         }
     };
 
-    const handlePasswordReset = async(e) => {
+    const handlePasswordReset = async (e) => {
         e.preventDefault();
 
         // Basic validation
@@ -103,24 +131,37 @@ const ForgotPassword = () => {
         setMessage('');
 
         try {
-            const response = await fetch('http://localhost/gard_1/makemyveggies-feature-bhavesh_react/mmv/makemyveggies/backend/api/reset_password.php', {
+            const response = await fetch('/backend/api/reset_password.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, otp, new_password: newPassword }),
+                body: JSON.stringify({ email, phone, new_password: newPassword, otp }),
             });
 
-            const data = await response.json();
+            let data = null;
+            try {
+                const text = await response.text();
+                data = text ? JSON.parse(text) : null;
+            } catch (parseError) {
+                console.error('Failed to parse reset password response as JSON:', parseError);
+            }
+
             setIsSubmitting(false);
 
-            if (data.success) {
+            if (!response.ok) {
+                const message = data?.message || `Password reset failed (HTTP ${response.status})`;
+                setMessage(message);
+                return;
+            }
+
+            if (data && data.success) {
                 setMessage('Password reset successful! Redirecting to login...');
                 setTimeout(() => {
                     navigate('/login');
                 }, 2000);
             } else {
-                setMessage(data.message || 'Password reset failed');
+                setMessage(data?.message || 'Password reset failed');
             }
         } catch (error) {
             setIsSubmitting(false);
@@ -204,37 +245,25 @@ const ForgotPassword = () => {
                                         </div>
                                     </div>
 
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="email" className="form-label">
-                                            Email Address
-                                        </label>
-                                        <input
-                                            type="email"
-                                            className="form-control"
-                                            id="email"
-                                            placeholder="Enter your email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            required
-                                        />
-                                    </div>
+                                    {channel === 'email' && (
+                                        <div className="form-group mb-3">
+                                            <label htmlFor="email" className="form-label">
+                                                Email Address
+                                            </label>
+                                            <input
+                                                type="email"
+                                                className="form-control"
+                                                id="email"
+                                                placeholder="Enter your email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                    )}
 
                                     {channel === 'whatsapp' && (
                                         <>
-                                            <div className="form-group mb-3">
-                                                <label htmlFor="countryCode" className="form-label">
-                                                    Country Code
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="countryCode"
-                                                    placeholder="+91"
-                                                    value={countryCode}
-                                                    onChange={(e) => setCountryCode(e.target.value)}
-                                                    required
-                                                />
-                                            </div>
                                             <div className="form-group mb-3">
                                                 <label htmlFor="phone" className="form-label">
                                                     WhatsApp Number
