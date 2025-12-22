@@ -122,9 +122,10 @@ try {
         ]);
     } else {
         // Insert new cart item
-        $insertSql = "INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)";
+        // Matches cart table: added_at (DATETIME), updated_at (DATETIME)
+        $insertSql = "INSERT INTO cart (user_id, product_id, quantity, added_at, updated_at) VALUES (?, ?, ?, ?, ?)";
         $insertStmt = $pdo->prepare($insertSql);
-        $insertStmt->execute([$userId, $product_id, $quantity]);
+        $insertStmt->execute([$userId, $product_id, $quantity, $istNow, $istNow]);
         
         $cart_id = $pdo->lastInsertId();
         
@@ -134,7 +135,9 @@ try {
             'data' => [
                 'cart_id' => $cart_id,
                 'product_id' => $product_id,
-                'quantity' => $quantity
+                'quantity' => $quantity,
+                'added_at_ist' => $istNow,
+                'updated_at_ist' => $istNow
             ]
         ]);
     }
