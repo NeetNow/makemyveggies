@@ -67,6 +67,9 @@ try {
         exit;
     }
 
+    // Current IST datetime for cart timestamps
+    $istNow = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))->format('Y-m-d H:i:s');
+
     // Check if product exists and is active
     $productCheckSql = "SELECT product_id, title, price, stock FROM products WHERE product_id = ? AND status = 1";
     $productStmt = $pdo->prepare($productCheckSql);
@@ -103,9 +106,9 @@ try {
             exit;
         }
         
-        $updateSql = "UPDATE cart SET quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE cart_id = ?";
+        $updateSql = "UPDATE cart SET quantity = ?, updated_at = ? WHERE cart_id = ?";
         $updateStmt = $pdo->prepare($updateSql);
-        $updateStmt->execute([$newQuantity, $existingCartItem['cart_id']]);
+        $updateStmt->execute([$newQuantity, $istNow, $existingCartItem['cart_id']]);
         
         echo json_encode([
             'status' => 'success',
@@ -113,7 +116,8 @@ try {
             'data' => [
                 'cart_id' => $existingCartItem['cart_id'],
                 'product_id' => $product_id,
-                'quantity' => $newQuantity
+                'quantity' => $newQuantity,
+                'updated_at_ist' => $istNow
             ]
         ]);
     } else {
