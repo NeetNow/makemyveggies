@@ -47,6 +47,8 @@ try {
     } catch (Exception $e) {
         sendResponse(false, 'Database connection failed: ' . $e->getMessage(), null, 500);
     }
+
+    $istNow = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))->format('Y-m-d H:i:s');
     
     // If email is not provided but phone is, resolve email from users table
     if (empty($email) && !empty($phone)) {
@@ -77,9 +79,9 @@ try {
     $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
     
     // Update user password
-    $update_query = "UPDATE users SET password = ? WHERE email = ?";
+    $update_query = "UPDATE users SET password = ?, updated_at = ? WHERE email = ?";
     $update_stmt = $db->prepare($update_query);
-    $result = $update_stmt->execute([$hashed_password, $email]);
+    $result = $update_stmt->execute([$hashed_password, $istNow, $email]);
     
     if (!$result) {
         throw new Exception('Failed to update password');

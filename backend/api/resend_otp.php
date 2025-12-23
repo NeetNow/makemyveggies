@@ -40,6 +40,8 @@ try {
     if (!$db) {
         sendResponse(false, 'Database connection failed', null, 500);
     }
+
+    $istNow = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))->format('Y-m-d H:i:s');
     
     // Check if user exists and is not yet verified
     $user_check_query = "SELECT user_id, first_name, last_name, email_verified, is_active FROM users WHERE email = ?";
@@ -58,15 +60,19 @@ try {
     }
     
     // Check rate limiting - allow resend only after 30 seconds (more user-friendly)
+    $rateLimitSince = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))
+        ->sub(new DateInterval('PT30S'))
+        ->format('Y-m-d H:i:s');
+
     $rate_limit_query = "SELECT created_at FROM otp_verification 
                         WHERE email = ? 
                         AND purpose = 'registration' 
-                        AND created_at > DATE_SUB(NOW(), INTERVAL 30 SECOND)
+                        AND created_at > ?
                         ORDER BY created_at DESC 
                         LIMIT 1";
     
     $rate_limit_stmt = $db->prepare($rate_limit_query);
-    $rate_limit_stmt->execute([$email]);
+    $rate_limit_stmt->execute([$email, $rateLimitSince]);
     
     if ($rate_limit_stmt->rowCount() > 0) {
         sendResponse(false, 'Please wait at least 30 seconds before requesting a new OTP', null, 429);
@@ -78,8 +84,10 @@ try {
     $otp_code = sprintf("%06d", mt_rand(100000, 999999));
     error_log("Generated new OTP: " . $otp_code . " for email: " . $email);
     
-    // Set OTP expiration (10 minutes from now) - fix timezone issue
-    $expires_at = date('Y-m-d H:i:s', time() + (10 * 60)); // 10 minutes from current time
+    // Set OTP expiration (10 minutes from now) - using IST
+    $expires_at = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))
+        ->add(new DateInterval('PT10M'))
+        ->format('Y-m-d H:i:s'); // 10 minutes from current time in IST
     
     // Clean up old OTPs for this email
     $cleanup_query = "DELETE FROM otp_verification WHERE email = ? AND purpose = 'registration'";
@@ -88,9 +96,9 @@ try {
     error_log("Cleaned up old OTPs for " . $email . ": Success");
     
     // Store new OTP in database - matching exact schema
-    $otp_query = "INSERT INTO otp_verification (email, otp_code, purpose, expires_at, is_used, created_at) VALUES (?, ?, 'registration', ?, 0, CURRENT_TIMESTAMP)";
+    $otp_query = "INSERT INTO otp_verification (email, otp_code, purpose, expires_at, is_used, created_at) VALUES (?, ?, 'registration', ?, 0, ?)";
     $otp_stmt = $db->prepare($otp_query);
-    if (!$otp_stmt->execute([$email, $otp_code, $expires_at])) {
+    if (!$otp_stmt->execute([$email, $otp_code, $expires_at, $istNow])) {
         error_log("Failed to store new OTP in database for: " . $email);
         sendResponse(false, 'Failed to generate new OTP', null, 500);
     }
