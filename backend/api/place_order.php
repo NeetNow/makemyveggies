@@ -22,6 +22,8 @@ try {
         sendResponse(false, 'Database connection failed', null, 500);
     }
 
+    $istNow = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))->format('Y-m-d H:i:s');
+
     $input = json_decode(file_get_contents('php://input'), true);
     if (!$input) {
         sendResponse(false, 'Invalid JSON input', null, 400);
@@ -153,17 +155,18 @@ try {
     }
 
     // Create order
-    $orderNumber = 'MMV-' . date('Y') . '-' . strtoupper(bin2hex(random_bytes(4)));
+    $orderYearIst = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))->format('Y');
+    $orderNumber = 'MMV-' . $orderYearIst . '-' . strtoupper(bin2hex(random_bytes(4)));
 
-    $orderSql = 'INSERT INTO orders (user_id, order_number, shipping_address_id, total_amount, status, payment_status) VALUES (?, ?, ?, ?, ?, ?)';
+    $orderSql = 'INSERT INTO orders (user_id, order_number, shipping_address_id, total_amount, status, payment_status, placed_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
     $status = 'Pending';
     $paymentStatus = $paymentMethod === 'COD' ? 'Pending' : 'Pending';
     $stmtOrder = $pdo->prepare($orderSql);
-    $stmtOrder->execute([$userId, $orderNumber, $shippingAddressId, $totalAmount, $status, $paymentStatus]);
+    $stmtOrder->execute([$userId, $orderNumber, $shippingAddressId, $totalAmount, $status, $paymentStatus, $istNow, $istNow]);
     $orderId = (int)$pdo->lastInsertId();
 
     // Insert order items, using discounted unit price when applicable
-    $itemSql = 'INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price) VALUES (?, ?, ?, ?, ?)';
+    $itemSql = 'INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)';
     $stmtItem = $pdo->prepare($itemSql);
     foreach ($cartItems as $item) {
         $basePrice  = isset($item['base_price']) ? (float)$item['base_price'] : 0.0;
@@ -176,23 +179,30 @@ try {
         $qty   = (int)$item['quantity'];
         $total = $unit * $qty;
 
-        $stmtItem->execute([$orderId, $item['product_id'], $qty, $unit, $total]);
+        $stmtItem->execute([$orderId, $item['product_id'], $qty, $unit, $total, $istNow, $istNow]);
     }
 
-    $billSql = 'INSERT INTO billing_details (order_id, first_name, last_name, email, phone, address_line1, address_line2, city, state, country, postal_code) VALUES (:order_id, :first_name, :last_name, :email, :phone, :address_line1, :address_line2, :city, :state, :country, :postal_code)';
+    $billSql = 'INSERT INTO billing_details (order_id, first_name, last_name, email, phone, address_line1, address_line2, city, state, country, postal_code, created_at, updated_at) VALUES (:order_id, :first_name, :last_name, :email, :phone, :address_line1, :address_line2, :city, :state, :country, :postal_code, :created_at, :updated_at)';
     $stmtBill = $pdo->prepare($billSql);
-    $stmtBill->execute(array_merge(['order_id' => $orderId], $billingInsert));
+    $stmtBill->execute(array_merge(
+        [
+            'order_id'   => $orderId,
+            'created_at' => $istNow,
+            'updated_at' => $istNow,
+        ],
+        $billingInsert
+    ));
     $billingId = (int)$pdo->lastInsertId();
 
     // Update order with billing_id
     $pdo->prepare('UPDATE orders SET billing_id = ? WHERE order_id = ?')->execute([$billingId, $orderId]);
 
     // Insert payment row (COD confirmed as pending to be collected on delivery, online as dummy)
-    $paySql = 'INSERT INTO payments (order_id, payment_method, payment_status, transaction_id, amount) VALUES (?, ?, ?, ?, ?)';
+    $paySql = 'INSERT INTO payments (order_id, payment_method, payment_status, transaction_id, amount, created_at) VALUES (?, ?, ?, ?, ?, ?)';
     $transactionId = null;
     $payStatus = $paymentMethod === 'COD' ? 'Pending' : 'Pending';
     $stmtPay = $pdo->prepare($paySql);
-    $stmtPay->execute([$orderId, $paymentMethod, $payStatus, $transactionId, $totalAmount]);
+    $stmtPay->execute([$orderId, $paymentMethod, $payStatus, $transactionId, $totalAmount, $istNow]);
 
     // Clear cart
     $clearStmt = $pdo->prepare('DELETE FROM cart WHERE user_id = ?');

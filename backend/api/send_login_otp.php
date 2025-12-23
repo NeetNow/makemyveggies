@@ -78,6 +78,8 @@ try {
         sendResponse(false, 'Database connection failed', null, 500);
     }
 
+    $istNow = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))->format('Y-m-d H:i:s');
+
     $user_query = 'SELECT user_id, phone, email, email_verified, is_active FROM users WHERE phone = :phone';
     $user_stmt = $db->prepare($user_query);
     $user_stmt->bindParam(':phone', $mobile);
@@ -94,7 +96,9 @@ try {
     }
 
     $otp_code   = sprintf('%06d', mt_rand(100000, 999999));
-    $expires_at = date('Y-m-d H:i:s', time() + (10 * 60));
+    $expires_at = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))
+        ->add(new DateInterval('PT10M'))
+        ->format('Y-m-d H:i:s');
 
     // Normalize phone digits for storage in `number`
     $stored_number = preg_replace('/\D/', '', $mobile);
@@ -105,10 +109,10 @@ try {
     $cleanup_stmt->execute([$stored_number]);
 
     // Store new OTP for login
-    $otp_query = "INSERT INTO otp_verification (email, number, otp_code, purpose, expires_at, is_used_email, is_used_number, created_at) VALUES (?, ?, ?, 'login', ?, 0, 0, CURRENT_TIMESTAMP)";
+    $otp_query = "INSERT INTO otp_verification (email, number, otp_code, purpose, expires_at, is_used_email, is_used_number, created_at) VALUES (?, ?, ?, 'login', ?, 0, 0, ?)";
     $otp_stmt = $db->prepare($otp_query);
 
-    if (!$otp_stmt->execute([$user['email'], $stored_number, $otp_code, $expires_at])) {
+    if (!$otp_stmt->execute([$user['email'], $stored_number, $otp_code, $expires_at, $istNow])) {
         sendResponse(false, 'Failed to store login OTP', null, 500);
     }
 

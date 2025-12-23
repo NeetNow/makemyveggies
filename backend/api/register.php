@@ -106,6 +106,8 @@ try {
         sendResponse(false, 'Database connection failed', null, 500);
     }
 
+    $istNow = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))->format('Y-m-d H:i:s');
+
     // Check if email already exists and is active
     $check_email_query = "SELECT user_id, email_verified, is_active FROM users WHERE email = ?";
     $check_email_stmt = $db->prepare($check_email_query);
@@ -124,13 +126,15 @@ try {
             $user_id = $existing_user['user_id'];
             
             // Update existing user with new information
-            $update_query = "UPDATE users SET first_name = ?, last_name = ?, password = ?, phone = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?";
+            $update_query = "UPDATE users SET first_name = ?, last_name = ?, password = ?, phone = ?, updated_at = ? WHERE user_id = ?";
             $update_stmt = $db->prepare($update_query);
-            $update_stmt->execute([$first_name, $last_name, $hashed_password, $phone, $user_id]);
+            $update_stmt->execute([$first_name, $last_name, $hashed_password, $phone, $istNow, $user_id]);
             
             // Generate new OTP
             $otp_code = sprintf("%06d", mt_rand(100000, 999999));
-            $expires_at = date('Y-m-d H:i:s', time() + (10 * 60)); // 10 minutes expiry
+            $expires_at = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))
+                ->add(new DateInterval('PT10M'))
+                ->format('Y-m-d H:i:s'); // 10 minutes expiry in IST
 
             // Clean up old OTPs for this email
             $cleanup_query = "DELETE FROM otp_verification WHERE email = ? AND purpose = 'registration'";
@@ -140,9 +144,9 @@ try {
             // Store new OTP in database - single row with both email and number
             // Initialize is_used_email and is_used_number as 0
             $otp_query = "INSERT INTO otp_verification (email, number, otp_code, purpose, expires_at, is_used_email, is_used_number, created_at)
-                          VALUES (?, ?, ?, 'registration', ?, 0, 0, CURRENT_TIMESTAMP)";
+                          VALUES (?, ?, ?, 'registration', ?, 0, 0, ?)";
             $otp_stmt = $db->prepare($otp_query);
-            $otp_stmt->execute([$email, $stored_number, $otp_code, $expires_at]);
+            $otp_stmt->execute([$email, $stored_number, $otp_code, $expires_at, $istNow]);
             
             // Send OTP email using EmailService
             $emailService = new ProductionEmailService();
@@ -189,11 +193,11 @@ try {
     try {
         // Create user account - exactly matching database schema
         $create_user_query = "INSERT INTO users (first_name, last_name, email, password, phone, email_verified, is_active, created_at, updated_at) 
-                             VALUES (?, ?, ?, ?, ?, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                             VALUES (?, ?, ?, ?, ?, 0, 0, ?, ?)";
         
         $create_user_stmt = $db->prepare($create_user_query);
         
-        if (!$create_user_stmt->execute([$first_name, $last_name, $email, $hashed_password, $phone])) {
+        if (!$create_user_stmt->execute([$first_name, $last_name, $email, $hashed_password, $phone, $istNow, $istNow])) {
             throw new Exception('Failed to create user account');
         }
         
@@ -201,15 +205,17 @@ try {
         
         // Generate 6-digit OTP
         $otp_code = sprintf("%06d", mt_rand(100000, 999999));
-        $expires_at = date('Y-m-d H:i:s', time() + (10 * 60)); // 10 minutes expiry
+        $expires_at = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))
+            ->add(new DateInterval('PT10M'))
+            ->format('Y-m-d H:i:s'); // 10 minutes expiry in IST
 
         // Store OTP in database - single row with both email and number
         // Initialize is_used_email and is_used_number as 0
         $otp_query = "INSERT INTO otp_verification (email, number, otp_code, purpose, expires_at, is_used_email, is_used_number, created_at) 
-                     VALUES (?, ?, ?, 'registration', ?, 0, 0, CURRENT_TIMESTAMP)";
+                     VALUES (?, ?, ?, 'registration', ?, 0, 0, ?)";
         $otp_stmt = $db->prepare($otp_query);
 
-        if (!$otp_stmt->execute([$email, $stored_number, $otp_code, $expires_at])) {
+        if (!$otp_stmt->execute([$email, $stored_number, $otp_code, $expires_at, $istNow])) {
             throw new Exception('Failed to store OTP');
         }
         
