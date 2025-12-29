@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../middleware/jwt_auth.php';
+require_once __DIR__ . '/../utils/email_production.php';
 
 setCorsHeaders();
 
@@ -45,6 +46,7 @@ try {
             c.quantity,
             p.title,
             p.price AS base_price,
+            p.stock AS product_stock,
             (
                 SELECT d.dis_percent
                 FROM discounts d
@@ -74,8 +76,8 @@ try {
         sendResponse(false, 'Cart is empty', null, 400);
     }
 
-    // Calculate order total using discounted prices when applicable
     $totalAmount = 0;
+    $orderItemsSummary = [];
     foreach ($cartItems as $item) {
         $basePrice  = isset($item['base_price']) ? (float)$item['base_price'] : 0.0;
         $disPercent = isset($item['dis_percent']) ? (float)$item['dis_percent'] : 0.0;
@@ -84,7 +86,17 @@ try {
         $hasDiscount = $disPercent > 0 && $disAmount > 0;
         $unitPrice   = $hasDiscount ? $disAmount : $basePrice;
 
-        $totalAmount += $unitPrice * (int)$item['quantity'];
+        $qty = (int)$item['quantity'];
+        $lineTotal = $unitPrice * $qty;
+        $totalAmount += $lineTotal;
+
+        $orderItemsSummary[] = [
+            'product_id' => (int)$item['product_id'],
+            'name' => $item['title'],
+            'quantity' => $qty,
+            'unit_price' => $unitPrice,
+            'total_price' => $lineTotal,
+        ];
     }
 
     // Build billing details first, we will also reuse them as shipping if needed
@@ -165,9 +177,10 @@ try {
     $stmtOrder->execute([$userId, $orderNumber, $shippingAddressId, $totalAmount, $status, $paymentStatus, $istNow, $istNow]);
     $orderId = (int)$pdo->lastInsertId();
 
-    // Insert order items, using discounted unit price when applicable
     $itemSql = 'INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)';
     $stmtItem = $pdo->prepare($itemSql);
+    $stockUpdateSql = 'UPDATE products SET stock = stock - ? WHERE product_id = ? AND stock >= ?';
+    $stmtStock = $pdo->prepare($stockUpdateSql);
     foreach ($cartItems as $item) {
         $basePrice  = isset($item['base_price']) ? (float)$item['base_price'] : 0.0;
         $disPercent = isset($item['dis_percent']) ? (float)$item['dis_percent'] : 0.0;
@@ -177,9 +190,21 @@ try {
         $unit        = $hasDiscount ? $disAmount : $basePrice;
 
         $qty   = (int)$item['quantity'];
+        $currentStock = isset($item['product_stock']) ? (int)$item['product_stock'] : 0;
+        if ($currentStock < $qty) {
+            $pdo->rollBack();
+            sendResponse(false, 'Insufficient stock for product: ' . $item['title'], null, 400);
+        }
+
         $total = $unit * $qty;
 
         $stmtItem->execute([$orderId, $item['product_id'], $qty, $unit, $total, $istNow, $istNow]);
+
+        $stmtStock->execute([$qty, $item['product_id'], $qty]);
+        if ($stmtStock->rowCount() === 0) {
+            $pdo->rollBack();
+            sendResponse(false, 'Unable to update stock for product: ' . $item['title'], null, 400);
+        }
     }
 
     $billSql = 'INSERT INTO billing_details (order_id, first_name, last_name, email, phone, address_line1, address_line2, city, state, country, postal_code, created_at, updated_at) VALUES (:order_id, :first_name, :last_name, :email, :phone, :address_line1, :address_line2, :city, :state, :country, :postal_code, :created_at, :updated_at)';
@@ -210,11 +235,37 @@ try {
 
     $pdo->commit();
 
+    // Always send order confirmation email to account (login) email
+    $customerEmail = $user['email'] ?? null;
+    $customerName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+
+    if ($customerEmail) {
+        try {
+            $emailService = new ProductionEmailService(false);
+            $emailService->sendOrderConfirmation($customerEmail, $customerName, $orderNumber, $orderItemsSummary, $totalAmount, $paymentMethod);
+        } catch (Exception $e) {
+            error_log('Order confirmation email failed: ' . $e->getMessage());
+        }
+    }
+
     sendResponse(true, 'Order placed successfully', [
         'order_id' => $orderId,
         'order_number' => $orderNumber,
         'payment_method' => $paymentMethod,
-        'total_amount' => $totalAmount
+        'total_amount' => $totalAmount,
+        'items' => $orderItemsSummary,
+        'billing' => [
+            'first_name' => $billingInsert['first_name'],
+            'last_name' => $billingInsert['last_name'],
+            'email' => $billingInsert['email'] ?? $user['email'] ?? null,
+            'phone' => $billingInsert['phone'] ?? null,
+            'address_line1' => $billingInsert['address_line1'],
+            'address_line2' => $billingInsert['address_line2'],
+            'city' => $billingInsert['city'],
+            'state' => $billingInsert['state'],
+            'country' => $billingInsert['country'],
+            'postal_code' => $billingInsert['postal_code'],
+        ],
     ]);
 } catch (Exception $e) {
     if (isset($pdo) && $pdo->inTransaction()) {

@@ -33,7 +33,7 @@ class ProductionEmailService {
         global $phpmailer_available;
         
         // Load from environment variables
-        $this->smtp_host = $_ENV['EMAIL_HOST'] ?? "smtp.gmail.com";
+        $this->smtp_host = $_ENV['EMAIL_HOST'] ?? "smtp.hostinger.com";
         $this->smtp_port = $_ENV['EMAIL_PORT'] ?? 587;
         $this->smtp_username = $_ENV['EMAIL_USERNAME'] ?? "";
         $this->smtp_password = $_ENV['EMAIL_PASSWORD'] ?? "";
@@ -265,6 +265,89 @@ class ProductionEmailService {
         ";
     }
 
+    private function getOrderConfirmationTemplate($user_name, $orderNumber, $items, $totalAmount, $paymentMethod) {
+        $safeName = $user_name ? htmlspecialchars($user_name) : 'Customer';
+
+        $rowsHtml = '';
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                $name = htmlspecialchars((string)($item['name'] ?? 'Item'));
+                $qty = (int)($item['quantity'] ?? 0);
+                $unit = number_format((float)($item['unit_price'] ?? 0), 2);
+                $total = number_format((float)($item['total_price'] ?? 0), 2);
+
+                $rowsHtml .= "<tr>"
+                    . "<td style='padding:8px;border:1px solid #ddd;'>{$name}</td>"
+                    . "<td style='padding:8px;border:1px solid #ddd;text-align:center;'>{$qty}</td>"
+                    . "<td style='padding:8px;border:1px solid #ddd;text-align:right;'>{$unit}</td>"
+                    . "<td style='padding:8px;border:1px solid #ddd;text-align:right;'>{$total}</td>"
+                    . "</tr>";
+            }
+        }
+
+        $grandTotal = number_format((float)$totalAmount, 2);
+        $payment = htmlspecialchars((string)$paymentMethod);
+
+        return "
+        <!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <title>Order Confirmation - MakeMyVeggies</title>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; }
+                .container { max-width: 700px; margin: 20px auto; background: #fff; border-radius: 10px; overflow: hidden; }
+                .header { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 25px; text-align: center; }
+                .content { padding: 25px; }
+                .footer { background: #2c3e50; color: #ecf0f1; text-align: center; padding: 15px; font-size: 13px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th { background: #f1f1f1; padding: 8px; border: 1px solid #ddd; text-align: left; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h1>Order Confirmed</h1>
+                    <p>Thank you for shopping with MakeMyVeggies</p>
+                </div>
+                <div class='content'>
+                    <p>Hi {$safeName},</p>
+                    <p>Your order <strong>{$orderNumber}</strong> has been placed successfully.</p>
+
+                    <h3>Order Details</h3>
+                    <p><strong>Payment Method:</strong> {$payment}</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th style='text-align:center;'>Qty</th>
+                                <th style='text-align:right;'>Unit Price</th>
+                                <th style='text-align:right;'>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {$rowsHtml}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan='3' style='padding:8px;border:1px solid #ddd;text-align:right;'><strong>Grand Total</strong></td>
+                                <td style='padding:8px;border:1px solid #ddd;text-align:right;'><strong>₹{$grandTotal}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <p style='margin-top:20px;'>You will receive another update when your order is out for delivery.</p>
+                </div>
+                <div class='footer'>
+                    <p>&copy; 2024 MakeMyVeggies. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
+    }
+
     private function getPasswordResetOTPEmailTemplate($otp_code, $user_name) {
         return "
         <!DOCTYPE html>
@@ -404,6 +487,25 @@ class ProductionEmailService {
             return $this->sendEmailWithPHPMailer($to_email, $subject, $message);
         } catch (Exception $e) {
             error_log("Welcome email failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Send order confirmation email after successful order placement
+    public function sendOrderConfirmation($to_email, $user_name, $orderNumber, $items, $totalAmount, $paymentMethod) {
+        $subject = "Your MakeMyVeggies order {$orderNumber}";
+        $message = $this->getOrderConfirmationTemplate($user_name, $orderNumber, $items, $totalAmount, $paymentMethod);
+
+        if (!$this->use_phpmailer) {
+            $headers = "From: {$this->from_name} <{$this->from_email}>\r\n";
+            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+            return mail($to_email, $subject, $message, $headers);
+        }
+
+        try {
+            return $this->sendEmailWithPHPMailer($to_email, $subject, $message);
+        } catch (Exception $e) {
+            error_log("Order confirmation email failed: " . $e->getMessage());
             return false;
         }
     }

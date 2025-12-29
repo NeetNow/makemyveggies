@@ -1,7 +1,7 @@
 <?php
 // Fallback email service for when PHPMailer fails
 class FallbackEmailService {
-    private $from_email = "nikhil.bava@makemyveggies.com";
+    private $from_email = "admin@makemyveggies.com";
     private $from_name = "MakeMyVeggies";
 
     public function sendOTP($to_email, $otp_code, $user_name = '') {
@@ -18,17 +18,14 @@ class FallbackEmailService {
             $headers .= "Reply-To: {$this->from_email}\r\n";
             $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
             $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
-            
-            $result = mail($to_email, $subject, $message, $headers);
-            
-            if ($result) {
-                error_log("Fallback email sent to: {$to_email}");
-                return true;
-            } else {
-                error_log("Fallback email failed to: {$to_email}");
-                return false;
-            }
-            
+
+            // In this fallback implementation, we do not actually send via mail() to avoid
+            // relying on a local SMTP server configuration (which often does not exist
+            // in development environments like XAMPP on Windows). Instead, we log the
+            // attempt and report failure so the calling code can handle it appropriately.
+            error_log("Fallback email (not sent) to: {$to_email} | Subject: {$subject}");
+            return false;
+
         } catch (Exception $e) {
             error_log("Fallback email error: " . $e->getMessage());
             return false;
