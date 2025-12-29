@@ -31,6 +31,7 @@ const Checkout = () => {
 
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
+  const [orderTotal, setOrderTotal] = useState(0);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [error, setError] = useState('');
 
@@ -120,6 +121,12 @@ const Checkout = () => {
       }
 
       setOrderNumber(data.data.order_number);
+      // Use backend-calculated total amount for confirmation summary
+      if (data.data && typeof data.data.total_amount === 'number') {
+        setOrderTotal(data.data.total_amount);
+      } else {
+        setOrderTotal(total);
+      }
       setOrderPlaced(true);
       await clearCart();
 
@@ -204,7 +211,11 @@ const Checkout = () => {
                               <tbody>
                                 <tr className="total">
                                   <td><strong>Total</strong></td>
-                                  <td><strong className="primary-color">${total.toFixed(2)}</strong></td>
+                                  <td>
+                                    <strong className="primary-color">
+                                      ${orderTotal.toFixed(2)}
+                                    </strong>
+                                  </td>
                                 </tr>
                               </tbody>
                             </table>

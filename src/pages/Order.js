@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useCart } from '../context/CartContext';
 import '../assets/css/style.css'; // Import original CSS
 import '../assets/css/order.css'; // Import order page CSS
 
 const Order = () => {
+  const { cartItems, getCartTotal } = useCart();
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -24,22 +27,10 @@ const Order = () => {
     notes: ''
   });
 
-  const [cartItems] = useState([
-    {
-      id: 1,
-      name: 'Gardening Gloves',
-      price: 100.99,
-      quantity: 2,
-      image: '/assets/img/shop/img1.jpg'
-    },
-    {
-      id: 2,
-      name: 'Gardening Boots',
-      price: 150.99,
-      quantity: 1,
-      image: '/assets/img/shop/img2.jpg'
-    }
-  ]);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [orderData, setOrderData] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setFormData({
@@ -48,14 +39,87 @@ const Order = () => {
     });
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = 15.00;
-  const total = subtotal + shipping;
+  const isCartEmpty = !cartItems || cartItems.length === 0;
 
-  const handleSubmit = (e) => {
+  // When order is not yet placed, use live cart totals from context
+  const liveSubtotal = getCartTotal();
+
+  // When order is placed, use backend response totals and items
+  const displayItems = orderPlaced && orderData && Array.isArray(orderData.items)
+    ? orderData.items
+    : cartItems;
+
+  const displaySubtotal = orderPlaced && orderData
+    ? orderData.total_amount || 0
+    : liveSubtotal;
+
+  // Flat shipping for now; you can move this to backend later
+  const displayShipping = orderPlaced ? 0 : 15.0;
+
+  const displayTotal = displaySubtotal + displayShipping;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real application, this would submit the order
-    alert('Order placed successfully!');
+
+    if (isCartEmpty) {
+      setError('Your cart is empty. Please add items before placing an order.');
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
+    // Map frontend payment method to backend values
+    const paymentMap = {
+      'cash-on-delivery': 'COD',
+      'credit-card': 'ONLINE',
+      'paypal': 'ONLINE',
+    };
+
+    const paymentMethod = paymentMap[formData.paymentMethod] || 'COD';
+
+    const payload = {
+      paymentMethod,
+      notes: formData.notes || null,
+      billingMode: 'new',
+      billing: {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        address_line1: formData.address,
+        address_line2: '',
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        postal_code: formData.zipCode,
+      },
+    };
+
+    try {
+      const response = await fetch('/backend/api/place_order.php', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to place order');
+      }
+
+      setOrderPlaced(true);
+      setOrderData(data.data || null);
+    } catch (err) {
+      console.error('Error placing order:', err);
+      setError(err.message || 'An error occurred while placing your order.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -369,16 +433,34 @@ const Order = () => {
                       
                       <div className="order-body">
                         <ul>
-                          {cartItems.map((item) => (
-                            <li key={item.id}>
+                          {displayItems && displayItems.length > 0 ? (
+                            displayItems.map((item, index) => {
+                              const name = item.name;
+                              const qty = item.quantity;
+                              const lineTotal = orderPlaced
+                                ? (item.total_price || (item.unit_price || 0) * qty)
+                                : (item.price || 0) * qty;
+
+                              const key = item.cart_id || item.product_id || index;
+
+                              return (
+                                <li key={key}>
+                                  <div className="product">
+                                    <span>{name} × {qty}</span>
+                                  </div>
+                                  <div className="total">
+                                    <span>${lineTotal.toFixed(2)}</span>
+                                  </div>
+                                </li>
+                              );
+                            })
+                          ) : (
+                            <li>
                               <div className="product">
-                                <span>{item.name} × {item.quantity}</span>
-                              </div>
-                              <div className="total">
-                                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                <span>Your cart is empty.</span>
                               </div>
                             </li>
-                          ))}
+                          )}
                         </ul>
                       </div>
                       
@@ -386,11 +468,11 @@ const Order = () => {
                         <ul>
                           <li>
                             <span>Subtotal</span>
-                            <span>${subtotal.toFixed(2)}</span>
+                            <span>${displaySubtotal.toFixed(2)}</span>
                           </li>
                           <li>
                             <span>Shipping</span>
-                            <span>${shipping.toFixed(2)}</span>
+                            <span>${displayShipping.toFixed(2)}</span>
                           </li>
                         </ul>
                       </div>
@@ -399,15 +481,27 @@ const Order = () => {
                         <ul>
                           <li>
                             <span>Total</span>
-                            <span className="fw-bold">${total.toFixed(2)}</span>
+                            <span className="fw-bold">${displayTotal.toFixed(2)}</span>
                           </li>
                         </ul>
                       </div>
                     </div>
                     
+                    {error && (
+                      <div className="alert alert-danger mt-3" role="alert">
+                        {error}
+                      </div>
+                    )}
+
+                    {orderPlaced && orderData && (
+                      <div className="alert alert-success mt-3" role="alert">
+                        Order <strong>{orderData.order_number}</strong> placed successfully!
+                      </div>
+                    )}
+
                     <div className="place-order mt-4">
-                      <button type="submit" className="custom-btn w-100">
-                        Place Order
+                      <button type="submit" className="custom-btn w-100" disabled={submitting}>
+                        {submitting ? 'Placing Order...' : 'Place Order'}
                       </button>
                     </div>
                   </div>
