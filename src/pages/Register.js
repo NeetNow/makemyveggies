@@ -178,7 +178,7 @@ const Register = () => {
                     navigate('/login');
                 }, 2000);
             } else {
-                setMessage('Mobile number verified. Please also verify your email OTP to complete registration.');
+                setMessage('Mobile number verified successfully. Please also verify your email OTP to complete registration.');
             }
         }
     };
