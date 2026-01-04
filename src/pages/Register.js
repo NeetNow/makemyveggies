@@ -43,19 +43,30 @@ const Register = () => {
 
             clearTimeout(timeoutId);
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            let data = null;
+            try {
+                data = await response.json();
+            } catch (e) {
+                // If response body is not JSON, keep data as null
             }
 
-            const data = await response.json();
-            
-            if (data.success) {
+            // If backend returned a structured error, use its message
+            if (!response.ok || (data && data.success === false)) {
+                const backendMessage = data && data.message ? data.message : null;
+                const messageToShow = backendMessage || `${actionName} failed. Please try again.`;
+                setMessage(messageToShow);
+                return { success: false, data: data || null, status: response.status };
+            }
+
+            // Success case
+            if (data && data.success) {
                 setMessage(successMessage);
                 return { success: true, data };
-            } else {
-                setMessage(`${actionName} failed: ` + (data.message || 'Unknown error'));
-                return { success: false, data };
             }
+
+            // Fallback if data is not in expected format
+            setMessage(`${actionName} failed. Please try again.`);
+            return { success: false, data };
 
         } catch (error) {
             clearTimeout(timeoutId);
