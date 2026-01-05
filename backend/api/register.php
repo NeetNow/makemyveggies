@@ -256,6 +256,7 @@ try {
     
 } catch (Exception $e) {
     error_log("Registration error: " . $e->getMessage());
-    sendResponse(false, 'Registration failed: ' . $e->getMessage(), null, 500);
+    // Do not expose internal error details to end users
+    sendResponse(false, 'Registration failed due to a server error. Please try again later.', null, 500);
 }
 ?>

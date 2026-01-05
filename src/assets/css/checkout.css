@@ -29,7 +29,8 @@
 .checkoutpage__billingdetails,
 .checkoutpage__paymentmethod,
 .checkoutpage__order {
-  background: white;
+  /* Use theme background to match order.css */
+  background: #F8F5F0;
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
@@ -123,10 +124,31 @@
   text-align: center;
 }
 
+/* Saved address list styling on checkout page */
+.checkoutpage .list-group-item {
+  background-color: #F8F5F0;
+  border-color: #e0e0e0;
+  color: #31381A;
+}
+
+.checkoutpage .list-group-item.active,
+.checkoutpage .list-group-item.list-group-item-action.active {
+  background-color: #31381A;
+  border-color: #31381A;
+  color: #fff;
+}
+
+/* Radio inputs (billing mode, payment method) themed */
+.checkoutpage .form-check-input:checked {
+  background-color: #31381A;
+  border-color: #31381A;
+}
+
 .checkoutpage .custom-btn {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background-color: #007bff;
+  /* Use theme button color instead of blue */
+  background-color: #31381A;
   color: white;
   border: none;
   border-radius: 0.25rem;
@@ -137,7 +159,8 @@
 }
 
 .checkoutpage .custom-btn:hover {
-  background-color: #0056b3;
+  /* Theme hover color */
+  background-color: #939E5B;
   color: white;
   text-decoration: none;
 }
