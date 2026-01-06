@@ -13,7 +13,7 @@ const Register = () => {
     
     // Email OTP State
     const [showOtpForm, setShowOtpForm] = useState(false);
-    const [otpCode, setOtpCode] = useState(''); // For Email OTP
+    const [otpCode, setOtpCode] = useState(''); // For Email OTP (6 digits)
     const [emailOtpVerified, setEmailOtpVerified] = useState(false);
 
     // SMS/Text OTP State (Renamed from whatsappOtp)
@@ -24,6 +24,8 @@ const Register = () => {
     const [isSendingWhatsappOtp, setIsSendingWhatsappOtp] = useState(false);
 
     const smsOtpInputRef = useRef(null);
+    const emailOtpInputsRef = useRef([]);
+    const smsOtpInputsRef = useRef([]);
 
     const navigate = useNavigate();
 
@@ -151,11 +153,8 @@ const Register = () => {
         }
     };
 
-    // Renamed from handleVerifyWhatsappOtp
-    const handleVerifySmsOtp = async (e) => {
-        e.preventDefault();
-
-        if (!smsOtp || smsOtp.length !== 6) {
+    const verifySmsOtp = async (code) => {
+        if (!code || code.length !== 6) {
             setMessage('Please enter a valid 6-digit SMS OTP');
             return;
         }
@@ -167,7 +166,7 @@ const Register = () => {
             email,
             phone,
             country_code: '+91',
-            otp_code: smsOtp,
+            otp_code: code,
         };
 
         const result = await fetchApi(
@@ -194,10 +193,8 @@ const Register = () => {
         }
     };
 
-    const handleOtpSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!otpCode || otpCode.length !== 6) {
+    const verifyEmailOtp = async (code) => {
+        if (!code || code.length !== 6) {
             setMessage('Please enter a valid 6-digit Email OTP code');
             return;
         }
@@ -207,7 +204,7 @@ const Register = () => {
 
         const otpData = {
             email,
-            otp_code: otpCode
+            otp_code: code
         };
 
         const result = await fetchApi(
@@ -396,27 +393,39 @@ const Register = () => {
                             ) : (
                                 <form className="otp-form">
                                     <div className="form-group mb-3">
-                                        <label htmlFor="otpCode" className="form-label">Email OTP Code</label>
-                                        <div className="d-flex gap-2">
-                                            <input 
-                                                type="text"
-                                                className="form-control text-center"
-                                                id="otpCode"
-                                                placeholder="Email 6-digit code"
-                                                maxLength="6"
-                                                value={otpCode}
-                                                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                                                required 
-                                            />
-                                            <button 
-                                                type="button"
-                                                className="btn btn-primary"
-                                                style={{ minWidth: '140px' }}
-                                                onClick={handleOtpSubmit}
-                                                disabled={isSubmitting || emailOtpVerified}
-                                            >
-                                                {emailOtpVerified ? 'Email Verified' : (isSubmitting ? 'Verifying Email...' : 'Verify')}
-                                            </button>
+                                        <label className="form-label">Email OTP Code</label>
+                                        <div className="d-flex gap-2 justify-content-between" style={{ maxWidth: '260px' }}>
+                                            {[0,1,2,3,4,5].map((idx) => (
+                                                <input
+                                                    key={idx}
+                                                    type="text"
+                                                    className="form-control text-center"
+                                                    maxLength="1"
+                                                    value={otpCode[idx] || ''}
+                                                    disabled={isSubmitting || emailOtpVerified}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/\D/g, '').slice(-1);
+                                                        let newCode = otpCode.split('');
+                                                        newCode[idx] = val;
+                                                        newCode = newCode.join('');
+                                                        setOtpCode(newCode);
+
+                                                        if (val && idx < 5 && emailOtpInputsRef.current[idx + 1]) {
+                                                            emailOtpInputsRef.current[idx + 1].focus();
+                                                        }
+
+                                                        if (newCode.length === 6 && /^\d{6}$/.test(newCode)) {
+                                                            verifyEmailOtp(newCode);
+                                                        }
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Backspace' && !otpCode[idx] && idx > 0 && emailOtpInputsRef.current[idx - 1]) {
+                                                            emailOtpInputsRef.current[idx - 1].focus();
+                                                        }
+                                                    }}
+                                                    ref={(el) => emailOtpInputsRef.current[idx] = el}
+                                                />
+                                            ))}
                                         </div>
                                         <small className="form-text text-muted mt-1 d-block">
                                             Enter the 6-digit code sent to {email} to complete registration.
@@ -435,28 +444,39 @@ const Register = () => {
                                     </div>
 
                                     <div className="form-group mb-3">
-                                        <label htmlFor="smsOtp" className="form-label">SMS OTP (Phone Verification)</label>
-                                        <div className="d-flex gap-2">
-                                            <input
-                                                type="text"
-                                                className="form-control text-center"
-                                                id="smsOtp"
-                                                placeholder="SMS 6-digit code"
-                                                maxLength="6"
-                                                value={smsOtp}
-                                                onChange={(e) => setSmsOtp(e.target.value.replace(/\D/g, ''))}
-                                                disabled={isVerifyingSmsOtp || smsOtpVerified || !whatsappOtpSent || isSendingWhatsappOtp}
-                                                ref={smsOtpInputRef}
-                                            />
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-success"
-                                                style={{ minWidth: '140px' }}
-                                                onClick={handleVerifySmsOtp}
-                                                disabled={isVerifyingSmsOtp || !smsOtp || smsOtpVerified || !whatsappOtpSent || isSendingWhatsappOtp}
-                                            >
-                                                {smsOtpVerified ? 'SMS Verified' : (isVerifyingSmsOtp ? 'Verifying SMS OTP...' : 'Verify')}
-                                            </button>
+                                        <label className="form-label">SMS OTP (Phone Verification)</label>
+                                        <div className="d-flex gap-2 justify-content-between" style={{ maxWidth: '260px' }}>
+                                            {[0,1,2,3,4,5].map((idx) => (
+                                                <input
+                                                    key={idx}
+                                                    type="text"
+                                                    className="form-control text-center"
+                                                    maxLength="1"
+                                                    value={smsOtp[idx] || ''}
+                                                    disabled={isVerifyingSmsOtp || smsOtpVerified || !whatsappOtpSent || isSendingWhatsappOtp}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/\D/g, '').slice(-1);
+                                                        let newCode = smsOtp.split('');
+                                                        newCode[idx] = val;
+                                                        newCode = newCode.join('');
+                                                        setSmsOtp(newCode);
+
+                                                        if (val && idx < 5 && smsOtpInputsRef.current[idx + 1]) {
+                                                            smsOtpInputsRef.current[idx + 1].focus();
+                                                        }
+
+                                                        if (newCode.length === 6 && /^\d{6}$/.test(newCode)) {
+                                                            verifySmsOtp(newCode);
+                                                        }
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Backspace' && !smsOtp[idx] && idx > 0 && smsOtpInputsRef.current[idx - 1]) {
+                                                            smsOtpInputsRef.current[idx - 1].focus();
+                                                        }
+                                                    }}
+                                                    ref={(el) => smsOtpInputsRef.current[idx] = el}
+                                                />
+                                            ))}
                                         </div>
                                         <small className="form-text text-muted mt-1 d-block">
                                             Enter the 6-digit code sent to your Whatsapp number {phone}.
