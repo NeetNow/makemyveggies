@@ -40,10 +40,7 @@ try {
 
     // Allow verification using either legacy 'number_verification' OTPs
     // or the shared registration OTP row (purpose 'registration')
-    // Also compute expiry relative to NOW() using DATETIME semantics
-    $verify_query = "SELECT otp_id, otp_code, expires_at, is_used_number, created_at,
-                            TIMESTAMPDIFF(SECOND, NOW(), expires_at) AS seconds_left
-                     FROM otp_verification
+    $verify_query = "SELECT otp_id, otp_code, expires_at, is_used_number, created_at FROM otp_verification
                      WHERE number = :number
                      AND otp_code = :otp_code
                      AND purpose IN ('number_verification', 'registration')
@@ -66,16 +63,10 @@ try {
         sendResponse(false, 'SMS OTP code has already been used', null, 400);
     }
 
-    // Check expiry using DATETIME (expires_at) vs NOW() in MySQL
-    $seconds_left = isset($otp_data['seconds_left']) ? (int)$otp_data['seconds_left'] : null;
+    $current_time = time();
+    $expiry_time  = strtotime($otp_data['expires_at']);
 
-    error_log(
-        'SMS OTP expiry check - Now vs expires_at for number ' . $stored_number .
-        ' | expires_at: ' . $otp_data['expires_at'] .
-        ' | seconds_left: ' . var_export($seconds_left, true)
-    );
-
-    if ($seconds_left !== null && $seconds_left <= 0) {
+    if ($expiry_time <= $current_time) {
         sendResponse(false, 'OTP code has expired', null, 400);
     }
 
