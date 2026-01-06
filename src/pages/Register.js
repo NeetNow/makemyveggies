@@ -432,7 +432,7 @@ const Register = () => {
                                         </small>
                                     </div>
 
-                                    <div className="form-group mb-3 text-center">
+                                    <div className="form-group mb-3 text-end">
                                         <button 
                                             type="button"
                                             className="btn btn-outline-secondary btn-sm"
