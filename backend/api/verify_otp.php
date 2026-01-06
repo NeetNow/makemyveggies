@@ -40,8 +40,10 @@ try {
     // Debug: Log the verification attempt
     error_log("OTP Verification attempt - Email: " . $email . ", OTP: " . $otp_code);
     
-    // Verify OTP with detailed checking
-    $verify_query = "SELECT otp_id, otp_code, expires_at, is_used_email, created_at FROM otp_verification 
+    // Verify OTP with detailed checking; also compute time remaining using DATETIME (expires_at vs NOW())
+    $verify_query = "SELECT otp_id, otp_code, expires_at, is_used_email, created_at,
+                            TIMESTAMPDIFF(SECOND, NOW(), expires_at) AS seconds_left
+                     FROM otp_verification 
                      WHERE email = :email 
                      AND otp_code = :otp_code 
                      AND purpose = 'registration'
@@ -66,13 +68,16 @@ try {
         sendResponse(false, 'Email OTP code has already been used', null, 400);
     }
     
-    // Check if OTP is expired
-    $current_time = time();
-    $expiry_time = strtotime($otp_data['expires_at']);
-    
-    error_log("OTP expiry check - Current: " . date('Y-m-d H:i:s', $current_time) . ", Expires: " . $otp_data['expires_at'] . ", Diff: " . ($expiry_time - $current_time) . " seconds");
-    
-    if ($expiry_time <= $current_time) {
+    // Check if OTP is expired based on DATETIME column (expires_at) vs NOW() in MySQL
+    $seconds_left = isset($otp_data['seconds_left']) ? (int)$otp_data['seconds_left'] : null;
+
+    error_log(
+        'OTP expiry check - Now vs expires_at for email ' . $email .
+        ' | expires_at: ' . $otp_data['expires_at'] .
+        ' | seconds_left: ' . var_export($seconds_left, true)
+    );
+
+    if ($seconds_left !== null && $seconds_left <= 0) {
         error_log("OTP expired for email: " . $email . " (expired at: " . $otp_data['expires_at'] . ")");
         sendResponse(false, 'OTP code has expired', null, 400);
     }
