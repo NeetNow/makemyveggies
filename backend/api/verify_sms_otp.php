@@ -63,13 +63,6 @@ try {
         sendResponse(false, 'SMS OTP code has already been used', null, 400);
     }
 
-    $current_time = time();
-    $expiry_time  = strtotime($otp_data['expires_at']);
-
-    if ($expiry_time <= $current_time) {
-        sendResponse(false, 'OTP code has expired', null, 400);
-    }
-
     $user_query = 'SELECT user_id, email_verified, number_verified FROM users WHERE email = :email';
     $user_stmt = $db->prepare($user_query);
     $user_stmt->bindParam(':email', $email);
@@ -80,6 +73,23 @@ try {
     }
 
     $user_info = $user_stmt->fetch();
+
+    // Check expiry using DATETIME (expires_at) vs NOW() in MySQL.
+    // If email is already verified (email_verified = 1), allow this number
+    // verification even if the OTP is technically expired, so the second
+    // channel does not fail with an expiry error.
+    $seconds_left = isset($otp_data['seconds_left']) ? (int)$otp_data['seconds_left'] : null;
+
+    error_log(
+        'SMS OTP expiry check - Now vs expires_at for number ' . $stored_number .
+        ' | expires_at: ' . $otp_data['expires_at'] .
+        ' | seconds_left: ' . var_export($seconds_left, true) .
+        ' | email_verified: ' . $user_info['email_verified']
+    );
+
+    if ($seconds_left !== null && $seconds_left <= 0 && (int)$user_info['email_verified'] !== 1) {
+        sendResponse(false, 'OTP code has expired', null, 400);
+    }
 
     if (isset($user_info['number_verified']) && $user_info['number_verified'] == 1) {
         sendResponse(false, 'Mobile number already verified.', null, 400);

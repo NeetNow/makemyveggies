@@ -66,21 +66,10 @@ try {
         sendResponse(false, 'Email OTP code has already been used', null, 400);
     }
     
-    // Check if OTP is expired
-    $current_time = time();
-    $expiry_time = strtotime($otp_data['expires_at']);
-    
-    error_log("OTP expiry check - Current: " . date('Y-m-d H:i:s', $current_time) . ", Expires: " . $otp_data['expires_at'] . ", Diff: " . ($expiry_time - $current_time) . " seconds");
-    
-    if ($expiry_time <= $current_time) {
-        error_log("OTP expired for email: " . $email . " (expired at: " . $otp_data['expires_at'] . ")");
-        sendResponse(false, 'OTP code has expired', null, 400);
-    }
-    
-    error_log("OTP verification successful for email: " . $email . " (OTP ID: " . $otp_data['otp_id'] . ")");
+    error_log("OTP record loaded for email: " . $email . " (OTP ID: " . $otp_data['otp_id'] . ")");
     
     // Check if user exists in database (should exist from registration)
-    $user_check_query = "SELECT user_id, first_name, last_name, email_verified, is_active FROM users WHERE email = :email";
+    $user_check_query = "SELECT user_id, first_name, last_name, email_verified, is_active, number_verified FROM users WHERE email = :email";
     $user_check_stmt = $db->prepare($user_check_query);
     $user_check_stmt->bindParam(':email', $email);
     $user_check_stmt->execute();
@@ -92,7 +81,25 @@ try {
     }
     
     $user_info = $user_check_stmt->fetch();
-    
+
+    // Check if OTP is expired based on DATETIME column (expires_at) vs NOW() in MySQL.
+    // If the mobile number is already verified (number_verified = 1), allow this email
+    // verification even if the OTP is technically expired, so the second channel
+    // does not fail with an expiry error.
+    $seconds_left = isset($otp_data['seconds_left']) ? (int)$otp_data['seconds_left'] : null;
+
+    error_log(
+        'OTP expiry check - Now vs expires_at for email ' . $email .
+        ' | expires_at: ' . $otp_data['expires_at'] .
+        ' | seconds_left: ' . var_export($seconds_left, true) .
+        ' | number_verified: ' . $user_info['number_verified']
+    );
+
+    if ($seconds_left !== null && $seconds_left <= 0 && (int)$user_info['number_verified'] !== 1) {
+        error_log("OTP expired for email: " . $email . " (expired at: " . $otp_data['expires_at'] . ")");
+        sendResponse(false, 'OTP code has expired', null, 400);
+    }
+
     // Check if user is already verified
     if ($user_info['email_verified'] == 1 && $user_info['is_active'] == 1) {
         error_log("User already verified for email: " . $email);
