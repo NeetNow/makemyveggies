@@ -30,11 +30,6 @@ const Blog = () => {
                   <div className="content bg-white">
                     <div className="text">
                       <h6><a href="blog-single.html">Launching Make Optimization Foundation.</a></h6>
-                      <ul>
-                        <li><button type="button"><i className="fa-solid fa-user"></i>Admin</button></li>
-                        <li><button type="button"><i className="fa-regular fa-eye"></i>25</button></li>
-                        <li><button type="button"><i className="fa-solid fa-message"></i>11 Comment</button></li>
-                      </ul>
                       <p>Conveniently innovate centric benefit before progressive architectures rap
                         manufactured products distinctively.</p>
                     </div>
@@ -54,11 +49,6 @@ const Blog = () => {
                   <div className="content bg-white">
                     <div className="text">
                       <h6><a href="blog-single.html">The Definitive list of digital Product You Can Sell</a></h6>
-                      <ul>
-                        <li><button type="button"><i className="fa-solid fa-user"></i>Admin</button></li>
-                        <li><button type="button"><i className="fa-regular fa-eye"></i>25</button></li>
-                        <li><button type="button"><i className="fa-solid fa-message"></i>11 Comment</button></li>
-                      </ul>
                       <p>Conveniently innovate centric benefit before progressive architectures rap
                         manufactured products distinctively.</p>
                     </div>
@@ -78,11 +68,6 @@ const Blog = () => {
                   <div className="content bg-white">
                     <div className="text">
                       <h6><a href="blog-single.html">How To Clean Your Home Faster And More Efficiently.</a></h6>
-                      <ul>
-                        <li><button type="button"><i className="fa-solid fa-user"></i>Admin</button></li>
-                        <li><button type="button"><i className="fa-regular fa-eye"></i>25</button></li>
-                        <li><button type="button"><i className="fa-solid fa-message"></i>11 Comment</button></li>
-                      </ul>
                       <p>Conveniently innovate centric benefit before progressive architectures rap
                         manufactured products distinctively.</p>
                     </div>

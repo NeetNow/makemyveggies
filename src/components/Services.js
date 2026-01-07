@@ -73,10 +73,12 @@ const Services = () => {
             </div>
           </div>
           <div className="col-xl-5 col-xxl-6">
-            <div className="service__rightimg imghover">
-              <div style={{width: '100%', height: '400px', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px'}}>
-                <span style={{color: '#666', fontSize: '18px'}}>Service Image</span>
-              </div>
+            <div className="service__rightimg imghover" style={{ width: '100%', height: '700px', overflow: 'hidden', borderRadius: '10px' }}>
+              <img
+                src="/assets/img/home-1/service/service.jpeg"
+                alt="Service"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
             </div>
           </div>
         </div>
