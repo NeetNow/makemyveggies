@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FiShoppingCart, FiHeart, FiSearch, FiX } from 'react-icons/fi';
 import { FaStar, FaStarHalfAlt, FaRegStar, FaChevronDown, FaChevronUp, FaCheck } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import '../styles/Shop.css';
 
 const Shop = () => {
+  const location = useLocation();
   const { addToCart } = useCart();
   const [addedItems, setAddedItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,17 @@ const Shop = () => {
   const [showTags, setShowTags] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 12; // 4 columns x 3 rows
+
+  const normalizeCategory = useCallback((value) => {
+    if (value == null) return '';
+    return value
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/[_\s]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+  }, []);
 
   // Fetch products from backend
   const fetchProducts = useCallback(async () => {
@@ -141,6 +153,15 @@ const Shop = () => {
     fetchProducts();
   }, [fetchProducts]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const categoryParam = params.get('category');
+    if (!categoryParam) return;
+
+    const normalized = normalizeCategory(categoryParam);
+    setSelectedCategory((prev) => (prev === normalized ? prev : normalized));
+  }, [location.search, normalizeCategory]);
+
   const handleAddToCart = async (product) => {
     await addToCart(product, 1);
     setAddedItems(prev => [...prev, product.id]);
@@ -212,7 +233,8 @@ const Shop = () => {
     
     // Apply category filter
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(product => product.category === selectedCategory);
+      const wanted = normalizeCategory(selectedCategory);
+      filtered = filtered.filter(product => normalizeCategory(product.category) === wanted);
       console.log('After category filter:', filtered.length);
     }
     
