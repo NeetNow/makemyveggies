@@ -95,8 +95,10 @@ try {
     $cleanup_stmt->execute([$email]);
     error_log("Cleaned up old OTPs for " . $email . ": Success");
     
-    // Store new OTP in database - matching exact schema
-    $otp_query = "INSERT INTO otp_verification (email, otp_code, purpose, expires_at, is_used, created_at) VALUES (?, ?, 'registration', ?, 0, ?)";
+    // Store new OTP in database - matching current schema
+    // otp_verification(email, number, otp_code, purpose, expires_at, is_used_email, is_used_number, created_at)
+    $otp_query = "INSERT INTO otp_verification (email, number, otp_code, purpose, expires_at, is_used_email, is_used_number, created_at)
+                  VALUES (?, NULL, ?, 'registration', ?, 0, 0, ?)";
     $otp_stmt = $db->prepare($otp_query);
     if (!$otp_stmt->execute([$email, $otp_code, $expires_at, $istNow])) {
         error_log("Failed to store new OTP in database for: " . $email);
