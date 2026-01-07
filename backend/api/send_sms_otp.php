@@ -102,7 +102,9 @@ try {
     $cleanup_stmt = $db->prepare($cleanup_query);
     $cleanup_stmt->execute([$stored_number]);
 
-    $otp_query = "INSERT INTO otp_verification (email, number, otp_code, purpose, expires_at, is_used, created_at) VALUES (NULL, ?, ?, 'number_verification', ?, 0, ?)";
+    // otp_verification(email, number, otp_code, purpose, expires_at, is_used_email, is_used_number, created_at)
+    $otp_query = "INSERT INTO otp_verification (email, number, otp_code, purpose, expires_at, is_used_email, is_used_number, created_at)
+                  VALUES (NULL, ?, ?, 'number_verification', ?, 0, 0, ?)";
     $otp_stmt = $db->prepare($otp_query);
 
     if (!$otp_stmt->execute([$stored_number, $otp_code, $expires_at, $istNow])) {
