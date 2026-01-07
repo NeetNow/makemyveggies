@@ -20,7 +20,7 @@ import Counter from './components/Counter';
 import Project from './components/Project';
 import Team from './components/Team';
 import Feedback from './components/Feedback';
-import Partner from './components/Partner';
+// import Partner from './components/Partner';
 import Blog from './components/Blog';
 import Newsletter from './components/Newsletter';
 import Footer from './components/Footer';
@@ -77,7 +77,7 @@ function App() {
                   <Project />
                   <Team />
                   <Feedback />
-                  <Partner />
+                  {/* <Partner /> */}
                   <Blog />
                   <Newsletter />
                   <Footer />

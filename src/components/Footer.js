@@ -37,31 +37,6 @@ const Footer = () => {
               </div>
             </div>
             <div className="col-sm-6 col-lg-3">
-              <div className="footer__news">
-                <h6>Recent news</h6>
-                <ul>
-                  <li>
-                    <div className="thumb imghover">
-                      <a href="blog-single.html"><img src="/assets/img/home-1/footer/news/img1.jpg" alt="bakul" /></a>
-                    </div>
-                    <div className="text">
-                      <h6><a href="blog-single.html">How to Clean Your Fast More Efficiently.</a></h6>
-                      <p>14 July 2024</p>
-                    </div>
-                  </li>
-                  <li>
-                    <div className="thumb imghover">
-                      <a href="blog-single.html"><img src="/assets/img/home-1/footer/news/img2.jpg" alt="bakul" /></a>
-                    </div>
-                    <div className="text">
-                      <h6><a href="blog-single.html">How to Clean Your Fast More Efficiently.</a></h6>
-                      <p>14 July 2024</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className="col-sm-6 col-lg-3">
               <div className="footer__photo">
                 <h6>photo gallery</h6>
                 <div className="allphoto">
@@ -132,7 +107,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="footer__bottom">
-        <p><i className="fa-regular fa-copyright"></i> Copyright 2026. All Rights Reserved to MakeMyVeggies.com</p>
+        <p><i className="fa-regular fa-copyright"></i> Make My Veggies is a brand developed by SAANVI CROP SCEINCE PVT. LTD. Registered in India and operating since 2024</p>
       </div>
     </section>
   );
