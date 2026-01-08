@@ -11,10 +11,6 @@ const History = () => {
             <div className="row">
               <div className="col-12">
                 <div className="section__header">
-                  <ul className="breadcum">
-                    <li><Link to="/">Home</Link></li>
-                    <li>History</li>
-                  </ul>
                   <h2>Our History</h2>
                 </div>
               </div>
