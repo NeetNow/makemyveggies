@@ -11,10 +11,6 @@ const ProjectPage = () => {
             <div className="row">
               <div className="col-12">
                 <div className="section__header">
-                  <ul className="breadcum">
-                    <li><Link to="/">Home</Link></li>
-                    <li>Projects</li>
-                  </ul>
                   <h2>Our Projects</h2>
                 </div>
               </div>

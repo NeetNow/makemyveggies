@@ -10,12 +10,6 @@ const Contact = () => {
                   <div className="container">
                     <div className="pageheader__content">
                       <h2>Contact Make My Veggies</h2>
-                      <nav aria-label="breadcrumb">
-                        <ul className="breadcum">
-                          <li><Link to="/">Home</Link></li>
-                          <li className="active" aria-current="page">Contact</li>
-                        </ul>
-                      </nav>
                     </div>
                   </div>
                 </section>
@@ -33,6 +27,9 @@ const Contact = () => {
                       </div>
                       <div className="col-md-6">
                         <input type="text" placeholder="Last Name" />
+                      </div>
+                      <div className="col-12">
+                        <input type="tel" placeholder="Contact Number" />
                       </div>
                       <div className="col-12">
                         <input type="email" placeholder="Email Address" />
@@ -77,7 +74,7 @@ const Contact = () => {
                     </div>
                     <div className="text">
                       <h6>Address</h6>
-                      <p>City</p>
+                      <p>City - Pune</p>
                     </div>
                   </div>
                 </div>
@@ -92,7 +89,7 @@ const Contact = () => {
               <div className="col-12">
                 <div className="map__container">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.0191124920023!2d-122.41941508468178!3d37.77492977975899!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085808c5f3c2b8b%3A0x8b7dd3e3f3b3b3b3!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1234567890123"
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d134808.32197304978!2d73.80310711615661!3d18.527071546856202!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2bf2e67461101%3A0x828d43bf9d9ee343!2sPune%2C%20Maharashtra%2C%20India!5e0!3m2!1sen!2sus!4v1767882727746!5m2!1sen!2sus"
                     width="100%"
                     height="450"
                     style={{ border: 0 }}

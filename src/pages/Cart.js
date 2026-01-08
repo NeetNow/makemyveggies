@@ -18,12 +18,6 @@ const Cart = () => {
                     <div className="container">
                       <div className="pageheader__content">
                         <h2>Shopping Cart</h2>
-                        <nav aria-label="breadcrumb">
-                          <ul className="breadcum">
-                            <li><Link to="/">Home</Link></li>
-                            <li className="active" aria-current="page">Cart</li>
-                          </ul>
-                        </nav>
                       </div>
                     </div>
                   </section>

@@ -12,10 +12,6 @@ const ServicesPage = () => {
             <div className="row">
               <div className="col-12">
                 <div className="section__header">
-                  <ul className="breadcum">
-                    <li><Link to="/">Home</Link></li>
-                    <li>Services</li>
-                  </ul>
                   <h2>Our Services</h2>
                 </div>
               </div>

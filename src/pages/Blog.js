@@ -3,24 +3,58 @@ import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 
 const BlogPage = () => {
+
+  const blogs = [
+    {
+      id: 1,
+      title: "Balcony and Kitchen Gardening for Beginners: Grow Fresh, Healthy Food at Home",
+      image: "/assets/img/home-1/blog/img1.jpg",
+      description: "Learn how SEO optimization improves website visibility."
+    },
+    {
+      id: 2,
+      title: "Gardening at Home: A Natural Way to Unwind from Urban Stress",
+      image: "/assets/img/home-1/blog/img2.jpg",
+      description: "Easy gardening tips for healthy and green plants."
+    },
+    {
+      id: 3,
+      title: "Health Benefits of Microgreens and How to Use Them in Everyday Cooking",
+      image: "/assets/img/home-1/blog/img3.jpg",
+      description: "Grow fresh and chemical-free vegetables organically."
+    },
+    {
+      id: 4,
+      title: "Mental Health Benefits of Home Gardening for Working Professionals",
+      image: "/assets/img/home-1/blog/img4.jpg",
+      description: "Simple indoor plant care tips for beginners."
+    },
+    {
+      id: 5,
+      title: "Nutritional and Protein Content of Microgreens: What Science Really Says",
+      image: "/assets/img/home-1/blog/img5.jpg",
+      description: "Know what to plant and when for best results."
+    },
+    {
+      id: 6,
+      title: "Why Homegrown Vegetables Are Healthier (and More Sustainable) Than Store-Bought Produce",
+      image: "/assets/img/home-1/blog/img6.jpg",
+      description: "Enhance your garden with creative landscape designs."
+    }
+  ];
+
   return (
     <>
       <main>
-        <section className="pageheader padding-block">
-          <div className="container">
-            <div className="row">
-              <div className="col-12">
-                <div className="section__header">
-                  <ul className="breadcum">
-                    <li><Link to="/">Home</Link></li>
-                    <li>Blog</li>
-                  </ul>
-                  <h2>Our Blog</h2>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+
+                <section className="pageheader overflow-hidden">
+                  <div className="container">
+                    <div className="pageheader__content">
+                      <h2>Our Blogs</h2>
+                    </div>
+                  </div>
+                </section>
+
         <section className="blog padding-block">
           <div className="container">
             <div className="section__header text-center">
@@ -28,26 +62,28 @@ const BlogPage = () => {
               <h3>Our Blog & Articles</h3>
               <p>Stay updated with the latest gardening tips and trends.</p>
             </div>
+
             <div className="row g-4 justify-content-center">
-              {[1, 2, 3, 4, 5, 6].map((post) => (
-                <div key={post} className="col-md-6 col-xl-4">
+              {blogs.map((blog) => (
+                <div key={blog.id} className="col-md-6 col-xl-4">
                   <div className="blog__item">
                     <div className="blog__inner">
                       <div className="thumb">
-                        <Link to="/blog-single"><img src={`/assets/img/home-1/blog/img${post <= 3 ? post : post - 3}.jpg`} alt="Blog Post" /></Link>
+                        <Link to="/blog-single">
+                          <img src={blog.image} alt={blog.title} />
+                        </Link>
                       </div>
                       <div className="content bg-white">
                         <div className="text">
-                          <h6><Link to="/blog-single">Blog Post Title {post}</Link></h6>
-                          <ul>
-                            <li><button type="button"><i className="fa-solid fa-user"></i>Admin</button></li>
-                            <li><button type="button"><i className="fa-regular fa-eye"></i>25</button></li>
-                            <li><button type="button"><i className="fa-solid fa-message"></i>11 Comment</button></li>
-                          </ul>
-                          <p>Gardening tips and techniques for better results in your garden.</p>
+                          <h6>
+                            <Link to="/blog-single">{blog.title}</Link>
+                          </h6>
+                          <p>{blog.description}</p>
                         </div>
                         <div className="blogbtn">
-                          <Link to="/blog-single" className="custom-btn">Read More</Link>
+                          <Link to="/blog-single" className="custom-btn">
+                            Read More
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -55,6 +91,7 @@ const BlogPage = () => {
                 </div>
               ))}
             </div>
+
           </div>
         </section>
       </main>
