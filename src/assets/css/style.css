@@ -2572,7 +2572,7 @@ select {
 
 @media (min-width: 1200px) {
     .padding-block {
-        padding-block: 7.5rem;
+        padding-block: 2rem;
     }
 }
 
@@ -4486,7 +4486,7 @@ select {
 
 @media (min-width: 1200px) {
     .footer__top {
-        padding: 11.875rem 0 6.25rem;
+        padding: 7rem 0 5rem;
     }
 }
 
@@ -4528,7 +4528,7 @@ select {
 @media (min-width: 1200px) {
     .footer__link {
         margin: auto;
-        max-width: 200px;
+        max-width: 300px;
     }
 }
 
