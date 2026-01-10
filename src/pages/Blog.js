@@ -47,7 +47,7 @@ const BlogPage = () => {
     <>
       <main>
 
-                <section className="pageheader overflow-hidden">
+                <section className="pageheader2 overflow-hidden">
                   <div className="container">
                     <div className="pageheader__content">
                       <h2>Our Blogs</h2>

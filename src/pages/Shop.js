@@ -287,16 +287,10 @@ const Shop = () => {
     <div className="shop-page">
       <main>
         {/* Page Header */}
-        <section className="pageheader overflow-hidden">
+        <section className="pageheader4 overflow-hidden">
                   <div className="container">
                     <div className="pageheader__content">
                       <h2>Shop</h2>
-                      <nav aria-label="breadcrumb">
-                        <ul className="breadcum">
-                          <li><Link to="/">Home</Link></li>
-                          <li className="active" aria-current="page">Shop</li>
-                        </ul>
-                      </nav>
                     </div>
                   </div>
                 </section>
