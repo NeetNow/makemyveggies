@@ -3126,7 +3126,34 @@ select {
 }
 
 .pageheader {
-    background-image: url("/assets/img/pageheader/bg.jpg") !important;
+    background-image: url("/assets/img/pageheader/AboutPage.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-color: transparent !important;
+    padding: calc(1.875rem + 7.5vw) 0;
+}
+
+.pageheader2 {
+    background-image: url("/assets/img/pageheader/Blogs.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-color: transparent !important;
+    padding: calc(1.875rem + 7.5vw) 0;
+}
+
+.pageheader3 {
+    background-image: url("/assets/img/pageheader/Contactus.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-color: transparent !important;
+    padding: calc(1.875rem + 7.5vw) 0;
+}
+
+.pageheader4 {
+    background-image: url("/assets/img/pageheader/DIYKits.png") !important;
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;

@@ -6,7 +6,7 @@ const Contact = () => {
   return (
     <>
       <main>
-        <section className="pageheader overflow-hidden">
+        <section className="pageheader3 overflow-hidden">
                   <div className="container">
                     <div className="pageheader__content">
                       <h2>Contact Make My Veggies</h2>

@@ -12,6 +12,26 @@
   position: relative;
 }
 
+.pageheader2 {
+  background: linear-gradient(135deg, #2c5530 0%, #28a745 100%);
+  color: white;
+  padding: 80px 0 50px;
+  position: relative;
+}
+
+.pageheader3 {
+  background: linear-gradient(135deg, #2c5530 0%, #28a745 100%);
+  color: white;
+  padding: 80px 0 50px;
+  position: relative;
+}
+
+.pageheader4 {
+  background: linear-gradient(135deg, #2c5530 0%, #28a745 100%);
+  color: white;
+  padding: 80px 0 50px;
+  position: relative;
+}
 .pageheader__content h2 {
   font-size: 3rem;
   font-weight: 700;
