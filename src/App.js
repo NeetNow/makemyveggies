@@ -44,6 +44,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import UserProfile from './pages/UserProfile';
 import Checkout from './pages/Checkout';
 import OrderTracking from './pages/OrderTracking';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
+import ShippingPolicy from './pages/ShippingPolicy';
 
 // Component to conditionally render header
 function ConditionalHeader() {
@@ -103,6 +106,11 @@ function App() {
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-tracking" element={<OrderTracking />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+            <Route path="/shipping-policy" element={<ShippingPolicy />} />
+            <Route path="/ShippingPolicy" element={<ShippingPolicy />} />
           </Routes>
           
           {/* Toast Container for notifications */}

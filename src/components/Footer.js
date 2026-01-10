@@ -29,12 +29,12 @@ const Footer = () => {
               <div className="footer__link">
                 <h6>Quick Links</h6>
                 <ul>
-                  <li><i className="fa-solid fa-leaf"></i><a href="service.html">Terms and Conditions </a></li>
-                  <li><i className="fa-solid fa-leaf"></i><a href="about.html">Privacy policy</a></li>
-                  <li><i className="fa-solid fa-leaf"></i><a href="project.html">Cancellation Policy</a></li>
+                  <li><i className="fa-solid fa-leaf"></i><a href="/terms-and-conditions">Terms and Conditions </a></li>
+                  <li><i className="fa-solid fa-leaf"></i><a href="/privacy-policy">Privacy policy</a></li>
+                  <li><i className="fa-solid fa-leaf"></i><a href="#">Cancellation Policy</a></li>
                   <li><i className="fa-solid fa-leaf"></i><a href="/contact">Contact Us</a></li>
-                  <li><i className="fa-solid fa-leaf"></i><a href="/Login">Track your Order</a></li>
-                  <li><i className="fa-solid fa-leaf"></i><a href="contact.html">Shipping and Returns</a></li>
+                  <li><i className="fa-solid fa-leaf"></i><a href="#">Track your Order</a></li>
+                  <li><i className="fa-solid fa-leaf"></i><a href="/ShippingPolicy">Shipping and Returns</a></li>
                   <li><i className="fa-solid fa-leaf"></i><a href="/About">FAQ</a></li>
                 </ul>
               </div>
