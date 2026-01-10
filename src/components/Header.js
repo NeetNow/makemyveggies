@@ -78,10 +78,33 @@ const Header = () => {
                     <ul>
                       <li><Link to="/">Home</Link></li>
                       <li><Link to="/about">About</Link></li>
-                      <li><Link to="/shop">DIY Kits</Link></li>
-                      <li><Link to="/shop">Suppliments</Link></li>
+                      <li className="menu-item-has-children">
+                        <Link to="/shop">DIY Kits</Link>
+                        <ul>
+                          <li><Link to="/shop?category=DIY Microgreens">DIY Microgreens</Link></li>
+                          <li><Link to="/shop?category=DIY Veggies">DIY Veggies</Link></li>
+                        </ul>
+
+                      </li>
+                      <li className="menu-item-has-children">
+                        <Link to="/shop">Suppliments</Link>
+                        <ul>
+                          <li><Link to="/shop?category=nutrition-spray">Nutrition Spray</Link></li>
+                          <li><Link to="/shop?category=seeds">Seeds</Link></li>
+                          <li><Link to="/shop?category=soil">Soil</Link></li>
+                          <li><Link to="/shop?category=pots">Pots</Link></li>
+                        </ul>
+                      </li>
                       <li><Link to="/Blog">Blog</Link></li>
                       <li><Link to="/contact">Contact</Link></li>
+                      <li className="menu-item-has-children">
+                        <Link to="#" onClick={(e) => e.preventDefault()}>Policies</Link>
+                        <ul>
+                          <li><Link to="/terms-and-conditions">Terms</Link></li>
+                          <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+                          <li><Link to="/shipping-policy">Shipping Policy</Link></li>
+                        </ul>
+                      </li>
                     </ul>
                   </div>
                 </div>
