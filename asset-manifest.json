@@ -1,8 +1,12 @@
 {
   "files": {
-    "main.css": "/static/css/main.5dcd0b32.css",
-    "main.js": "/static/js/main.a75b5a2f.js",
+    "main.css": "/static/css/main.d2ba81bf.css",
+    "main.js": "/static/js/main.b8e9de97.js",
     "static/js/453.5ffa9928.chunk.js": "/static/js/453.5ffa9928.chunk.js",
+    "static/media/Blogs.png": "/static/media/Blogs.58a028971df279c34989.png",
+    "static/media/AboutPage.png": "/static/media/AboutPage.8a78a92684b0764df1b2.png",
+    "static/media/Contactus.png": "/static/media/Contactus.5c8b33d4c8b77d25e15a.png",
+    "static/media/DIYKits.png": "/static/media/DIYKits.f953de597e1411e9b2a4.png",
     "static/media/bg.png": "/static/media/bg.39b63c84f7b97be30603.png",
     "static/media/bg.jpg": "/static/media/bg.a602179e5221a1e73569.jpg",
     "static/media/img.jpg": "/static/media/img.5f74b7570969abe7553f.jpg",
@@ -10,12 +14,12 @@
     "static/media/preloader.gif": "/static/media/preloader.2b8a2d026d950783b620.gif",
     "static/media/pata.png": "/static/media/pata.a21db91e53c7c372143a.png",
     "index.html": "/index.html",
-    "main.5dcd0b32.css.map": "/static/css/main.5dcd0b32.css.map",
-    "main.a75b5a2f.js.map": "/static/js/main.a75b5a2f.js.map",
+    "main.d2ba81bf.css.map": "/static/css/main.d2ba81bf.css.map",
+    "main.b8e9de97.js.map": "/static/js/main.b8e9de97.js.map",
     "453.5ffa9928.chunk.js.map": "/static/js/453.5ffa9928.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.5dcd0b32.css",
-    "static/js/main.a75b5a2f.js"
+    "static/css/main.d2ba81bf.css",
+    "static/js/main.b8e9de97.js"
   ]
 }
