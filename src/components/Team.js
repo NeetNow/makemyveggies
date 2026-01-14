@@ -6,7 +6,7 @@ const Team = () => {
     <section className="team padding-block bg-white overflow-hidden">
       <div className="container">
         <div className="section__header section__header--header2">
-          <span>Our Products<img src="/assets/img/logo/pata.png" alt="bakul" /></span>
+          <span>Our Team Member<img src="/assets/img/logo/pata.png" alt="bakul" /></span>
           <h3>our professional landscapers</h3>
           <p>Continually productize compelling quality for packed business consulting
             Setting up to website and creating pages.</p>
@@ -116,7 +116,7 @@ const Team = () => {
       </div>
 
       <div className="project__btn">
-        <a href="team-single.html" className="custom-btn">View All Products</a>
+        <a href="team-single.html" className="custom-btn">View All members</a>
       </div>
 
       {/* Background Shapes */}
