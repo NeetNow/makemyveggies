@@ -174,3 +174,49 @@ CREATE TABLE product_includes (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
+
+CREATE TABLE roles (
+  id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name        VARCHAR(50) NOT NULL UNIQUE,          -- e.g. 'admin'
+  label       VARCHAR(100) NOT NULL,                -- e.g. 'Administrator'
+  description TEXT NULL,
+  created_at  TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE permissions (
+  id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name        VARCHAR(100) NOT NULL UNIQUE,         -- e.g. 'manage_products'
+  label       VARCHAR(150) NOT NULL,                -- e.g. 'Manage Products'
+  description TEXT NULL,
+  created_at  TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE role_permissions (
+  role_id       BIGINT UNSIGNED NOT NULL,
+  permission_id BIGINT UNSIGNED NOT NULL,
+  PRIMARY KEY (role_id, permission_id),
+  CONSTRAINT fk_rp_role
+    FOREIGN KEY (role_id) REFERENCES roles(id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_rp_permission
+    FOREIGN KEY (permission_id) REFERENCES permissions(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE user_roles (
+  user_id INT NOT NULL,
+  role_id BIGINT UNSIGNED NOT NULL,
+  PRIMARY KEY (user_id, role_id),
+
+  CONSTRAINT fk_ur_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(user_id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_ur_role
+    FOREIGN KEY (role_id)
+    REFERENCES roles(id)
+    ON DELETE CASCADE
+);
