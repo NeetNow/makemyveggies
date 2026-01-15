@@ -31,9 +31,9 @@ const Footer = () => {
                 <ul>
                   <li><i className="fa-solid fa-leaf"></i><a href="/terms-and-conditions">Terms and Conditions </a></li>
                   <li><i className="fa-solid fa-leaf"></i><a href="/privacy-policy">Privacy policy</a></li>
-                  <li><i className="fa-solid fa-leaf"></i><a href="#">Cancellation Policy</a></li>
+                  <li><i className="fa-solid fa-leaf"></i><a href="/terms-and-conditions">Cancellation Policy</a></li>
                   <li><i className="fa-solid fa-leaf"></i><a href="/contact">Contact Us</a></li>
-                  <li><i className="fa-solid fa-leaf"></i><a href="#">Track your Order</a></li>
+                  <li><i className="fa-solid fa-leaf"></i><a href="/order-tracking">Track your Order</a></li>
                   <li><i className="fa-solid fa-leaf"></i><a href="/ShippingPolicy">Shipping and Returns</a></li>
                   <li><i className="fa-solid fa-leaf"></i><a href="/About">FAQ</a></li>
                 </ul>

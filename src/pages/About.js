@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
 import NaturePlant from '../components/NaturePlant';
 import Features from '../components/Features';
