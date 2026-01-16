@@ -20,9 +20,15 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="admin-layout d-flex min-vh-100" style={{ backgroundColor: '#f5f7f9' }}>
+    <div
+      className="admin-layout d-flex"
+      style={{ minHeight: '100vh', backgroundColor: '#eef2f6' }}
+    >
       {/* Sidebar */}
-      <aside className="admin-sidebar bg-white shadow-sm">
+      <aside
+        className="admin-sidebar bg-white shadow-sm d-flex flex-column"
+        style={{ width: '260px' }}
+      >
         <div className="admin-sidebar__header p-3 border-bottom">
           <Link to="/" className="d-flex align-items-center text-decoration-none">
             <img
@@ -54,18 +60,28 @@ const AdminLayout = ({ children }) => {
 
       {/* Main content */}
       <div className="admin-main flex-grow-1 d-flex flex-column">
-        <header className="admin-main__header bg-white shadow-sm py-2">
+        <header className="admin-main__header bg-white shadow-sm py-3">
           <div className="container-fluid">
             <div className="d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">Admin Dashboard</h5>
-              <Link to="/" className="small text-decoration-none text-muted">
-                &larr; Back to website
-              </Link>
+              <div>
+                <h5 className="mb-1">Admin Dashboard</h5>
+                <p className="mb-0 small text-muted">
+                  Manage products, orders, customers and settings from one place.
+                </p>
+              </div>
+              <div className="d-flex align-items-center gap-3">
+                <Link to="/" className="small text-decoration-none text-muted">
+                  &larr; Back to website
+                </Link>
+              </div>
             </div>
           </div>
         </header>
 
-        <main className="admin-main__content flex-grow-1 py-4">
+        <main
+          className="admin-main__content flex-grow-1 py-4"
+          style={{ overflowY: 'auto' }}
+        >
           <div className="container-fluid">{children}</div>
         </main>
       </div>
