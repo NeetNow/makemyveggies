@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 header('Content-Type: application/json');
 // In production, change this to your actual frontend domain
 header('Access-Control-Allow-Origin: http://localhost:3000');
@@ -25,7 +28,8 @@ try {
     }
 
     // Get query parameters (with safe defaults)
-    $category_id = isset($_GET['category']) ? (int)$_GET['category'] : null;
+    // category can be either a numeric category_id or a text slug/name (e.g. 'soil')
+    $categoryParam = isset($_GET['category']) ? trim($_GET['category']) : null;
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 12;
     $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
@@ -39,9 +43,16 @@ try {
     $whereConditions = ['p.status = 1']; // Only active products
     $params = [];
 
-    if ($category_id) {
-        $whereConditions[] = 'p.category_id = ?';
-        $params[] = $category_id;
+    if ($categoryParam !== null && $categoryParam !== '') {
+        if (ctype_digit($categoryParam)) {
+            // Numeric: treat as category_id
+            $whereConditions[] = 'p.category_id = ?';
+            $params[] = (int)$categoryParam;
+        } else {
+            // Text: match by category name (case-insensitive)
+            $whereConditions[] = 'LOWER(c.name) = ?';
+            $params[] = strtolower($categoryParam);
+        }
     }
 
     if ($search) {
@@ -120,10 +131,11 @@ try {
     $stmt->execute($params);
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Get total count for pagination
+    // Get total count for pagination (mirror main query joins in case WHERE uses c.name)
     $countSql = "
         SELECT COUNT(*) as total
         FROM products p
+        LEFT JOIN categories c ON p.category_id = c.category_id
         WHERE $whereClause
     ";
     

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FiShoppingCart, FiHeart, FiSearch, FiX } from 'react-icons/fi';
 import { FaStar, FaStarHalfAlt, FaRegStar, FaChevronDown, FaChevronUp, FaCheck } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import '../styles/Shop.css';
 
 const Shop = () => {
+  const location = useLocation();
   const { addToCart } = useCart();
   const [addedItems, setAddedItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,12 +34,17 @@ const Shop = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 12; // 4 columns x 3 rows
 
+  // Read category from URL (e.g. /shop?category=soil) for nicer empty-state message
+  const urlCategory = new URLSearchParams(location.search).get('category');
+
   // Fetch products from backend
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (search) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/backend/api/get_products.php', {
+      const queryString = search || '';
+
+      const res = await fetch(`https://dev.makemyveggies.com//backend/api/get_products.php${queryString}`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -128,7 +134,8 @@ const Shop = () => {
       setError(null);
     } catch (e) {
       console.error('❌ Fetch error:', e);
-      setError(`Error loading products: ${e.message}`);
+      // Show a simple, human-friendly message in the UI
+      setError('We could not load products right now. Please try again in a few minutes.');
       setProducts([]);
       setFilteredProducts([]);
     } finally {
@@ -136,10 +143,10 @@ const Shop = () => {
     }
   }, []);
 
-
+  // Refetch products whenever the URL query (e.g. category) changes
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    fetchProducts(location.search);
+  }, [location.search, fetchProducts]);
 
   const handleAddToCart = async (product) => {
     await addToCart(product, 1);
@@ -566,7 +573,11 @@ const Shop = () => {
                     ))
                   ) : (
                     <div className="no-results">
-                      <p>No products match your filters. Try adjusting your search criteria.</p>
+                      <p>
+                        {urlCategory || selectedCategory !== 'all'
+                          ? 'No products are available for this category yet. Please check back later or choose another category.'
+                          : 'No products match your filters. Try adjusting your search criteria.'}
+                      </p>
                     </div>
                   )}
                 </div>
