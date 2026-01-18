@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import '../../assets/css/auth.css';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -57,95 +58,84 @@ const AdminLogin = () => {
   };
 
   return (
-    <main className="auth-page admin-auth-page banner position-relative overflow-hidden py-5 min-vh-100 d-flex align-items-center">
+    <div className="login-page banner">
+      {/* Background Images */}
+      <div className="position_bshape contentrightimg imghover d-md-block d-none">
+        <img src="/assets/img/home-1/banner/bannerightimg.png" alt="banner" />
+      </div>
+      <div className="position_bshape topleftimg dnone">
+        <img src="/assets/img/home-1/banner/shape1.png" alt="banner" />
+      </div>
+      <div className="position_bshape topright">
+        <img src="/assets/img/home-1/banner/shape5.png" alt="banner" />
+      </div>
+      <div className="position_bshape bottomleft d-xl-block d-none">
+        <img src="/assets/img/home-1/banner/shpae2.png" alt="banner" />
+      </div>
+      <div className="position_bshape bottommiddle d-lg-block d-none">
+        <img src="/assets/img/home-1/banner/shape3.png" alt="banner" />
+      </div>
+      <div className="position_bshape bottomright d-sm-block d-none">
+        <img src="/assets/img/home-1/banner/shape4.png" alt="banner" />
+      </div>
+      <div className="position_bshape middleshape d-lg-block d-none">
+        <img src="/assets/img/home-1/banner/shape6.png" alt="banner" />
+      </div>
+
       <div className="container">
-        <div className="row align-items-center g-4">
-          {/* Left: Login form */}
-          <div className="col-lg-6">
-            <div className="card shadow-sm border-0">
-              <div className="card-body p-4 p-md-5">
-                <div className="text-center mb-4">
-                  <img
-                    src="/assets/img/logo/logo.png"
-                    alt="Make My Veggies Admin"
-                    style={{ maxHeight: '60px' }}
+        <div className="row">
+          <div className="col-md-6 col-lg-5">
+            <div className="login-box">
+              <div className="login-header text-center">
+                <img
+                  src="/assets/img/logo/logo.png"
+                  alt="Make My Veggies Admin"
+                  style={{ maxHeight: '60px' }}
+                />
+                <h2>Admin Login</h2>
+                <p>Please enter your credentials to login</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="login-form">
+                <div className="form-group mb-3">
+                  <label className="form-label">Email Address</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    placeholder="admin@makemyveggies.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                   />
-                  <h2 className="mt-3 mb-1">Admin Panel</h2>
-                  <p className="text-muted mb-0">Sign in to manage products, orders and content.</p>
                 </div>
 
-                <form onSubmit={handleSubmit}>
-                  <div className="mb-3">
-                    <label className="form-label">Email address</label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      placeholder="admin@makemyveggies.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
+                <div className="form-group mb-3">
+                  <label className="form-label">Password</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
 
-                  <div className="mb-3">
-                    <label className="form-label">Password</label>
-                    <input
-                      type="password"
-                      className="form-control"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="d-grid">
-                    <button
-                      type="submit"
-                      className="custom-btn"
-                      disabled={loading}
-                    >
-                      {loading ? 'Signing in...' : 'Sign in'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: Themed background image */}
-          <div className="col-lg-6 d-none d-lg-block">
-            <div className="position-relative h-100">
-              <div className="position_bshape contentrightimg imghover w-100 h-100">
-                <img
-                  src="/assets/img/home-1/banner/bannerightimg.jpeg"
-                  alt="Admin background"
-                  className="img-fluid rounded-3"
-                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-                />
-              </div>
+                <div className="form-group mb-4">
+                  <button
+                    type="submit"
+                    className="btn btn-primary w-100"
+                    disabled={loading}
+                  >
+                    {loading ? 'Signing in...' : 'Sign in'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Decorative shapes reused from banner for theme consistency */}
-      <div className="position_bshape topleftimg dnone">
-        <img src="/assets/img/home-1/banner/shape1.png" alt="shape" />
-      </div>
-      <div className="position_bshape topright">
-        <img src="/assets/img/home-1/banner/shape5.png" alt="shape" />
-      </div>
-      <div className="position_bshape bottommiddle d-lg-block d-none">
-        <img src="/assets/img/home-1/banner/shape3.png" alt="shape" />
-      </div>
-      <div className="position_bshape bottomright d-sm-block d-none">
-        <img src="/assets/img/home-1/banner/shape4.png" alt="shape" />
-      </div>
-      <div className="position_bshape middleshape d-lg-block d-none">
-        <img src="/assets/img/home-1/banner/shape6.png" alt="shape" />
-      </div>
-    </main>
+    </div>
   );
 };
 
