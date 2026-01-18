@@ -19,7 +19,7 @@ const Team = () => {
               <div className="team__item">
                 <div className="team__inner bg-white">
                   <div className="thumb">
-                    <img src="/assets/img/home-1/team/Picture5.jpg" alt="bakul" />
+                    <img src="/assets/img/home-1/team/img1.png" alt="bakul" />
                   </div>
                   <div className="text">
                     <h6><Link to="/team-single">Albert Hopper</Link></h6>
