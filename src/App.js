@@ -16,10 +16,8 @@ import Features from './components/Features';
 import NaturePlant from './components/NaturePlant';
 import Services from './components/Services';
 import Counter from './components/Counter';
-import Project from './components/Project';
 import Team from './components/Team';
 import Feedback from './components/Feedback';
-// import Partner from './components/Partner';
 import Blog from './components/Blog';
 import Newsletter from './components/Newsletter';
 import Footer from './components/Footer';
@@ -28,7 +26,6 @@ import Footer from './components/Footer';
 import About from './pages/About';
 import ServicesPage from './pages/Services';
 import TeamPage from './pages/Team';
-import ProjectPage from './pages/Project';
 import BlogPage from './pages/Blog';
 import Contact from './pages/Contact';
 import History from './pages/History';
@@ -89,10 +86,8 @@ function App() {
                     <NaturePlant />
                     <Services />
                     <Counter />
-                    <Project />
                     <Team />
                     <Feedback />
-                    {/* <Partner /> */}
                     <Blog />
                     <Newsletter />
                     <Footer />
@@ -104,7 +99,6 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/service" element={<ServicesPage />} />
               <Route path="/team" element={<TeamPage />} />
-              <Route path="/project" element={<ProjectPage />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/history" element={<History />} />

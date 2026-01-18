@@ -29,9 +29,8 @@ const Blog = () => {
                   </div>
                   <div className="content bg-white">
                     <div className="text">
-                      <h6><a href="blog-single.html">Launching Make Optimization Foundation.</a></h6>
-                      <p>Conveniently innovate centric benefit before progressive architectures rap
-                        manufactured products distinctively.</p>
+                      <h6><a href="blog-single.html">Balcony and Kitchen Gardening for Beginners: Grow Fresh, Healthy Food at Home</a></h6>
+                      <p>Living in the city doesn’t mean giving up fresh, healthy food. Balcony and kitchen gardening make it easy to grow your own greens at home, even with limited space and a busy lifestyle</p>
                     </div>
                     <div className="blogbtn">
                       <a href="blog-single.html" className="custom-btn">Read More</a>
@@ -48,9 +47,8 @@ const Blog = () => {
                   </div>
                   <div className="content bg-white">
                     <div className="text">
-                      <h6><a href="blog-single.html">The Definitive list of digital Product You Can Sell</a></h6>
-                      <p>Conveniently innovate centric benefit before progressive architectures rap
-                        manufactured products distinctively.</p>
+                      <h6><a href="blog-single.html">Gardening at Home: A Natural Way to Unwind from Urban Stress</a></h6>
+                      <p>Discover how home gardening helps urban lifestyles slow down, reduce stress, and reconnect with nature using simple balcony and kitchen plant setups.</p>
                     </div>
                     <div className="blogbtn">
                       <a href="blog-single.html" className="custom-btn">Read More</a>
@@ -67,9 +65,8 @@ const Blog = () => {
                   </div>
                   <div className="content bg-white">
                     <div className="text">
-                      <h6><a href="blog-single.html">How To Clean Your Home Faster And More Efficiently.</a></h6>
-                      <p>Conveniently innovate centric benefit before progressive architectures rap
-                        manufactured products distinctively.</p>
+                      <h6><a href="blog-single.html">Health Benefits of Microgreens and How to Use Them in Everyday Cooking</a></h6>
+                      <p>Microgreens are nutrient-dense, easy-to-grow greens that enhance everyday meals with fresh flavour and health benefits—without changing your routine.</p>
                     </div>
                     <div className="blogbtn">
                       <a href="blog-single.html" className="custom-btn">Read More</a>
