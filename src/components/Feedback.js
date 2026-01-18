@@ -6,11 +6,7 @@ const Feedback = () => {
       <div className="container">
         <div className="row align-items-center g-4">
           <div className="col-xl-6 text-center pt-sm-0 pt-1">
-            <div className="plybtn d-xl-block d-none">
-              <a href="https://www.youtube.com/watch?v=m4CWaHAQ4wc" className="popup">
-                <i className="fa-solid fa-play"></i>
-              </a>
-            </div>
+            
           </div>
           <div className="col-xl-6">
             <div className="section__header feedback__header">
