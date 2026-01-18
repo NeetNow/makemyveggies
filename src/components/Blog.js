@@ -25,7 +25,7 @@ const Blog = () => {
               <div className="blog__item">
                 <div className="blog__inner">
                   <div className="thumb">
-                    <a href="blog-single.html"><img src="/assets/img/home-1/blog/img1.jpg" alt="bakul" /></a>
+                    <a href="blog-single.html"><img src="/assets/img/home-1/blog/img1.png" alt="bakul" /></a>
                   </div>
                   <div className="content bg-white">
                     <div className="text">
@@ -43,7 +43,7 @@ const Blog = () => {
               <div className="blog__item">
                 <div className="blog__inner">
                   <div className="thumb">
-                    <a href="blog-single.html"><img src="/assets/img/home-1/blog/img2.jpg" alt="bakul" /></a>
+                    <a href="blog-single.html"><img src="/assets/img/home-1/blog/img2.png" alt="bakul" /></a>
                   </div>
                   <div className="content bg-white">
                     <div className="text">
@@ -61,7 +61,7 @@ const Blog = () => {
               <div className="blog__item">
                 <div className="blog__inner">
                   <div className="thumb">
-                    <a href="blog-single.html"><img src="/assets/img/home-1/blog/img3.jpg" alt="bakul" /></a>
+                    <a href="blog-single.html"><img src="/assets/img/home-1/blog/img3.png" alt="bakul" /></a>
                   </div>
                   <div className="content bg-white">
                     <div className="text">
