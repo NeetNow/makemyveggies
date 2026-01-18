@@ -27,8 +27,8 @@ const Banner = () => {
                   productize compelling quality for all packed in with all growth into business pac
                   facilitate your business up to website and creating pages.</p>
                 <div className="bannerbtn">
-                  <a href="about.html" className="custom-btn">Learn More</a>
-                  <a href="about.html" className="custom-btn">Contact Us</a>
+                  <a href="/about" className="custom-btn">Learn More</a>
+                  <a href="/contact" className="custom-btn">Contact Us</a>
                 </div>
               </div>
             </div>
@@ -41,8 +41,8 @@ const Banner = () => {
                   in preserving our planet for future generations through innovative solutions and
                   responsible business practices.</p>
                 <div className="bannerbtn">
-                  <a href="about.html" className="custom-btn">Get Involved</a>
-                  <a href="about.html" className="custom-btn">Learn More</a>
+                  <a href="/contact" className="custom-btn">Get Involved</a>
+                  <a href="/about" className="custom-btn">Learn More</a>
                 </div>
               </div>
             </div>

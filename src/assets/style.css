@@ -3041,6 +3041,9 @@ select {
 
 .newslatter__bg {
     background-image: url("../img/home-1/newslatter/bg.jpg");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
     padding: calc(1.625rem + 4.5vw) 1.25rem;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
