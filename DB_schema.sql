@@ -88,18 +88,23 @@ CREATE TABLE `cart` (
 
 -- 7. ORDERS TABLE
 CREATE TABLE `orders` (
-  `order_id` INT NOT NULL AUTO_INCREMENT,
-  `user_id` INT NOT NULL,
-  `order_number` VARCHAR(50) NOT NULL UNIQUE,
-  `total_amount` DECIMAL(10,2) NOT NULL,
-  `status` VARCHAR(50) DEFAULT 'Pending',
-  `payment_status` VARCHAR(50) DEFAULT 'Pending',
-  `shipping_address` TEXT NOT NULL,
-  `placed_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `order_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `order_number` varchar(50) NOT NULL,
+  `shipping_address_id` int(11) NOT NULL,
+  `billing_id` int(11) DEFAULT NULL,
+  `total_amount` decimal(10,2) NOT NULL,
+  `status` enum('pending','confirmed','processing','shipped','delivered','cancelled','payment_failed','refunded') NOT NULL DEFAULT 'pending',
+  `payment_status` varchar(50) DEFAULT 'Pending',
+  `placed_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`order_id`),
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  UNIQUE KEY `order_number` (`order_number`),
+  KEY `user_id` (`user_id`),
+  KEY `shipping_address_id` (`shipping_address_id`),
+  CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+  CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`shipping_address_id`) REFERENCES `addresses` (`address_id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- 8. ORDER ITEMS TABLE
 CREATE TABLE `order_items` (
@@ -115,6 +120,23 @@ CREATE TABLE `order_items` (
   FOREIGN KEY (`order_id`) REFERENCES `orders`(`order_id`) ON DELETE CASCADE,
   FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `payments` (
+  `payment_id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_id` int(11) NOT NULL,
+  `payment_gateway` varchar(50) NOT NULL,
+  `gateway_order_id` varchar(100) NOT NULL,
+  `payment_method` varchar(50) DEFAULT NULL,
+  `payment_status` varchar(50) DEFAULT NULL,
+  `transaction_id` varchar(100) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `currency` varchar(10) DEFAULT 'INR',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `gateway_signature` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`payment_id`),
+  KEY `order_id` (`order_id`),
+  CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- 9. WISHLIST TABLE
 CREATE TABLE `wishlist` (

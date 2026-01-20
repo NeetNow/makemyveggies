@@ -35,6 +35,21 @@ const Checkout = () => {
   const [placingOrder, setPlacingOrder] = useState(false);
   const [error, setError] = useState('');
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -120,28 +135,118 @@ const Checkout = () => {
         return;
       }
 
-      setOrderNumber(data.data.order_number);
-      // Use backend-calculated total amount for confirmation summary
-      if (data.data && typeof data.data.total_amount === 'number') {
-        setOrderTotal(data.data.total_amount);
+      const placedOrderId = data.data.order_id;
+      const placedOrderNumber = data.data.order_number;
+      const backendTotal = (data.data && typeof data.data.total_amount === 'number')
+        ? data.data.total_amount
+        : total;
+
+      if (formData.paymentMethod === 'COD') {
+        // Existing COD flow
+        setOrderNumber(placedOrderNumber);
+        setOrderTotal(backendTotal);
+        setOrderPlaced(true);
+        await clearCart();
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        toast.success('Order placed successfully!', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       } else {
-        setOrderTotal(total);
+        // Razorpay online payment flow
+        const scriptLoaded = await loadRazorpayScript();
+        if (!scriptLoaded) {
+          setError('Unable to load Razorpay payment. Please try again or choose Cash on Delivery.');
+          return;
+        }
+
+        const rpRes = await fetch('/backend/api/razorpay_create_order.php', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ order_id: placedOrderId }),
+        });
+
+        const rpData = await rpRes.json();
+        if (!rpData.success) {
+          setError(rpData.message || 'Failed to initiate online payment.');
+          return;
+        }
+
+        const options = {
+          key: rpData.data.razorpay_key_id,
+          amount: rpData.data.amount,
+          currency: rpData.data.currency,
+          name: 'MakeMyVeggies',
+          description: `Order ${placedOrderNumber}`,
+          order_id: rpData.data.razorpay_order_id,
+          prefill: {
+            name: rpData.data.name || `${formData.firstName} ${formData.lastName}`,
+            email: rpData.data.email || formData.email,
+            contact: rpData.data.contact || formData.phone,
+          },
+          handler: async function (response) {
+            try {
+              const verifyRes = await fetch('/backend/api/razorpay_verify.php', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  order_id: placedOrderId,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
+              });
+
+              const verifyData = await verifyRes.json();
+              if (!verifyData.success) {
+                setError(verifyData.message || 'Payment verification failed.');
+                return;
+              }
+
+              setOrderNumber(placedOrderNumber);
+              setOrderTotal(backendTotal);
+              setOrderPlaced(true);
+              await clearCart();
+
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+
+              toast.success('Payment successful! Your order has been placed.', {
+                position: 'top-right',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+              });
+            } catch (err) {
+              setError('Error verifying payment. Please contact support if your amount was deducted.');
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              setError('Payment popup closed. You can try again or choose Cash on Delivery.');
+            },
+          },
+          theme: {
+            color: '#31381A',
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
       }
-      setOrderPlaced(true);
-      await clearCart();
-
-      // Scroll to top so user sees the order confirmation section
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Show success toast using react-toastify
-      toast.success('Order placed successfully!', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
     } catch (err) {
       setError('Something went wrong while placing the order');
     } finally {
@@ -182,7 +287,7 @@ const Checkout = () => {
                       </div>
                       <h2 className="mb-3">Thank You! Your Order Has Been Placed</h2>
                       <p className="mb-4">Order ID: <strong>{orderNumber}</strong></p>
-                      <p>A confirmation email has been sent to <strong>{formData.email}</strong></p>
+                      <p>Order confirmation details have been sent to your registered contact information.</p>
                     </div>
                     
                     <div className="confirmation-details">
@@ -486,15 +591,9 @@ const Checkout = () => {
                             onChange={handleChange}
                           />
                           <label className="form-check-label" htmlFor="online">
-                            Online Payment (Coming Soon)
+                            Online Payment (Razorpay)
                           </label>
                         </div>
-
-                        {formData.paymentMethod === 'ONLINE' && (
-                          <p className="text-muted small mt-2">
-                            Online payment is not enabled yet. Your order will be placed with payment status "Pending" and you will pay later.
-                          </p>
-                        )}
                       </div>
 
                       {error && (
