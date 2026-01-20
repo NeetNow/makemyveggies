@@ -88,6 +88,72 @@ try {
         exit;
     }
 
+    // Fetch all product images for gallery (primary first)
+    $imagesSql = "
+        SELECT image_url, is_primary
+        FROM product_images
+        WHERE product_id = ?
+        ORDER BY is_primary DESC, image_id ASC
+    ";
+    $imagesStmt = $pdo->prepare($imagesSql);
+    $imagesStmt->execute([$product_id]);
+    $imagesRows = $imagesStmt->fetchAll(PDO::FETCH_ASSOC);
+    $images = [];
+    foreach ($imagesRows as $row) {
+        if (!empty($row['image_url'])) {
+            $images[] = $row['image_url'];
+        }
+    }
+
+    // Fetch recent reviews with user names
+    $reviewsSql = "
+        SELECT r.rating, r.comment, r.created_at, u.first_name, u.last_name
+        FROM reviews r
+        JOIN users u ON u.user_id = r.user_id
+        WHERE r.product_id = ?
+        ORDER BY r.created_at DESC
+        LIMIT 20
+    ";
+    $reviewsStmt = $pdo->prepare($reviewsSql);
+    $reviewsStmt->execute([$product_id]);
+    $reviewsRows = $reviewsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $reviewsList = [];
+    foreach ($reviewsRows as $r) {
+        $name = trim(($r['first_name'] ?? '') . ' ' . ($r['last_name'] ?? ''));
+        $reviewsList[] = [
+            'rating' => (int)$r['rating'],
+            'comment' => $r['comment'] ?? '',
+            'createdAt' => $r['created_at'],
+            'userName' => $name !== '' ? $name : 'Customer'
+        ];
+    }
+
+    // Rating breakdown (1-5)
+    $breakdownSql = "
+        SELECT rating, COUNT(*) AS cnt
+        FROM reviews
+        WHERE product_id = ?
+        GROUP BY rating
+    ";
+    $breakdownStmt = $pdo->prepare($breakdownSql);
+    $breakdownStmt->execute([$product_id]);
+    $breakdownRows = $breakdownStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $ratingBreakdown = [
+        '5' => 0,
+        '4' => 0,
+        '3' => 0,
+        '2' => 0,
+        '1' => 0
+    ];
+    foreach ($breakdownRows as $b) {
+        $rt = (string)(int)$b['rating'];
+        if (isset($ratingBreakdown[$rt])) {
+            $ratingBreakdown[$rt] = (int)$b['cnt'];
+        }
+    }
+
     // Compute discount-aware pricing using discounts table (same as get_products.php)
     $basePrice = (float)$product['price'];
     $disPercent = isset($product['dis_percent']) ? (float)$product['dis_percent'] : 0.0;
@@ -119,10 +185,13 @@ try {
         'status' => (int)$product['status'],
         'categoryName' => $product['category_name'],
         'primaryImage' => $product['primary_image'] ?: '/images/placeholder-product.jpg',
+        'images' => $images,
         'createdAt' => $product['created_at'],
         'inStock' => (int)$product['stock'] > 0,
         'rating' => (float)$product['avg_rating'],
-        'reviews' => (int)$product['review_count']
+        'reviews' => (int)$product['review_count'],
+        'reviewsList' => $reviewsList,
+        'ratingBreakdown' => $ratingBreakdown
     ];
 
     echo json_encode([

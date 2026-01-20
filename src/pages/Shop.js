@@ -72,10 +72,10 @@ const Shop = () => {
         setError('No products found in the database');
         return;
       }
-
+      
       const mapped = data.products.map(p => {
         // safe parsing with fallbacks
-        const rawPrice = Number(p.price);
+        const rawPrice = Number(p.price); 
         const rawOriginalPrice = Number(p.originalPrice);
         const rawDiscount = Number(p.discount);
 
