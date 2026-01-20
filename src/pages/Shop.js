@@ -44,7 +44,7 @@ const Shop = () => {
     try {
       const queryString = search || '';
 
-      const res = await fetch(`https://dev.makemyveggies.com//backend/api/get_products.php${queryString}`, {
+      const res = await fetch(`/backend/api/get_products.php${queryString}`, {
         method: 'GET',
         credentials: 'include',
         headers: {

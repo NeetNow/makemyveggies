@@ -223,11 +223,30 @@ try {
     $pdo->prepare('UPDATE orders SET billing_id = ? WHERE order_id = ?')->execute([$billingId, $orderId]);
 
     // Insert payment row (COD confirmed as pending to be collected on delivery, online as dummy)
-    $paySql = 'INSERT INTO payments (order_id, payment_method, payment_status, transaction_id, amount, created_at) VALUES (?, ?, ?, ?, ?, ?)';
-    $transactionId = null;
-    $payStatus = $paymentMethod === 'COD' ? 'Pending' : 'Pending';
+    // New payments table schema:
+    // payment_id, order_id, payment_gateway, gateway_order_id, payment_method,
+    // payment_status, transaction_id, amount, created_at, gateway_signature
+    $paySql = 'INSERT INTO payments (order_id, payment_gateway, gateway_order_id, payment_method, payment_status, transaction_id, amount, created_at, gateway_signature)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+    $paymentGateway   = $paymentMethod === 'COD' ? 'COD' : 'ONLINE';
+    $gatewayOrderId   = $orderNumber; // use our order number as the gateway order id for now
+    $transactionId    = null;         // for COD or before online capture
+    $gatewaySignature = '';           // no signature at order creation
+    $payStatus        = $paymentMethod === 'COD' ? 'Pending' : 'Pending';
+
     $stmtPay = $pdo->prepare($paySql);
-    $stmtPay->execute([$orderId, $paymentMethod, $payStatus, $transactionId, $totalAmount, $istNow]);
+    $stmtPay->execute([
+        $orderId,
+        $paymentGateway,
+        $gatewayOrderId,
+        $paymentMethod,
+        $payStatus,
+        $transactionId,
+        $totalAmount,
+        $istNow,
+        $gatewaySignature,
+    ]);
 
     // Clear cart
     $clearStmt = $pdo->prepare('DELETE FROM cart WHERE user_id = ?');
@@ -236,15 +255,76 @@ try {
     $pdo->commit();
 
     // Always send order confirmation email to account (login) email
-    $customerEmail = $user['email'] ?? null;
-    $customerName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+    $accountEmail = $user['email'] ?? null;
+    $accountName  = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
 
-    if ($customerEmail) {
-        try {
-            $emailService = new ProductionEmailService(false);
-            $emailService->sendOrderConfirmation($customerEmail, $customerName, $orderNumber, $orderItemsSummary, $totalAmount, $paymentMethod);
-        } catch (Exception $e) {
-            error_log('Order confirmation email failed: ' . $e->getMessage());
+    // Also send to billing email if present
+    $billingEmail = $billingInsert['email'] ?? null;
+    $billingName  = trim(($billingInsert['first_name'] ?? '') . ' ' . ($billingInsert['last_name'] ?? ''));
+
+    try {
+        $emailService = new ProductionEmailService(false);
+
+        if ($accountEmail) {
+            $emailService->sendOrderConfirmation($accountEmail, $accountName, $orderNumber, $orderItemsSummary, $totalAmount, $paymentMethod);
+        }
+
+        if ($billingEmail && $billingEmail !== $accountEmail) {
+            $emailService->sendOrderConfirmation($billingEmail, $billingName ?: $accountName, $orderNumber, $orderItemsSummary, $totalAmount, $paymentMethod);
+        }
+    } catch (Exception $e) {
+        error_log('Order confirmation email failed: ' . $e->getMessage());
+    }
+
+    // WhatsApp notification: send to both account phone and billing phone (no duplicates)
+    $accountPhone = $user['phone'] ?? null;
+    $billingPhone = $billingInsert['phone'] ?? null;
+
+    $phonesToNotify = [];
+    if ($accountPhone) {
+        $phonesToNotify[$accountPhone] = $accountName;
+    }
+    if ($billingPhone) {
+        // If same number as account phone, this will just overwrite the name but avoid duplicate send
+        $phonesToNotify[$billingPhone] = $billingName ?: $accountName;
+    }
+
+    if (!empty($phonesToNotify)) {
+        $fast2smsAuthKey   = $_ENV['FAST2SMS_AUTH_KEY'];
+        $fast2smsBaseUrl   = $_ENV['FAST2SMS_BASE_URL'];
+        $fast2smsMessageId = $_ENV['FAST2SMS_MESSAGE_ID_2'];
+        $fast2smsPhoneId   = $_ENV['FAST2SMS_PHONE_NUMBER_ID'];
+        $fast2smsImageUrl  = $_ENV['FAST2SMS_IMAGE_URL_ORDER_PLACED'];
+
+        if ($fast2smsAuthKey !== '') {
+            foreach ($phonesToNotify as $phoneNumber => $name) {
+                // Normalize phone number to digits only, as Fast2SMS expects
+                $numbers = preg_replace('/\D/', '', $phoneNumber);
+
+                $queryParams = [
+                    'authorization'    => $fast2smsAuthKey,
+                    'message_id'       => $fast2smsMessageId,
+                    'phone_number_id'  => $fast2smsPhoneId,
+                    'numbers'          => $numbers,
+                    'image_url'        => $fast2smsImageUrl,
+                    'variables_values' => $name . '|' . $orderNumber,
+                ];
+
+                $url = $fast2smsBaseUrl . '?' . http_build_query($queryParams);
+
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $response = curl_exec($ch);
+                if ($response === false) {
+                    error_log('Fast2SMS WhatsApp error: ' . curl_error($ch));
+                } else {
+                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    error_log('Fast2SMS WhatsApp response for order ' . $orderNumber . ' to ' . $numbers . ': HTTP ' . $httpCode . ' body: ' . $response);
+                }
+                curl_close($ch);
+            }
+        } else {
+            error_log('Fast2SMS WhatsApp skipped: FAST2SMS_AUTH_KEY is empty');
         }
     }
 

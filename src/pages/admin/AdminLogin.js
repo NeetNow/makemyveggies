@@ -14,7 +14,7 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const API_BASE = 'http://localhost/git_mmv/makemyveggies';
+      const API_BASE = 'https://dev.makemyveggies.com/makemyveggies';
 
       const response = await fetch(`${API_BASE}/backend/api/admin/login.php`, {
         method: 'POST',
