@@ -27,7 +27,6 @@ import About from './pages/About';
 import ServicesPage from './pages/Services';
 import TeamPage from './pages/Team';
 import BlogPage from './pages/Blog';
-import BlogSingle from './pages/blogsingle';
 import Contact from './pages/Contact';
 import History from './pages/History';
 import FAQ from './pages/FAQ';
@@ -101,8 +100,6 @@ function App() {
               <Route path="/service" element={<ServicesPage />} />
               <Route path="/team" element={<TeamPage />} />
               <Route path="/blog" element={<BlogPage />} />
-              <Route path="/blog/:id" element={<BlogSingle />} />
-              <Route path="/blogsingle" element={<BlogSingle />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/history" element={<History />} />
               <Route path="/faq" element={<FAQ />} />

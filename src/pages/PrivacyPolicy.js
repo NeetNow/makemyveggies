@@ -28,7 +28,7 @@ const PrivacyPolicy = () => {
                     </h2>
                   </div>
                 </div>
-
+@@
                 <div className="faq__content">
                   <div className="faq__item">
                     <h4>PRIVACY POLICY</h4>
