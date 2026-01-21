@@ -8,37 +8,37 @@ const BlogPage = () => {
     {
       id: 1,
       title: "Balcony and Kitchen Gardening for Beginners: Grow Fresh, Healthy Food at Home",
-      image: "/assets/img/home-1/blog/img1.png",
+      image: "/assets/img/home-1/blog/img1.jpg",
       description: "Learn how SEO optimization improves website visibility."
     },
     {
       id: 2,
       title: "Gardening at Home: A Natural Way to Unwind from Urban Stress",
-      image: "/assets/img/home-1/blog/img2.png",
+      image: "/assets/img/home-1/blog/img2.jpg",
       description: "Easy gardening tips for healthy and green plants."
     },
     {
       id: 3,
       title: "Health Benefits of Microgreens and How to Use Them in Everyday Cooking",
-      image: "/assets/img/home-1/blog/img3.png",
+      image: "/assets/img/home-1/blog/img3.jpg",
       description: "Grow fresh and chemical-free vegetables organically."
     },
     {
       id: 4,
       title: "Mental Health Benefits of Home Gardening for Working Professionals",
-      image: "/assets/img/home-1/blog/img4.png",
+      image: "/assets/img/home-1/blog/img4.jpg",
       description: "Simple indoor plant care tips for beginners."
     },
     {
       id: 5,
       title: "Nutritional and Protein Content of Microgreens: What Science Really Says",
-      image: "/assets/img/home-1/blog/img5.png",
+      image: "/assets/img/home-1/blog/img5.jpg",
       description: "Know what to plant and when for best results."
     },
     {
       id: 6,
       title: "Why Homegrown Vegetables Are Healthier (and More Sustainable) Than Store-Bought Produce",
-      image: "/assets/img/home-1/blog/img6.png",
+      image: "/assets/img/home-1/blog/img6.jpg",
       description: "Enhance your garden with creative landscape designs."
     }
   ];
@@ -69,19 +69,19 @@ const BlogPage = () => {
                   <div className="blog__item">
                     <div className="blog__inner">
                       <div className="thumb">
-                        <Link to={`/blog/${blog.id}`}>
+                        <Link to="/blog-single">
                           <img src={blog.image} alt={blog.title} />
                         </Link>
                       </div>
                       <div className="content bg-white">
                         <div className="text">
                           <h6>
-                            <Link to={`/blog/${blog.id}`}>{blog.title}</Link>
+                            <Link to="/blog-single">{blog.title}</Link>
                           </h6>
                           <p>{blog.description}</p>
                         </div>
                         <div className="blogbtn">
-                          <Link to={`/blog/${blog.id}`} className="custom-btn">
+                          <Link to="/blog-single" className="custom-btn">
                             Read More
                           </Link>
                         </div>
