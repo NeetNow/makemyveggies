@@ -79,7 +79,7 @@ const Header = () => {
                       <li><Link to="/">Home</Link></li>
                       <li><Link to="/about">About</Link></li>
                       <li className="menu-item-has-children">
-                        <Link to="/shop">DIY Kits</Link>
+                        <Link to="/">DIY Kits</Link>
                         <ul>
                           <li><Link to="/shop?category=DIY Microgreens">DIY Microgreens</Link></li>
                           <li><Link to="/shop?category=DIY Veggies">DIY Veggies</Link></li>
@@ -87,7 +87,7 @@ const Header = () => {
 
                       </li>
                       <li className="menu-item-has-children">
-                        <Link to="/shop">Suppliments</Link>
+                        <Link to="/">Suppliments</Link>
                         <ul>
                           <li><Link to="/shop?category=nutrition-spray">Nutrition Spray</Link></li>
                           <li><Link to="/shop?category=seeds">Seeds</Link></li>

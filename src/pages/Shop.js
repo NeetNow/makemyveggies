@@ -44,7 +44,7 @@ const Shop = () => {
     try {
       const queryString = search || '';
 
-      const res = await fetch(`https://dev.makemyveggies.com//backend/api/get_products.php${queryString}`, {
+      const res = await fetch(`/backend/api/get_products.php${queryString}`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -72,10 +72,10 @@ const Shop = () => {
         setError('No products found in the database');
         return;
       }
-      
+
       const mapped = data.products.map(p => {
         // safe parsing with fallbacks
-        const rawPrice = Number(p.price); 
+        const rawPrice = Number(p.price);
         const rawOriginalPrice = Number(p.originalPrice);
         const rawDiscount = Number(p.discount);
 
