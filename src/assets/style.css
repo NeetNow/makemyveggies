@@ -7888,5 +7888,107 @@ select {
     min-height: 600px;
 }
 
+.blog-single {
+    padding: 1.5rem 0 2rem;
+}
+
+.blog-single__container {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.blog-single__header {
+    padding: 0 0 0.75rem;
+}
+
+.blog-single__hero {
+    width: 100%;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.blog-single__hero-image {
+    width: 100%;
+    height: 420px;
+    object-fit: cover;
+    display: block;
+}
+
+.blog-single__columns {
+    column-count: 2;
+    column-gap: 2rem;
+}
+
+.blog-single__columns .faq__item {
+    break-inside: avoid;
+}
+
+.blog-single__row {
+    min-height: calc(100vh - 120px);
+}
+
+.blog-single__media {
+    background: #f8f9fa;
+}
+
+.blog-single__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.blog-single__content {
+    padding: 2rem 2.25rem;
+}
+
+.blog-single__title {
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+}
+
+.blog-single .faq__item {
+    margin-bottom: 0.75rem;
+}
+
+.blog-single .faq__item h4 {
+    margin: 1.25rem 0 0.5rem 0;
+}
+
+.blog-single .faq__item ul {
+    margin: 0.25rem 0 0.75rem 0;
+}
+
+.blog-single .faq__item li {
+    margin-bottom: 0.4rem;
+}
+
+@media (max-width: 991px) {
+    .blog-single__row {
+        min-height: auto;
+    }
+
+    .blog-single__media {
+        height: 280px;
+    }
+
+    .blog-single__hero-image {
+        height: 260px;
+    }
+
+    .blog-single__content {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .blog-single__columns {
+        column-count: 1;
+        column-gap: 0;
+    }
+}
 
 /*# sourceMappingURL=style.css.map */
