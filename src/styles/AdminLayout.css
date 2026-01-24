@@ -1,0 +1,139 @@
+﻿/* Admin Layout theme (scoped) */
+.admin-layout {
+  --al-bg: #f6f7fb;
+  --al-surface: #ffffff;
+  --al-muted: #94a3b8;
+  --al-text: #0f172a;
+  --al-primary: #ff6b2c; /* warm orange like the reference */
+  --al-sidebar-bg: #0f172a;
+  --al-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --al-sidebar-active: rgba(255, 107, 44, 0.15);
+}
+
+.admin-layout {
+  background: var(--al-bg);
+}
+
+/* Sidebar */
+.admin-sidebar {
+  background: var(--al-sidebar-bg) !important;
+  color: #e5e7eb;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.admin-sidebar__header {
+  background: transparent;
+}
+
+.admin-sidebar__header img {
+  height: 40px;
+}
+
+.admin-sidebar__nav {
+  padding: 8px 10px;
+}
+
+.admin-sidebar__nav ul {
+  margin: 0;
+}
+
+.admin-sidebar__nav a {
+  color: #cbd5e1 !important; /* override bootstrap text-dark inside sidebar */
+  border-radius: 10px;
+  gap: 10px;
+  font-weight: 500;
+  letter-spacing: .2px;
+  transition: background-color .2s ease, color .2s ease, transform .05s ease;
+}
+
+.admin-sidebar__nav a i {
+  color: #9aa7b7;
+  width: 20px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.admin-sidebar__nav a:hover {
+  background: var(--al-sidebar-hover);
+  color: #fff !important;
+}
+
+/* active state comes from bootstrap classes on the link */
+.admin-sidebar .bg-success {
+  background-color: var(--al-sidebar-active) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 107, 44, 0.35);
+  box-shadow: inset 3px 0 0 var(--al-primary);
+}
+
+/* ensure icon in active item becomes brighter */
+.admin-sidebar .bg-success i {
+  color: #ffd1bf;
+}
+
+/* Main area */
+.admin-main {
+  background: var(--al-bg);
+}
+
+.admin-main__header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--al-surface) !important;
+  border-bottom: 1px solid #edf2f7;
+  backdrop-filter: saturate(120%) blur(6px);
+}
+
+.admin-main__header h5 {
+  color: var(--al-text);
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.admin-main__header p {
+  color: var(--al-muted);
+}
+
+/* header right section link */
+.admin-main__header a {
+  color: var(--al-muted);
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+.admin-main__header a:hover {
+  color: var(--al-text);
+  background: #e8edf3;
+  text-decoration: none;
+}
+
+.admin-main__content {
+  background: var(--al-bg);
+}
+
+/* Optional: soft cards look for generic .card used across admin pages */
+.admin-main__content .card {
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 1px 1px rgba(17, 24, 39, 0.04), 0 8px 24px rgba(17, 24, 39, 0.06);
+}
+
+/* Scrollbar polish (webkit only, scoped to admin area) */
+.admin-main__content::-webkit-scrollbar,
+.admin-layout::-webkit-scrollbar,
+.admin-sidebar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.admin-main__content::-webkit-scrollbar-thumb,
+.admin-layout::-webkit-scrollbar-thumb,
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.2);
+  border-radius: 999px;
+}
+
