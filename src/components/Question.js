@@ -67,8 +67,12 @@ const Question = () => {
             </div>
           </div>
           <div className="col-lg-5 col-xl-6">
-            <div className="question__rightimg imghover" style={{ backgroundImage: `url(/assets/img/home-2/question/rightimg.png)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', minHeight: '400px' }}>
-              
+            <div className="question__rightimg imghover" style={{ backgroundImage: `url(/assets/img/home-2/question/rightimg.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', minHeight: '400px' }}>
+              <div className="plybtn plybtn--playbtn">
+                <a href="https://www.youtube.com/watch?v=m4CWaHAQ4wc" className="popup">
+                  <i className="fa-solid fa-play"></i>
+                </a>
+              </div>
             </div>
           </div>
         </div>
