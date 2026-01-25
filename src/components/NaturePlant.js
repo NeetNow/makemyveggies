@@ -57,9 +57,6 @@ const NaturePlant = () => {
       <div className="position leftimg imghover d-xxl-block d-none">
         <img src="/assets/img/home-1/welcome/leftimg.png" alt="bakul" />
       </div>
-      <div className="rightshape right-left d-lg-block d-none">
-        <img src="/assets/img/home-1/welcome/img1.png" alt="bakul" />
-      </div>
       <div className="position topshape d-xxl-block d-none">
         <img src="/assets/img/home-1/welcome/knife.png" alt="bakul" />
       </div>

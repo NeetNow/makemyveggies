@@ -50,7 +50,7 @@ const Feedback = () => {
                       <div className="feedback__inner bg-white">
                         <div className="top">
                           <div className="thumb">
-                            <img src="/assets/img/home-1/feedback/img1.png" alt="bakul" />
+                            <img src="/assets/img/home-1/feedback/img2.png" alt="bakul" />
                           </div>
                           <div className="profile">
                             <div className="name">
@@ -108,7 +108,7 @@ const Feedback = () => {
                       <div className="feedback__inner bg-white">
                         <div className="top">
                           <div className="thumb">
-                            <img src="/assets/img/home-1/feedback/img1.png" alt="bakul" />
+                            <img src="/assets/img/home-1/feedback/img2.png" alt="bakul" />
                           </div>
                           <div className="profile">
                             <div className="name">
@@ -142,9 +142,6 @@ const Feedback = () => {
       </div>
 
       {/* Background Shapes */}
-      <div className="rightbottom right-left d-lg-block d-none">
-        <img src="/assets/img/home-1/feedback/bottomshape.png" alt="bakul" />
-      </div>
       <div className="positionfeedback righttop">
         <img src="/assets/img/home-1/feedback/topshape.png" alt="bakul" />
       </div>

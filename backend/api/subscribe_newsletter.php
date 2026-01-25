@@ -56,13 +56,10 @@ $database = new Database();
 $db = $database->getConnection();
 
 if (!$db) {
-    error_log("Newsletter: Database connection failed");
     http_response_code(500);
     echo json_encode(["success" => false, "message" => "Database connection failed"]);
     exit();
 }
-
-error_log("Newsletter: Database connected, processing email: " . $email);
 
 try {
     // Check if email already exists
@@ -88,10 +85,7 @@ try {
     $stmt = $db->prepare($query);
     $stmt->bindParam(":email", $email);
     
-    error_log("Newsletter: Executing insert for email: " . $email);
-    
     if ($stmt->execute()) {
-        error_log("Newsletter: Insert successful for email: " . $email);
         http_response_code(201);
         echo json_encode([
             "success" => true, 
@@ -99,7 +93,6 @@ try {
         ]);
     } else {
         $errorInfo = $stmt->errorInfo();
-        error_log("Newsletter: Insert failed - " . ($errorInfo[2] ?? "Unknown error"));
         throw new Exception($errorInfo[2] ?? "Failed to subscribe. Please try again later.");
     }
     

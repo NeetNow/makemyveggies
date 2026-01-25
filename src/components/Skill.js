@@ -2,7 +2,7 @@ import React from 'react';
 
 const Skill = () => {
   return (
-    <section className="skill padding-block overflow-hidden">
+    <section className="skill padding-block overflow-hidden" style={{ background: '#BCCD88' }}>
       <div className="container">
         <div className="row align-items-center g-4">
           <div className="col-lg-6">
@@ -61,9 +61,9 @@ const Skill = () => {
           </div>
         </div>
       </div>
-      <div className="bottom-right right-left d-xxl-block d-none">
+      {/* <div className="bottom-right right-left d-xxl-block d-none">
         <img src="/assets/img/home-1/welcome/img1.png" alt="bakul" />
-      </div>
+      </div> */}
       <div className="topleft top-bottom d-none">
         <img src="/assets/img/home-2/service/topshape.png" alt="bakul" />
       </div>

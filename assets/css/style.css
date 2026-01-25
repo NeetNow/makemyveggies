@@ -1,4 +1,4 @@
-@import url("../../../../../css2");
+﻿@import url("../../../../../css2");
 @import url("../../../../../css2-1");
 @import url("../../../../../css2-2");
 /* browser prefix adding  */
@@ -5566,3 +5566,45 @@ input, textarea, select {
 }
 
 /*# sourceMappingURL=style.css.map */
+
+/* Fix: align plus icon for Policies menu item without affecting others */
+@media (min-width: 1200px) {
+  .header__nav .mainactive>ul > li:last-child.menu-item-has-children > a {
+    padding-right: 2.75rem;
+  }
+  .header__nav .mainactive>ul > li:last-child.menu-item-has-children > a::after { right: 15px; }
+  .header__nav .mainactive>ul > li:last-child.menu-item-has-children > a::before { right: 19px; }
+}
+/* Align login button beside cart on desktop */
+@media (min-width: 1200px) {
+  .header__bottom .right { flex-wrap: nowrap !important; align-items: center; }
+}
+/* Keep header items in one line and center nav; do not alter Policies icon */
+@media (min-width: 1200px) {
+  .header__bottom .right { display:flex; flex-wrap: nowrap !important; align-items: center; }
+  .header__nav { flex: 1 1 auto; min-width: 0; }
+  .header__cart, .header__bottombtn { flex: 0 0 auto; }
+}
+/* Header single-line alignment overrides (do not alter Policies icon) */
+@media (min-width: 1200px) {
+  .header__bottom .right { flex-wrap: nowrap !important; align-items: center; gap: 20px; }
+  .header__nav { flex: 1 1 auto; min-width: 0; }
+  .header__nav .mainactive>ul { flex-wrap: nowrap; }
+  .header__nav .mainactive>ul li a { padding: 0.9375rem 1.25rem; }
+}
+/* Header single-line layout from 992px+ (keeps Policies icon tweaks) */
+@media (min-width: 992px) {
+  .header__bottom .right { display:flex; flex-wrap: nowrap !important; align-items: center; gap: 20px; }
+  .header__nav { flex: 1 1 auto; min-width: 0; }
+  .header__nav .mainactive>ul { display:flex; flex-wrap: nowrap; }
+}
+/* Force single-line nav and prevent item wrapping at >=992px; keep Policies icon unchanged */
+@media (min-width: 992px) {
+  .header__bottom .right { display:flex; flex-wrap: nowrap !important; align-items: center; gap: 20px; }
+  .header__nav { flex: 1 1 0%; min-width: 0; }
+  .header__nav .mainactive>ul { display:flex !important; flex-wrap: nowrap !important; align-items: center; }
+  .header__nav .mainactive>ul li { white-space: nowrap; }
+  .header__nav .mainactive>ul li a { padding: 0.9375rem 1rem; }
+}
+\n/* Hide white close dot in footer gallery lightbox */\n.mmv-lightbox button[aria-label="Close"]{ display:none !important; }\n
+
