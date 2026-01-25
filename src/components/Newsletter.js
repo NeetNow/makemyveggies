@@ -23,7 +23,7 @@ const Newsletter = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost/makemyveggies-main/backend/api/subscribe_newsletter.php', {
+      const response = await fetch('https://dev.makemyveggies.com/backend/api/subscribe_newsletter.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
