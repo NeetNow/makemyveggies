@@ -5189,16 +5189,16 @@ select {
 }
 
 .natureplant .position.leftimg img {
-    width: 60%;
+    width: 80%;
 }
 
-@media (min-width: 1440px) {
+@media (min-width: 1683px) {
     .natureplant .position.leftimg img {
-        width: 80%;
+        width: 90%;
     }
 }
 
-@media (min-width: 1600px) {
+@media (min-width: 1700px) {
     .natureplant .position.leftimg img {
         width: 90%;
     }
@@ -6149,6 +6149,7 @@ select {
         background-image: url("../img/home-1/feedback/bg.jpg");
         background-position: center;
         width: 48%;
+        border-radius: 10px;
     }
 }
 

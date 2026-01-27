@@ -1,6 +1,20 @@
 import React from 'react';
 
 const Question = () => {
+  const [isVideoOpen, setIsVideoOpen] = React.useState(false);
+  const videoRef = React.useRef(null);
+
+  const closeVideo = () => {
+    if (videoRef.current) {
+      try {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+      } catch (e) {
+      }
+    }
+    setIsVideoOpen(false);
+  };
+
   return (
     <section className="question padding-block">
       <div className="container">
@@ -67,8 +81,48 @@ const Question = () => {
             </div>
           </div>
           <div className="col-lg-5 col-xl-6">
-            <div className="question__rightimg imghover" style={{ backgroundImage: `url(/assets/img/home-2/question/rightimg.png)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', minHeight: '400px' }}>
-              
+            <div
+              className="question__rightimg imghover"
+              style={{ backgroundImage: `url(/assets/img/home-2/question/rightimg.png)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', minHeight: '400px', position: 'relative', overflow: 'hidden', borderRadius: '3%' }}
+            >
+              {!isVideoOpen && (
+                <button
+                  type="button"
+                  aria-label="Play video"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsVideoOpen(true); }}
+                  style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.15)', border: 'none', cursor: 'pointer' }}
+                >
+                  <span
+                    style={{ width: '74px', height: '74px', borderRadius: '50%', background: '#ffffff', display: 'grid', placeItems: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.25)' }}
+                  >
+                    <span
+                      style={{ width: 0, height: 0, borderTop: '12px solid transparent', borderBottom: '12px solid transparent', borderLeft: '18px solid #31381A', marginLeft: '3px' }}
+                    />
+                  </span>
+                </button>
+              )}
+
+              {isVideoOpen && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Close video"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); closeVideo(); }}
+                    style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 2, width: '36px', height: '36px', borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: '22px', lineHeight: 1, cursor: 'pointer' }}
+                  >
+                    ×
+                  </button>
+                  <video
+                    ref={videoRef}
+                    src="/assets/img/home-2/question/vdo.mp4"
+                    poster="/assets/img/home-2/question/rightimg.png"
+                    controls
+                    autoPlay
+                    playsInline
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>

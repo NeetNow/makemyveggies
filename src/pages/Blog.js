@@ -59,7 +59,7 @@ const BlogPage = () => {
           <div className="container">
             <div className="section__header text-center">
               <span>Latest News</span>
-              <h3>Our Blog & Articles</h3>
+
               <p>Stay updated with the latest gardening tips and trends.</p>
             </div>
 
