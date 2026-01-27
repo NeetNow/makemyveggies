@@ -13,19 +13,19 @@ const Banner = () => {
           effect="fade"
           loop={true}
           autoplay={{
-            delay: 3000,
+            delay: 2000,
             disableOnInteraction: false,
           }}
-          speed={1000}
+          speed={3000}
           className="swiper-container"
         >
           <SwiperSlide>
             <div className="container">
               <div className="banner__content col-md-7 col-xl-6">
-                <h3>We Helping you To Save The Earth</h3>
-                <p>Continually productize compelling quality packed into business consulting com
-                  productize compelling quality for all packed in with all growth into business pac
-                  facilitate your business up to website and creating pages.</p>
+                <h3>Helping you be self-dependent in food</h3>
+                <p>Our kits empower individuals and families to take small steps toward self-sufficiency. 
+                  By growing fresh vegetables and herbs, microgeens turns everyday spaces into productive green corners. 
+                  We believe growing your own food builds healthier habits and a more sustainable future—no farm or experience needed, just curiosity and care.</p>
                 <div className="bannerbtn">
                   <a href="/about" className="custom-btn">Learn More</a>
                   <a href="/contact" className="custom-btn">Contact Us</a>
