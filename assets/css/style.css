@@ -5606,5 +5606,5 @@ input, textarea, select {
   .header__nav .mainactive>ul li { white-space: nowrap; }
   .header__nav .mainactive>ul li a { padding: 0.9375rem 1rem; }
 }
-\n/* Hide white close dot in footer gallery lightbox */\n.mmv-lightbox button[aria-label="Close"]{ display:none !important; }\n
-
+/* Hide white close dot in footer gallery lightbox */
+.mmv-lightbox button[aria-label="Close"]{ display:none !important; }
