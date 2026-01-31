@@ -285,6 +285,12 @@ const UserProfile = () => {
                     <div className="container">
                         <div className="pageheader__content">
                             <h2>User Profile</h2>
+                            <nav aria-label="breadcrumb">
+                                <ul className="breadcrumb">
+                                    <li><Link to="/">Home</Link></li>
+                                    <li className="active" aria-current="page">Profile</li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </section>

@@ -1,88 +1,162 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Gauge, Box, Receipt, Users, FileText, Tag, LineChart, Search } from 'lucide-react';
+import '../../styles/Admin.css';
 
-const AdminLayout = ({ children }) => {
+const AdminLayout = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const [isProductsOpen, setIsProductsOpen] = useState(true);
   const location = useLocation();
 
-  const menuItems = [
-    { path: '/admin', label: 'Dashboard', icon: 'fa-solid fa-gauge-high' },
-    { path: '/admin/orders', label: 'Orders', icon: 'fa-solid fa-box' },
-    { path: '/admin/products', label: 'Products', icon: 'fa-solid fa-seedling' },
-    { path: '/admin/customers', label: 'Customers', icon: 'fa-solid fa-users' },
-    { path: '/admin/settings', label: 'Settings', icon: 'fa-solid fa-gear' },
-  ];
+  const isProductsRoute = location.pathname.startsWith('/admin/products');
 
-  const isActive = (path) => {
-    if (path === '/admin') {
-      return location.pathname === '/admin';
-    }
-    return location.pathname.startsWith(path);
-  };
+  useEffect(() => {
+    setIsProductsOpen(isProductsRoute);
+  }, [isProductsRoute]);
 
   return (
-    <div
-      className="admin-layout d-flex"
-      style={{ minHeight: '100vh', backgroundColor: '#eef2f6' }}
-    >
-      {/* Sidebar */}
-      <aside
-        className="admin-sidebar bg-white shadow-sm d-flex flex-column"
-        style={{ width: '260px' }}
-      >
-        <div className="admin-sidebar__header p-3 border-bottom">
-          <Link to="/" className="d-flex align-items-center text-decoration-none">
-            <img
-              src="/assets/img/logo/logo.png"
-              alt="Make My Veggies Admin"
-              style={{ maxHeight: '40px' }}
-            />
-          </Link>
-          <p className="mt-2 mb-0 small text-muted">Admin Panel</p>
+    <div className={`admin-layout d-flex ${collapsed ? 'sidebar-collapsed' : ''}`}>
+      <aside className="admin-sidebar bg-dark text-white d-flex flex-column">
+        <div className="admin-sidebar-header d-flex align-items-center justify-content-between px-3 py-2">
+          <div className="d-flex flex-column sidebar-brand-wrap">
+            <span className="admin-brand">MMV</span>
+            <small className="text-muted-50 sidebar-brand-sub">Admin</small>
+          </div>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-light sidebar-toggle"
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            {collapsed ? '»' : '«'}
+          </button>
         </div>
-        <nav className="admin-sidebar__nav p-2">
-          <ul className="list-unstyled mb-0">
-            {menuItems.map((item) => (
-              <li key={item.path} className="mb-1">
-                <Link
-                  to={item.path}
-                  className={`d-flex align-items-center px-3 py-2 rounded-3 text-decoration-none ${
-                    isActive(item.path) ? 'bg-success text-white' : 'text-dark'
-                  }`}
+
+        <div className="admin-sidebar-menu flex-grow-1 mt-3 px-2">
+          <div className="admin-menu-section-title px-2 mb-1">GENERAL</div>
+          <nav className="nav flex-column">
+            <NavLink
+              to="/admin"
+              end
+              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+              onClick={() => setIsProductsOpen(false)}
+            >
+              <span className="sidebar-icon me-2"><Gauge size={16} /></span>
+              <span className="sidebar-text">Dashboard</span>
+            </NavLink>
+            <button
+              type="button"
+              className={`nav-link text-white d-flex align-items-center ${isProductsRoute ? 'active' : ''}`}
+              onClick={() => setIsProductsOpen((prev) => !prev)}
+              style={{ background: 'transparent', border: 0, width: '100%', textAlign: 'left' }}
+            >
+              <span className="sidebar-icon me-2"><Box size={16} /></span>
+              <span className="sidebar-text">Products</span>
+            </button>
+            {isProductsOpen && (
+              <>
+                <NavLink
+                  to="/admin/products/diy-kits"
+                  className={({ isActive }) =>
+                    `nav-link text-white d-flex align-items-center sidebar-sub-link ${isActive ? 'active' : ''}`
+                  }
                 >
-                  <i className={`${item.icon} me-2`} />
-                  <span className="small fw-medium">{item.label}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+                  <span className="sidebar-icon me-2">•</span>
+                  <span className="sidebar-text">DIY Kits</span>
+                </NavLink>
+                <NavLink
+                  to="/admin/products/supplements"
+                  className={({ isActive }) =>
+                    `nav-link text-white d-flex align-items-center sidebar-sub-link ${isActive ? 'active' : ''}`
+                  }
+                >
+                  <span className="sidebar-icon me-2">•</span>
+                  <span className="sidebar-text">Supplements</span>
+                </NavLink>
+              </>
+            )}
+            <NavLink
+              to="/admin/orders"
+              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+              onClick={() => setIsProductsOpen(false)}
+            >
+              <span className="sidebar-icon me-2"><Receipt size={16} /></span>
+              <span className="sidebar-text">Orders</span>
+            </NavLink>
+            <NavLink
+              to="/admin/customers"
+              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+              onClick={() => setIsProductsOpen(false)}
+            >
+              <span className="sidebar-icon me-2"><Users size={16} /></span>
+              <span className="sidebar-text">Customers</span>
+            </NavLink>
+            <NavLink
+              to="/admin/categories"
+              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+              onClick={() => setIsProductsOpen(false)}
+            >
+              <span className="sidebar-icon me-2"><Tag size={16} /></span>
+              <span className="sidebar-text">Categories</span>
+            </NavLink>
+            <NavLink
+              to="/admin/content"
+              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+              onClick={() => setIsProductsOpen(false)}
+            >
+              <span className="sidebar-icon me-2"><FileText size={16} /></span>
+              <span className="sidebar-text">Content</span>
+            </NavLink>
+            <NavLink
+              to="/admin/newsletter"
+              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+              onClick={() => setIsProductsOpen(false)}
+            >
+              <span className="sidebar-icon me-2"><FileText size={16} /></span>
+              <span className="sidebar-text">Newsletter</span>
+            </NavLink>
+            <NavLink
+              to="/admin/discounts"
+              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+              onClick={() => setIsProductsOpen(false)}
+            >
+              <span className="sidebar-icon me-2"><Tag size={16} /></span>
+              <span className="sidebar-text">Discounts</span>
+            </NavLink>
+            <NavLink
+              to="/admin/analytics"
+              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+              onClick={() => setIsProductsOpen(false)}
+            >
+              <span className="sidebar-icon me-2"><LineChart size={16} /></span>
+              <span className="sidebar-text">Analytics</span>
+            </NavLink>
+          </nav>
+        </div>
+
+        <div className="admin-sidebar-footer mt-auto px-3 py-2 small text-muted">
+          <span className="sidebar-text">Logged in as Admin</span>
+        </div>
       </aside>
 
-      {/* Main content */}
-      <div className="admin-main flex-grow-1 d-flex flex-column">
-        <header className="admin-main__header bg-white shadow-sm py-3">
-          <div className="container-fluid">
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <h5 className="mb-1">Admin Dashboard</h5>
-                <p className="mb-0 small text-muted">
-                  Manage products, orders, customers and settings from one place.
-                </p>
-              </div>
-              <div className="d-flex align-items-center gap-3">
-                <Link to="/" className="small text-decoration-none text-muted">
-                  &larr; Back to website
-                </Link>
-              </div>
-            </div>
+      <div className="admin-main d-flex flex-column flex-grow-1">
+        <header className="admin-topnav d-flex align-items-center justify-content-between px-4">
+          <div className="d-flex flex-column">
+            <span className="topnav-welcome">WELCOME!</span>
+            <small className="text-muted">Here is your analytics dashboard.</small>
+          </div>
+          <div className="topnav-search d-none d-md-flex align-items-center px-3 py-1 rounded-pill bg-white border">
+            <span className="me-2 text-muted d-flex align-items-center">
+              <Search size={16} />
+            </span>
+            <input
+              type="text"
+              className="form-control form-control-sm border-0 bg-transparent"
+              placeholder="Search..."
+            />
           </div>
         </header>
-
-        <main
-          className="admin-main__content flex-grow-1 py-4"
-          style={{ overflowY: 'auto' }}
-        >
-          <div className="container-fluid">{children}</div>
+        <main className="admin-content flex-grow-1 p-4">
+          <Outlet />
         </main>
       </div>
     </div>
