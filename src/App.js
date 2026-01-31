@@ -15,7 +15,6 @@ import Banner from './components/Banner';
 import Features from './components/Features';
 import NaturePlant from './components/NaturePlant';
 import Services from './components/Services';
-import Counter from './components/Counter';
 import Team from './components/Team';
 import Feedback from './components/Feedback';
 import Blog from './components/Blog';
@@ -86,7 +85,6 @@ function App() {
                     <Features />
                     <NaturePlant />
                     <Services />
-                    <Counter />
                     <Team />
                     <Feedback />
                     <Blog />

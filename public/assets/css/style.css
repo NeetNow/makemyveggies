@@ -1911,6 +1911,8 @@ input, textarea, select {
 
 .header {
   max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 @media (min-width: 1600px) {
   .header {
@@ -2102,6 +2104,21 @@ input, textarea, select {
     gap: 30px;
   }
 }
+.header__logo img {
+  width: auto;
+  height: auto;
+  max-height: 56px;
+}
+@media (min-width: 1200px) {
+  .header__logo img {
+    max-height: 70px;
+  }
+}
+@media (max-width: 575px) {
+  .header__logo img {
+    max-height: 44px;
+  }
+}
 .header__bottom .right .bar {
   width: 30px;
 }
@@ -2192,9 +2209,20 @@ input, textarea, select {
 }
 @media (max-width: 1199px) {
   .header__nav .mobilelogo {
-    background: #31381A  ;
+    background: #fff;
     padding: 0.9375rem 1.25rem;
-    border-bottom: 2px solid #31381A  ;
+    border-bottom: 1px solid rgba(242, 246, 249, 0.9);
+  }
+}
+@media (max-width: 1199px) {
+  .header__nav .mobilelogo a {
+    display: flex;
+    align-items: center;
+  }
+  .header__nav .mobilelogo img {
+    max-height: 42px;
+    width: auto;
+    height: auto;
   }
 }
 @media (max-width: 1199px) {
@@ -2521,6 +2549,22 @@ input, textarea, select {
   -webkit-transition: 2.5s;
   -moz-transition: 2.5s;
   transition: 2.5s;
+}
+.banner--static .banner__content h2 {
+  line-height: 1.1 !important;
+  margin-bottom: 0.9375rem;
+}
+.banner--static .banner__content p,
+.banner--static .banner__content .bannerbtn {
+  -webkit-transform: none !important;
+  -ms-transform: none !important;
+  transform: none !important;
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  transition: none !important;
+}
+.banner--static .banner__content .bannerbtn {
+  margin-top: calc(1.375rem + 1.5vw);
 }
 .banner__content .bannerbtn {
   margin-top: calc(1.375rem + 1.5vw);
@@ -2973,6 +3017,39 @@ input, textarea, select {
   background-image: url("../img/home-1/welcome/bg.png");
   padding: calc(1.6875rem + 5.25vw) 0rem calc(1.625rem + 4.5vw) 0rem;
 }
+.natureplant.mmv-natureplant-split {
+  background-image: none;
+  padding: 0;
+}
+.mmv-natureplant-split__content {
+  background: #c7d89a;
+  height: 100%;
+}
+.mmv-natureplant-split__content-inner {
+  width: 100%;
+  max-width: 720px;
+  padding: clamp(1.5rem, 3vw, 4rem);
+}
+.mmv-natureplant-split__image {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+}
+.mmv-natureplant-split__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@media (min-width: 992px) {
+  .mmv-natureplant-split__content-inner {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .mmv-natureplant-split__image {
+    min-height: 520px;
+  }
+}
 @media (min-width: 1200px) {
   .natureplant {
     padding: 5.625rem 0rem 5rem 0rem;
@@ -2980,6 +3057,11 @@ input, textarea, select {
 }
 .natureplant__content {
   margin-top: 1.25rem;
+}
+.natureplant__leftimg img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 .natureplant__content p {
   max-width: 700px;
@@ -5593,18 +5675,36 @@ input, textarea, select {
   .header__nav .mainactive>ul li a { padding: 0.9375rem 1.25rem; }
 }
 /* Header single-line layout from 992px+ (keeps Policies icon tweaks) */
-@media (min-width: 992px) {
+@media (min-width: 1200px) {
   .header__bottom .right { display:flex; flex-wrap: nowrap !important; align-items: center; gap: 20px; }
   .header__nav { flex: 1 1 auto; min-width: 0; }
   .header__nav .mainactive>ul { display:flex; flex-wrap: nowrap; }
 }
 /* Force single-line nav and prevent item wrapping at >=992px; keep Policies icon unchanged */
-@media (min-width: 992px) {
+@media (min-width: 1200px) {
   .header__bottom .right { display:flex; flex-wrap: nowrap !important; align-items: center; gap: 20px; }
   .header__nav { flex: 1 1 0%; min-width: 0; }
   .header__nav .mainactive>ul { display:flex !important; flex-wrap: nowrap !important; align-items: center; }
   .header__nav .mainactive>ul li { white-space: nowrap; }
   .header__nav .mainactive>ul li a { padding: 0.9375rem 1rem; }
 }
-/* Hide white close dot in footer gallery lightbox */
-.mmv-lightbox button[aria-label="Close"]{ display:none !important; }
+
+.mmv-nav-overlay {
+  display: none;
+}
+@media (max-width: 1199px) {
+  .mmv-nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 99998;
+  }
+  body.mmv-nav-open .mmv-nav-overlay {
+    display: block;
+  }
+  .header__nav.target {
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+  }
+}

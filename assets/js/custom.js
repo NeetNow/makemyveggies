@@ -14,17 +14,70 @@ $(window).on('load', function() {
 $(document).ready(function () {
 	
 /*==== header Section Start here =====*/
-var headerBarElement = document.querySelector(".bar i");
-if (headerBarElement) {
-	document.querySelector(".bar i").addEventListener("click", function () {
-		let bar = document.querySelector(".bar i");
-		bar.classList.toggle("fa-times");
+var headerBar = document.querySelector(".bar");
+if (headerBar) {
+	headerBar.addEventListener("click", function () {
+		let barIcon = document.querySelector(".bar i");
+		if (barIcon) {
+			barIcon.classList.toggle("fa-times");
+		}
 		let target = document.querySelector(".target");
 		if (target) {
 			target.classList.toggle("open");
+			if (target.classList.contains("open")) {
+				document.body.classList.add("mmv-nav-open");
+			} else {
+				document.body.classList.remove("mmv-nav-open");
+			}
 		}
 	});
 }
+
+function mmvCloseMobileNav() {
+	$('.header__nav.target').removeClass('open');
+	document.body.classList.remove('mmv-nav-open');
+	$('.header__nav.target li.open').removeClass('open');
+	$('.header__nav.target li ul').slideUp(0);
+	var barIcon = document.querySelector('.bar i');
+	if (barIcon) {
+		barIcon.classList.remove('fa-times');
+	}
+}
+
+$(document).on('click', '.header__nav.target .mainactive > ul > li.menu-item-has-children > a', function (e) {
+	if (window.innerWidth < 1200) {
+		e.preventDefault();
+		var element = $(this).parent('li');
+		if (element.hasClass('open')) {
+			element.removeClass('open');
+			element.find('li').removeClass('open');
+			element.find('ul').slideUp(300, "swing");
+		} else {
+			element.addClass('open');
+			element.children('ul').slideDown(300, "swing");
+			element.siblings('li').children('ul').slideUp(300, "swing");
+			element.siblings('li').removeClass('open');
+			element.siblings('li').find('li').removeClass('open');
+			element.siblings('li').find('ul').slideUp(300, "swing");
+		}
+	}
+});
+
+$(document).on('click', '.header__nav.target .mainactive > ul > li:not(.menu-item-has-children) > a', function () {
+	if (window.innerWidth < 1200) {
+		mmvCloseMobileNav();
+	}
+});
+
+$(document).on('click', '.header__nav.target .mainactive > ul li.menu-item-has-children ul a', function () {
+	if (window.innerWidth < 1200) {
+		mmvCloseMobileNav();
+	}
+});
+
+$(document).on('click', '.mmv-nav-overlay', function () {
+	mmvCloseMobileNav();
+});
 
 	
 //Header   	

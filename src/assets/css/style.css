@@ -3665,7 +3665,7 @@ select {
 
 .header {
     max-width: 1400px;
-    background: #EDF8CA;
+    /* background: #EDF8CA; */
 }
 
 @media (min-width: 1600px) {
@@ -4014,9 +4014,9 @@ select {
 
 @media (max-width: 1199px) {
     .header__nav .mobilelogo {
-        background: #31381A;
+        background: #BCCD88;
         padding: 0.9375rem 1.25rem;
-        border-bottom: 2px solid #31381A;
+        border-bottom: 2px solid #BCCD88;
     }
 }
 
@@ -4397,6 +4397,25 @@ select {
     -webkit-transition: 2.5s;
     -moz-transition: 2.5s;
     transition: 2.5s;
+}
+
+.banner--static .banner__content h2 {
+    line-height: 1.1 !important;
+    margin-bottom: 0.9375rem;
+}
+
+.banner--static .banner__content p,
+.banner--static .banner__content .bannerbtn {
+    -webkit-transform: none !important;
+    -ms-transform: none !important;
+    transform: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    transition: none !important;
+}
+
+.banner--static .banner__content .bannerbtn {
+    margin-top: calc(1.375rem + 1.5vw);
 }
 
 .banner__content .bannerbtn {
@@ -8217,10 +8236,12 @@ select {
 /* Full width header fix - remove side spacing */
 .header__top .container-xl,
 .header__bottom .container-xl {
-    max-width: 100% !important;
+    max-width: 1400px !important;
     width: 100% !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
 }
 
 .header__top,
@@ -8232,15 +8253,31 @@ select {
 
 /* Restore internal padding for content */
 .header__topcontent {
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .header__bottom .row {
     margin-left: 0;
     margin-right: 0;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+@media (min-width: 1200px) {
+    .header__logo img {
+        max-height: 130px;
+        width: auto;
+        height: auto;
+    }
+}
+
+@media (max-width: 1200px) {
+    .header__logo img {
+        max-height: 96px;
+        width: auto;
+        height: auto;
+    }
 }
 
 /* Fix for button elements that replaced anchor tags */
