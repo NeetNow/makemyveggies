@@ -1,44 +1,25 @@
 import React from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectFade } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/effect-fade';
 
 const Banner = () => {
   return (
-    <div className="banner">
+    <div className="banner banner--static">
       <div className="hostbanner">
-        <Swiper
-          modules={[Autoplay, EffectFade]}
-          effect="fade"
-          loop={true}
-          autoplay={{
-            delay: 2000,
-            disableOnInteraction: false,
-          }}
-          speed={3000}
-          className="swiper-container"
-        >
-          <SwiperSlide>
-            <div className="container">
-              <div className="banner__content col-md-7 col-xl-6">
-                <h2>We are helping you to be self dependent for food</h2>
-                <p>Our kits are designed to empower individuals and families to take small 
-                  but meaningful steps toward self-sufficiency. From growing fresh vegetables 
-                  and herbs to understanding the basics of sustainable food systems, microgeens 
-                  turns everyday spaces into productive green corners. We believe growing your 
-                  own food builds healthier habits, stronger connections with nature, and a more 
-                  sustainable future. With microgeens and veggies, anyone can start growing—no farm, 
-                  no prior experience, just curiosity and care.</p>
-                <div className="bannerbtn">
-                  <a href="/about" className="custom-btn">Learn More</a>
-                  <a href="/contact" className="custom-btn">Contact Us</a>
-                </div>
-              </div>
+        <div className="container">
+          <div className="banner__content col-md-7 col-xl-6">
+            <h2>We are helping you to be self dependent for food</h2>
+            <p>Our kits are designed to empower individuals and families to take small 
+              but meaningful steps toward self-sufficiency. From growing fresh vegetables 
+              and herbs to understanding the basics of sustainable food systems, microgeens 
+              turns everyday spaces into productive green corners. We believe growing your 
+              own food builds healthier habits, stronger connections with nature, and a more 
+              sustainable future. With microgeens and veggies, anyone can start growing—no farm, 
+              no prior experience, just curiosity and care.</p>
+            <div className="bannerbtn">
+              <a href="/about" className="custom-btn">Learn More</a>
+              <a href="/contact" className="custom-btn">Contact Us</a>
             </div>
-          </SwiperSlide>
-
-        </Swiper>
+          </div>
+        </div>
       </div>
 
       {/* Background Images */}

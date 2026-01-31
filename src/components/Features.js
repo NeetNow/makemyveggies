@@ -12,8 +12,8 @@ const Features = () => {
                   <img src="/assets/img/home-1/feature/icon1.png" alt="bakul" />
                 </div>
                 <div className="text">
-                  <h6>99% Guarantee Services</h6>
-                  <p>Convenient & proacteds bested quality and ideas use production. </p>
+                  <h6>Quality Assured Services</h6>
+                  <p>We deliver reliable, high-quality solutions with strict quality checks</p>
                 </div>
               </div>
             </div>
@@ -38,8 +38,8 @@ const Features = () => {
                   <img src="/assets/img/home-1/feature/icon3.png" alt="bakul" />
                 </div>
                 <div className="text">
-                  <h6>Dedicated Support Team</h6>
-                  <p>Convenient & proacteds bested quality and ideas use production. </p>
+                  <h6>Sustainable & Responsible</h6>
+                  <p>We follow sustainable processes with efficient performance.</p>
                 </div>
               </div>
             </div>
@@ -51,8 +51,8 @@ const Features = () => {
                   <img src="/assets/img/home-1/feature/icon4.png" alt="bakul" />
                 </div>
                 <div className="text">
-                  <h6>Garden Watering</h6>
-                  <p>Convenient & proacteds bested quality and ideas use production. </p>
+                  <h6>Dedicated Support Team</h6>
+                  <p>Our expert support team ensures quick help and smooth communication at every step.</p>
                 </div>
               </div>
             </div>
