@@ -23,13 +23,11 @@ const Newsletter = () => {
     setIsSubmitting(true);
  
     try {
-      const url = '/backend/api/subscribe_newsletter.php';
-      const response = await fetch(url, {
+      const response = await fetch('http://localhost:3000/makemyveggies/backend/api/subscribe_newsletter.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({
           email: trimmedEmail,
         }),
@@ -40,8 +38,7 @@ const Newsletter = () => {
       try {
         data = rawText ? JSON.parse(rawText) : null;
       } catch (e) {
-        const preview = rawText ? rawText.slice(0, 160) : '';
-        throw new Error(`Server returned an invalid response. Please verify the API URL. ${preview}`);
+        throw new Error('Server returned an invalid response. Please verify the API URL.');
       }
  
       if (!response.ok || !data?.success) {
