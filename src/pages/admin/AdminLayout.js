@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Gauge, Box, Receipt, Users, FileText, Tag, LineChart, Search } from 'lucide-react';
 import '../../styles/Admin.css';
@@ -13,46 +13,6 @@ const AdminLayout = () => {
   useEffect(() => {
     setIsProductsOpen(isProductsRoute);
   }, [isProductsRoute]);
-
-  const pageMeta = useMemo(() => {
-    const path = location.pathname;
-
-    if (path === '/admin' || path === '/admin/') {
-      return { title: 'Dashboard', subtitle: 'Overview & analytics' };
-    }
-    if (path.startsWith('/admin/products/diy-kits')) {
-      return { title: 'DIY Kits', subtitle: 'Manage DIY kit products' };
-    }
-    if (path.startsWith('/admin/products/supplements')) {
-      return { title: 'Supplements', subtitle: 'Manage supplement products' };
-    }
-    if (path.startsWith('/admin/products')) {
-      return { title: 'Products', subtitle: 'Manage your product catalog' };
-    }
-    if (path.startsWith('/admin/orders')) {
-      return { title: 'Orders', subtitle: 'Track and manage customer orders' };
-    }
-    if (path.startsWith('/admin/customers')) {
-      return { title: 'Customers', subtitle: 'Customer list & details' };
-    }
-    if (path.startsWith('/admin/categories')) {
-      return { title: 'Categories', subtitle: 'Organize products by category' };
-    }
-    if (path.startsWith('/admin/content')) {
-      return { title: 'Content', subtitle: 'Manage website content' };
-    }
-    if (path.startsWith('/admin/newsletter')) {
-      return { title: 'Newsletter', subtitle: 'Manage subscribers & campaigns' };
-    }
-    if (path.startsWith('/admin/discounts')) {
-      return { title: 'Discounts', subtitle: 'Offers, promotions & coupons' };
-    }
-    if (path.startsWith('/admin/analytics')) {
-      return { title: 'Analytics', subtitle: 'Sales and performance insights' };
-    }
-
-    return { title: 'Admin', subtitle: 'Manage your store' };
-  }, [location.pathname]);
 
   return (
     <div className={`admin-layout d-flex ${collapsed ? 'sidebar-collapsed' : ''}`}>
@@ -181,8 +141,8 @@ const AdminLayout = () => {
       <div className="admin-main d-flex flex-column flex-grow-1">
         <header className="admin-topnav d-flex align-items-center justify-content-between px-4">
           <div className="d-flex flex-column">
-            <span className="topnav-welcome">{pageMeta.title}</span>
-            <small className="text-muted">{pageMeta.subtitle}</small>
+            <span className="topnav-welcome">WELCOME!</span>
+            <small className="text-muted">Here is your analytics dashboard.</small>
           </div>
           <div className="topnav-search d-none d-md-flex align-items-center px-3 py-1 rounded-pill bg-white border">
             <span className="me-2 text-muted d-flex align-items-center">
