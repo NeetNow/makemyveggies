@@ -11,6 +11,7 @@ const Header = () => {
   const cartContext = useCart();
   const cartItems = cartContext?.cartItems || [];
   const loading = cartContext?.loading || false;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Calculate total cart items
@@ -60,25 +61,25 @@ const Header = () => {
       <div className="header__bottom bg-white p-0">
         <div className="container-xl container-fluid">
           <div className="row align-items-center">
-            <div className="col-6 col-lg-3 col-xl-2">
+            <div className="col-6 col-xl-2">
               <div className="left">
                 <div className="header__logo">
                   <Link to="/"><img src="/assets/img/logo/logo.png" alt="logo" /></Link>
                 </div>
               </div>
             </div>
-            <div className="col-6 col-lg-9 col-xl-10">
+            <div className="col-6 col-xl-10">
               <div className="right">
                 <div className="header__nav target">
                   <div className="mobilelogo d-xl-none d-block">
-                    <Link to="/"><img src="/assets/img/logo/logo.png" alt="logo" /></Link>
+                    <Link to="/"><img src="/assets/img/logo/whiteloog.png" alt="logo" /></Link>
                   </div>
                   <div className="mainactive activescroll">
                     <ul>
                       <li><Link to="/">Home</Link></li>
                       <li><Link to="/about">About</Link></li>
                       <li className="menu-item-has-children">
-                        <Link to="#" onClick={(e) => e.preventDefault()}>DIY Kits</Link>
+                        <Link to="/">DIY Kits</Link>
                         <ul>
                           <li><Link to="/shop?category=DIY Microgreens">DIY Microgreens</Link></li>
                           <li><Link to="/shop?category=DIY Veggies">DIY Veggies</Link></li>
@@ -86,7 +87,7 @@ const Header = () => {
 
                       </li>
                       <li className="menu-item-has-children">
-                        <Link to="#" onClick={(e) => e.preventDefault()}>Suppliments</Link>
+                        <Link to="/">Suppliments</Link>
                         <ul>
                           <li><Link to="/shop?category=nutrition-spray">Nutrition Spray</Link></li>
                           <li><Link to="/shop?category=seeds">Seeds</Link></li>
@@ -94,7 +95,7 @@ const Header = () => {
                           <li><Link to="/shop?category=pots">Pots</Link></li>
                         </ul>
                       </li>
-                      <li><Link to="/blog">Blog</Link></li>
+                      <li><Link to="/Blog">Blog</Link></li>
                       <li><Link to="/contact">Contact</Link></li>
                       <li className="menu-item-has-children">
                         <Link to="#" onClick={(e) => e.preventDefault()}>Policies</Link>
@@ -185,11 +186,11 @@ const Header = () => {
                   )}
                 </div>
 
-                <div className="ellepsis d-xl-none">
+                <div className="ellepsis d-xl-none" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                   <i className="fa-solid fa-circle-info"></i>
                 </div>
 
-                <div className="bar d-xl-none d-block">
+                <div className="bar d-xl-none d-block" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                   <i className="fa-solid fa-bars"></i>
                 </div>
               </div>
@@ -198,7 +199,39 @@ const Header = () => {
         </div>
       </div>
 
-      <div className="mmv-nav-overlay"></div>
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className="mobile-menu-overlay" onClick={() => setIsMenuOpen(false)}>
+          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
+            <div className="mobile-menu-header">
+              <img src="/assets/img/logo/whiteloog.png" alt="logo" />
+              <button onClick={() => setIsMenuOpen(false)}>
+                <i className="fa-sharp fa-solid fa-square-xmark"></i>
+              </button>
+            </div>
+            <nav className="mobile-nav">
+              <ul>
+                <li><Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link></li>
+                <li><Link to="/about" onClick={() => setIsMenuOpen(false)}>About</Link></li>
+                <li><Link to="/service" onClick={() => setIsMenuOpen(false)}>Services</Link></li>
+                <li><Link to="/project" onClick={() => setIsMenuOpen(false)}>Projects</Link></li>
+                <li><Link to="/team" onClick={() => setIsMenuOpen(false)}>Team</Link></li>
+                <li><Link to="/blog" onClick={() => setIsMenuOpen(false)}>Blog</Link></li>
+                <li><Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link></li>
+                <li><Link to="/checkout" onClick={() => setIsMenuOpen(false)}>Checkout</Link></li>
+                {currentUser ? (
+                  <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
+                ) : (
+                  <>
+                    <li><Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link></li>
+                    <li><Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link></li>
+                  </>
+                )}
+              </ul>
+            </nav>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

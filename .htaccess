@@ -1,0 +1,21 @@
+RewriteEngine On
+
+# --- Serve standalone Admin React build at /admin ---
+# If a real file/dir exists under admin/build, serve it directly
+RewriteCond %{REQUEST_URI} ^/admin
+RewriteCond %{DOCUMENT_ROOT}/admin/build%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/admin/build%{REQUEST_URI} -d
+RewriteRule ^admin/(.*)$ admin/build/$1 [L]
+
+# For React Router routes under /admin, always serve admin/build/index.html
+RewriteCond %{REQUEST_URI} ^/admin
+RewriteCond %{DOCUMENT_ROOT}/admin/build/index.html -f
+RewriteRule ^admin/?$ admin/build/index.html [L]
+RewriteRule ^admin/(.*)$ admin/build/index.html [L]
+
+# --- Main site SPA fallback (only if index.html exists) ---
+RewriteCond %{REQUEST_URI} !^/admin
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/index.html -f
+RewriteRule ^ index.html [L]
