@@ -175,11 +175,23 @@ const Login = () => {
       <div className="position_bshape contentrightimg imghover d-md-block d-none">
         <img src="/assets/img/home-1/banner/bannerightimg.png" alt="banner" />
       </div>
+      <div className="position_bshape topleftimg dnone">
+        <img src="/assets/img/home-1/banner/shape1.png" alt="banner" />
+      </div>
       <div className="position_bshape topright">
         <img src="/assets/img/home-1/banner/shape5.png" alt="banner" />
       </div>
+      <div className="position_bshape bottomleft d-xl-block d-none">
+        <img src="/assets/img/home-1/banner/shpae2.png" alt="banner" />
+      </div>
       <div className="position_bshape bottommiddle d-lg-block d-none">
         <img src="/assets/img/home-1/banner/shape3.png" alt="banner" />
+      </div>
+      <div className="position_bshape bottomright d-sm-block d-none">
+        <img src="/assets/img/home-1/banner/shape4.png" alt="banner" />
+      </div>
+      <div className="position_bshape middleshape d-lg-block d-none">
+        <img src="/assets/img/home-1/banner/shape6.png" alt="banner" />
       </div>
 
       <div className="container">
