@@ -292,6 +292,7 @@
     background: white;
     border-radius: 10px;
     padding: 20px;
+    margin: 30px 1px 30px 1px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     height: fit-content;
     position: sticky;
@@ -352,7 +353,7 @@
 /* Main Content Area */
 
 .main-content {
-    padding-left: 30px;
+    padding-left: 20px;
 }
 
 .content-wrapper {
