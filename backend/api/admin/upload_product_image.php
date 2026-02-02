@@ -35,10 +35,10 @@ try {
         exit();
     }
 
-    $maxBytes = 5 * 1024 * 1024; // 5MB
+    $maxBytes = 10 * 1024 * 1024; // 10MB
     if (!empty($file['size']) && (int)$file['size'] > $maxBytes) {
         http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'File too large (max 5MB)']);
+        echo json_encode(['status' => 'error', 'message' => 'File too large (max 10MB)']);
         exit();
     }
 
