@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment } from 'react';
 import './App.css';
 import './assets/css/bootstrap.min.css';
 import './assets/css/style.css';
@@ -15,7 +15,6 @@ import Banner from './components/Banner';
 import Features from './components/Features';
 import NaturePlant from './components/NaturePlant';
 import Services from './components/Services';
-import Counter from './components/Counter';
 import Team from './components/Team';
 import Feedback from './components/Feedback';
 import Blog from './components/Blog';
@@ -45,43 +44,12 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import ShippingPolicy from './pages/ShippingPolicy';
 import AdminLogin from './pages/admin/AdminLogin';
-import AdminRoute from './pages/admin/AdminRoute';
-import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
-import Products from './pages/admin/Products';
-import ProductDiyKits from './pages/admin/ProductDiyKits';
-import AddDiyKit from './pages/admin/AddDiyKit';
-import ViewDiyKit from './pages/admin/ViewDiyKit';
-import EditDiyKit from './pages/admin/EditDiyKit';
-import AddSupplement from './pages/admin/AddSupplement';
-import ViewSupplement from './pages/admin/ViewSupplement';
-import EditSupplement from './pages/admin/EditSupplement';
-import ProductSupplements from './pages/admin/ProductSupplements';
-import Orders from './pages/admin/Orders';
-import ViewOrder from './pages/admin/ViewOrder';
-import Customers from './pages/admin/Customers';
-import Categories from './pages/admin/Categories';
-import Content from './pages/admin/Content';
-import Discounts from './pages/admin/Discounts';
-import Analytics from './pages/admin/Analytics';
+import AdminRoute from './pages/admin/AdminRoute';
 
 // Component to conditionally render header
 function ConditionalHeader() {
   const location = useLocation();
-
-  useEffect(() => {
-    const isAdminRoute = location.pathname.startsWith('/admin');
-
-    if (isAdminRoute) {
-      document.body.classList.remove('site-zoom');
-    } else {
-      document.body.classList.add('site-zoom');
-    }
-
-    return () => {
-      document.body.classList.remove('site-zoom');
-    };
-  }, [location.pathname]);
 
   // Pages where header should be hidden
   const hideHeaderRoutes = [
@@ -95,9 +63,7 @@ function ConditionalHeader() {
   ];
 
   // Check if current route should hide header
-  const shouldHideHeader =
-    hideHeaderRoutes.includes(location.pathname) ||
-    location.pathname.startsWith('/admin');
+  const shouldHideHeader = hideHeaderRoutes.includes(location.pathname);
 
   return !shouldHideHeader ? <Header /> : null;
 }
@@ -119,7 +85,6 @@ function App() {
                     <Features />
                     <NaturePlant />
                     <Services />
-                    <Counter />
                     <Team />
                     <Feedback />
                     <Blog />
@@ -155,33 +120,11 @@ function App() {
               <Route path="/shipping-policy" element={<ShippingPolicy />} />
               <Route path="/ShippingPolicy" element={<ShippingPolicy />} />
               <Route path="/admin/login" element={<AdminLogin />} />
-
-              <Route
-                path="/admin/*"
-                element={
-                  <AdminRoute>
-                    <AdminLayout />
-                  </AdminRoute>
-                }
-              >
-                <Route index element={<AdminDashboard />} />
-                <Route path="products" element={<Products />} />
-                <Route path="products/diy-kits" element={<ProductDiyKits />} />
-                <Route path="products/diy-kits/add" element={<AddDiyKit />} />
-                <Route path="products/diy-kits/:id" element={<ViewDiyKit />} />
-                <Route path="products/diy-kits/:id/edit" element={<EditDiyKit />} />
-                <Route path="products/supplements" element={<ProductSupplements />} />
-                <Route path="products/supplements/add" element={<AddSupplement />} />
-                <Route path="products/supplements/:id" element={<ViewSupplement />} />
-                <Route path="products/supplements/:id/edit" element={<EditSupplement />} />
-                <Route path="categories" element={<Categories />} />
-                <Route path="orders" element={<Orders />} />
-                <Route path="orders/:id" element={<ViewOrder />} />
-                <Route path="customers" element={<Customers />} />
-                <Route path="content" element={<Content />} />
-                <Route path="discounts" element={<Discounts />} />
-                <Route path="analytics" element={<Analytics />} />
-              </Route>
+              <Route path="/admin" element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              } />
             </Routes>
 
             {/* Toast Container for notifications */}
