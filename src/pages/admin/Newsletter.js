@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -10,7 +10,6 @@ const Categories = () => {
   const [activeModal, setActiveModal] = useState(null); // 'add' | 'view' | 'edit' | 'delete' | null
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalError, setModalError] = useState('');
 
   const [form, setForm] = useState({
     name: '',
@@ -21,13 +20,12 @@ const Categories = () => {
   const closeModal = () => {
     setActiveModal(null);
     setSelectedCategory(null);
-    setModalError('');
     setIsSubmitting(false);
   };
 
   const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
 
-  const readJsonSafe = async (response) => {
+  const readJsonSafe = useCallback(async (response) => {
     const text = await response.text();
 
     try {
@@ -36,12 +34,11 @@ const Categories = () => {
       const preview = text?.slice(0, 200) || '';
       throw new Error(`Invalid server response. ${preview}`);
     }
-  };
+  }, []);
 
   const openAddModal = () => {
     setSelectedCategory(null);
     setForm({ name: '', description: '', parentId: '' });
-    setModalError('');
     setActiveModal('add');
   };
 
@@ -52,23 +49,20 @@ const Categories = () => {
       description: cat?.description || '',
       parentId: cat?.parentId ?? ''
     });
-    setModalError('');
     setActiveModal('edit');
   };
 
   const openViewModal = (cat) => {
     setSelectedCategory(cat);
-    setModalError('');
     setActiveModal('view');
   };
 
   const openDeleteModal = (cat) => {
     setSelectedCategory(cat);
-    setModalError('');
     setActiveModal('delete');
   };
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     setLoading(true);
     setError('');
 
@@ -91,16 +85,15 @@ const Categories = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE, readJsonSafe]);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   const submitAdd = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setModalError('');
 
     try {
       const response = await fetch(`${API_BASE}/backend/api/add_category.php`, {
@@ -126,7 +119,6 @@ const Categories = () => {
       closeModal();
       toast.success('Category added successfully');
     } catch (e2) {
-      setModalError(e2?.message || 'Failed to add category');
       toast.error(e2?.message || 'Failed to add category');
     } finally {
       setIsSubmitting(false);
@@ -138,7 +130,6 @@ const Categories = () => {
     if (!selectedCategory?.id) return;
 
     setIsSubmitting(true);
-    setModalError('');
 
     try {
       const response = await fetch(`${API_BASE}/backend/api/update_category.php`, {
@@ -165,7 +156,6 @@ const Categories = () => {
       closeModal();
       toast.success('Category updated successfully');
     } catch (e2) {
-      setModalError(e2?.message || 'Failed to update category');
       toast.error(e2?.message || 'Failed to update category');
     } finally {
       setIsSubmitting(false);
@@ -176,7 +166,6 @@ const Categories = () => {
     if (!selectedCategory?.id) return;
 
     setIsSubmitting(true);
-    setModalError('');
 
     try {
       const response = await fetch(`${API_BASE}/backend/api/delete_category.php`, {
@@ -198,7 +187,6 @@ const Categories = () => {
       closeModal();
       toast.success('Category deleted successfully');
     } catch (e2) {
-      setModalError(e2?.message || 'Failed to delete category');
       toast.error(e2?.message || 'Failed to delete category');
     } finally {
       setIsSubmitting(false);
