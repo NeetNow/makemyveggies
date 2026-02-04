@@ -21,7 +21,7 @@ try {
     if ($auth_result['success']) {
         sendResponse(true, 'Authenticated', $auth_result['user']);
     } else {
-        sendResponse(false, $auth_result['message'], null, 200);
+        sendResponse(false, $auth_result['message'], null, 401);
     }
     
 } catch (Exception $e) {
