@@ -27,10 +27,12 @@ const Feedback = () => {
                           </div>
                           <div className="profile">
                             <div className="name">
-                              <h6>Shashank Mohite</h6>
+                              <h6>Leslie Alexander</h6>
+                              <span>Founder</span>
                             </div>
                             <div className="star">
                               <ul>
+                                <li><i className="fa-solid fa-star"></i></li>
                                 <li><i className="fa-solid fa-star"></i></li>
                                 <li><i className="fa-solid fa-star"></i></li>
                                 <li><i className="fa-solid fa-star"></i></li>
@@ -40,9 +42,9 @@ const Feedback = () => {
                           </div>
                         </div>
                         <div className="bottom">
-                          <p>This DIY kit made balcony gardening easy. The potting mix is great, 
-                            and the guide helped with watering. My cherry tomatoes are already 
-                            flowering! Just be sure your spot gets at least 2 hours of sunlight.</p>
+                          <p>Rapaciously simplify enabled intellectual capital and transparent it
+                            core competencies energetically enable user centric remarkets the
+                            after leveraged methodologies.</p>
                         </div>
                       </div>
                       <div className="feedback__inner bg-white">
@@ -52,7 +54,8 @@ const Feedback = () => {
                           </div>
                           <div className="profile">
                             <div className="name">
-                              <h6>Aparna Shah</h6>
+                              <h6>Stephen Hughes</h6>
+                              <span>Manager</span>
                             </div>
                             <div className="star">
                               <ul>
@@ -66,10 +69,9 @@ const Feedback = () => {
                           </div>
                         </div>
                         <div className="bottom">
-                          <p>The Microgreen kit is amazing for quick, easy salads. I chose 
-                          Mustard seeds and had a full harvest in just 12 days. It’s very 
-                          beginner-friendly, and the spray bottle makes watering simple. 
-                          A great way to start urban farming!</p>
+                          <p>Rapaciously simplify enabled intellectual capital and transparent it
+                            core competencies energetically enable user centric remarkets the
+                            after leveraged methodologies.</p>
                         </div>
                       </div>
                     </div>
@@ -83,10 +85,12 @@ const Feedback = () => {
                           </div>
                           <div className="profile">
                             <div className="name">
-                              <h6>Shashank Mohite</h6>
+                              <h6>Douglas Pitts</h6>
+                              <span>Manager</span>
                             </div>
                             <div className="star">
                               <ul>
+                                <li><i className="fa-solid fa-star"></i></li>
                                 <li><i className="fa-solid fa-star"></i></li>
                                 <li><i className="fa-solid fa-star"></i></li>
                                 <li><i className="fa-solid fa-star"></i></li>
@@ -96,9 +100,9 @@ const Feedback = () => {
                           </div>
                         </div>
                         <div className="bottom">
-                          <p>This DIY kit made balcony gardening easy. The potting mix is great, 
-                            and the guide helped with watering. My cherry tomatoes are already 
-                            flowering! Just be sure your spot gets at least 2 hours of sunlight.</p>
+                          <p>Rapaciously simplify enabled intellectual capital and transparent it
+                            core competencies energetically enable user centric remarkets the
+                            after leveraged methodologies.</p>
                         </div>
                       </div>
                       <div className="feedback__inner bg-white">
@@ -108,7 +112,8 @@ const Feedback = () => {
                           </div>
                           <div className="profile">
                             <div className="name">
-                              <h6>Aparna Shah</h6>
+                              <h6>Humberto Luish</h6>
+                              <span>Founder</span>
                             </div>
                             <div className="star">
                               <ul>
@@ -122,10 +127,9 @@ const Feedback = () => {
                           </div>
                         </div>
                         <div className="bottom">
-                          <p>The Microgreen kit is amazing for quick, easy salads. I chose 
-                          Mustard seeds and had a full harvest in just 12 days. It’s very 
-                          beginner-friendly, and the spray bottle makes watering simple. 
-                          A great way to start urban farming!</p>
+                          <p>Rapaciously simplify enabled intellectual capital and transparent it
+                            core competencies energetically enable user centric remarkets the
+                            after leveraged methodologies.</p>
                         </div>
                       </div>
                     </div>

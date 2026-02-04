@@ -19,11 +19,11 @@ const Team = () => {
               <div className="team__item">
                 <div className="team__inner bg-white">
                   <div className="thumb">
-                    <img src="/assets/img/home-1/team/Picture8.png" alt="bakul" />
+                    <img src="/assets/img/home-1/team/Picture9.png" alt="bakul" />
                   </div>
                   <div className="text">
-                    <h6><Link to="/team-single">Cherry Tomato</Link></h6>
-                    <p>DIY KITS</p>
+                    <h6><Link to="/team-single">Albert Hopper</Link></h6>
+                    <p>Gardenist</p>
                   </div>
                 </div>
               </div>
@@ -35,8 +35,8 @@ const Team = () => {
                     <img src="/assets/img/home-1/team/picture6.png" alt="bakul" />
                   </div>
                   <div className="text">
-                    <h6><Link to="/team-single">Hot Pepper</Link></h6>
-                    <p>DIY KITS</p>
+                    <h6><Link to="/team-single">Albert Hopper</Link></h6>
+                    <p>Gardenist</p>
                   </div>
                 </div>
               </div>
@@ -48,8 +48,8 @@ const Team = () => {
                     <img src="/assets/img/home-1/team/picture7.png" alt="bakul" />
                   </div>
                   <div className="text">
-                    <h6><Link to="/team-single">Capsicum</Link></h6>
-                    <p>DIY KITS</p>
+                    <h6><Link to="/team-single">Margot Robbie</Link></h6>
+                    <p>Gardenist</p>
                   </div>
                 </div>
               </div>
@@ -61,8 +61,8 @@ const Team = () => {
                     <img src="/assets/img/home-1/team/picture8.png" alt="bakul" />
                   </div>
                   <div className="text">
-                    <h6><Link to="/team-single">Cherry Tomato</Link></h6>
-                    <p>DIY KITS</p>
+                    <h6><Link to="/team-single">Kevin Martin</Link></h6>
+                    <p>Gardenist</p>
                   </div>
                 </div>
               </div>

@@ -13,7 +13,7 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_BASE_URL = 'https://dev.makemyveggies.com';
+  const API_BASE_URL = 'https://dev.makemyveggies.com/';
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
