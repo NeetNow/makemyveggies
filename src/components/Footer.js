@@ -14,7 +14,7 @@ const Footer = () => {
                 <h6>about us</h6>
                 <div className="text">
                   <p>Make My Veggies is an e-commerce website selling fresh microgreens and wellness products.
-                    As India first microgreens-focused platform, we aim to make healthy eating easy and accessible.</p>
+                    As Indiaâ€™s first microgreens-focused platform, we aim to make healthy eating easy and accessible.</p>
                   <div className="allsocialicon">
                     <h6>follow us</h6>
                     <ul>
