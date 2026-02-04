@@ -114,7 +114,7 @@ const Question = () => {
                   </button>
                   <video
                     ref={videoRef}
-                    src="/assets/img/home-2/question/vdo.mp4"
+                    src="/assets/img/home-2/question/vdo.mov"
                     poster="/assets/img/home-2/question/rightimg.png"
                     controls
                     autoPlay
