@@ -340,6 +340,28 @@
   transform: translateY(-1px);
 }
 
+.product-details-page .cta-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.product-details-page .buy-now-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  background: #1f3b22;
+  color: #fff;
+  font-weight: 700;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.product-details-page .buy-now-btn:hover {
+  background: #182e1b;
+  transform: translateY(-1px);
+}
+
 .product-details-page .product-actions {
   display: flex;
   gap: 12px;
@@ -399,6 +421,70 @@
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.product-details-page .product-accordions {
+  padding: 14px 16px 0;
+  border-bottom: 1px solid #eef0f2;
+}
+
+.product-details-page .product-accordions details {
+  border-top: 1px solid #eef0f2;
+  padding: 10px 0;
+}
+
+.product-details-page .product-accordions details:first-child {
+  border-top: 0;
+}
+
+.product-details-page .product-accordions summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #1f3b22;
+  list-style: none;
+}
+
+.product-details-page .product-accordions summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.product-details-page .product-accordions summary::after {
+  content: '\f078';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 0.9rem;
+  color: #1f3b22;
+  transition: transform 0.25s ease;
+}
+
+.product-details-page .product-accordions details[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.product-details-page .product-accordions summary::-webkit-details-marker {
+  display: none;
+}
+
+.product-details-page .product-accordions .accordion-body {
+  padding: 12px 0 6px;
+  color: #495057;
+}
+
+.product-details-page .product-accordions .accordion-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s ease;
+}
+
+.product-details-page .product-accordions details[open] > .accordion-drawer {
+  grid-template-rows: 1fr;
+}
+
+.product-details-page .product-accordions .accordion-drawer > .accordion-body {
   overflow: hidden;
 }
 

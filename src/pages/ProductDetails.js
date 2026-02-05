@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
@@ -7,13 +7,12 @@ import '../styles/ProductDetails.css';
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { addToCart: cartAddToCart } = useCart();
   const { currentUser } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const API_BASE_URL = 'https://dev.makemyveggies.com';
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -60,7 +59,7 @@ const ProductDetails = () => {
     }
 
     const prefix = url.startsWith('/') ? '' : '/';
-    return `${API_BASE_URL}${prefix}${url}`;
+    return `${process.env.PUBLIC_URL || ''}${prefix}${url}`;
   };
 
   const renderRatingStars = (value) => {
@@ -89,7 +88,7 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${API_BASE_URL}/backend/api/get_product.php?id=${id}`, {
+        const res = await fetch(`/backend/api/get_product.php?id=${id}`, {
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -118,7 +117,11 @@ const ProductDetails = () => {
         const reviews = Number.isFinite(reviewsNum) ? reviewsNum : 0;
 
         const apiPrimaryImage = resolveImageUrl(data.product.primaryImage);
-        const apiImagesRaw = Array.isArray(data.product.images) ? data.product.images : [];
+        const apiImagesRaw = Array.isArray(data.product.images)
+          ? data.product.images
+          : Array.isArray(data.product.secondaryImages)
+            ? [data.product.primaryImage, ...data.product.secondaryImages]
+            : [data.product.primaryImage];
         const apiImagesResolved = apiImagesRaw.map(resolveImageUrl).filter(Boolean);
         const images = apiImagesResolved.length > 0 ? apiImagesResolved : [apiPrimaryImage];
 
@@ -128,6 +131,8 @@ const ProductDetails = () => {
               .map((x) => x.trim())
               .filter(Boolean)
           : [];
+
+        const productIncludes = Array.isArray(data.product.productIncludes) ? data.product.productIncludes : [];
 
         const reviewsList = Array.isArray(data.product.reviewsList) ? data.product.reviewsList : [];
         const ratingBreakdown = data.product.ratingBreakdown || { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 };
@@ -148,6 +153,7 @@ const ProductDetails = () => {
           stockCount: Number.isFinite(Number(data.product.stock)) ? Number(data.product.stock) : 0,
           description: data.product.description || dummyDescription,
           features,
+          productIncludes,
           specifications: {
             'Stock Available': data.product.stock,
             'SKU': data.product.sku,
@@ -185,7 +191,7 @@ const ProductDetails = () => {
       try {
         const category = product.category.toString().toLowerCase();
         const res = await fetch(
-          `${API_BASE_URL}/backend/api/get_products.php?category=${encodeURIComponent(category)}&limit=8&offset=0`,
+          `/backend/api/get_products.php?category=${encodeURIComponent(category)}&limit=8&offset=0`,
           {
             method: 'GET',
             credentials: 'include',
@@ -243,6 +249,11 @@ const ProductDetails = () => {
     }
   };
 
+  const buyNow = async () => {
+    await addToCart();
+    navigate('/checkout');
+  };
+
   const submitReview = async (e) => {
     e.preventDefault();
     setReviewError(null);
@@ -253,7 +264,7 @@ const ProductDetails = () => {
     }
 
     if (!currentUser) {
-      setReviewError('Please login to submit a review.');
+      setReviewError('Please lo review.');
       return;
     }
 
@@ -264,7 +275,7 @@ const ProductDetails = () => {
 
     try {
       setReviewSubmitting(true);
-      const res = await fetch(`${API_BASE_URL}/backend/api/submit_review.php`, {
+      const res = await fetch(`/backend/api/submit_review.php`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -287,7 +298,7 @@ const ProductDetails = () => {
       setReviewRating(0);
       setReviewComment('');
 
-      const refresh = await fetch(`${API_BASE_URL}/backend/api/get_product.php?id=${product.id}`, {
+      const refresh = await fetch(`/backend/api/get_product.php?id=${product.id}`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -474,7 +485,7 @@ const ProductDetails = () => {
                   </div>
 
                   <h1 className="product-title">{product.name}</h1>
-
+ 
                   <div className="product-rating">
                     <div className="stars">
                       {renderRatingStars(product.rating)}
@@ -485,9 +496,9 @@ const ProductDetails = () => {
                   </div>
 
                   <div className="product-price">
-                    <span className="current-price">${product.price.toFixed(2)}</span>
+                    <span className="current-price">₹{product.price.toFixed(2)}</span>
                     {product.originalPrice > product.price && (
-                      <span className="original-price">${product.originalPrice.toFixed(2)}</span>
+                      <span className="original-price">₹{product.originalPrice.toFixed(2)}</span>
                     )}
                     {product.originalPrice > product.price && (
                       <span className="discount">
@@ -546,12 +557,14 @@ const ProductDetails = () => {
                         </div>
                       </div>
 
-                      <button
-                        onClick={addToCart}
-                        className="add-to-cart-btn"
-                      >
-                        Add to Cart - ${(product.price * quantity).toFixed(2)}
-                      </button>
+                      <div className="cta-row">
+                        <button type="button" onClick={addToCart} className="add-to-cart-btn">
+                          Add to cart
+                        </button>
+                        <button type="button" onClick={buyNow} className="buy-now-btn">
+                          Buy it now
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -587,18 +600,61 @@ const ProductDetails = () => {
             <div className="row">
               <div className="col-12">
                 <div className="product-tabs">
+                  <div className="product-accordions">
+                    <details open>
+                      <summary>Overview</summary>
+                      <div className="accordion-drawer">
+                        <div className="accordion-body">
+                          <p>{product.description || dummyDescription}</p>
+                        </div>
+                      </div>
+                    </details>
+                    <details>
+                      <summary>How To Use</summary>
+                      <div className="accordion-drawer">
+                        <div className="accordion-body">
+                          {(product.features.length > 0 ? product.features : dummyFeatures).length > 0 ? (
+                            <ul className="features-list">
+                              {(product.features.length > 0 ? product.features : dummyFeatures).map((feature, index) => (
+                                <li key={index}>
+                                  <i className="fa-solid fa-check"></i>
+                                  {feature}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p>No information available.</p>
+                          )}
+                        </div>
+                      </div>
+                    </details>
+                    <details>
+                      <summary>Includes</summary>
+                      <div className="accordion-drawer">
+                        <div className="accordion-body">
+                          {product.productIncludes && product.productIncludes.length > 0 ? (
+                            <ul className="features-list">
+                              {product.productIncludes.map((inc, index) => (
+                                <li key={index}>
+                                  <i className="fa-solid fa-check"></i>
+                                  {inc}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p>No includes available.</p>
+                          )}
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+
                   <div className="tab-buttons">
                     <button
                       className={`tab-btn ${selectedTab === 'description' ? 'active' : ''}`}
                       onClick={() => setSelectedTab('description')}
                     >
                       Description
-                    </button>
-                    <button
-                      className={`tab-btn ${selectedTab === 'features' ? 'active' : ''}`}
-                      onClick={() => setSelectedTab('features')}
-                    >
-                      Features
                     </button>
                     <button
                       className={`tab-btn ${selectedTab === 'specifications' ? 'active' : ''}`}
@@ -619,23 +675,6 @@ const ProductDetails = () => {
                       <div className="tab-pane">
                         <p>{product.description || dummyDescription}</p>
                         <p>{dummyDescriptionExtra}</p>
-                      </div>
-                    )}
-
-                    {selectedTab === 'features' && (
-                      <div className="tab-pane">
-                        {(product.features.length > 0 ? product.features : dummyFeatures).length > 0 ? (
-                          <ul className="features-list">
-                            {(product.features.length > 0 ? product.features : dummyFeatures).map((feature, index) => (
-                              <li key={index}>
-                                <i className="fa-solid fa-check"></i>
-                                {feature}
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p>No features available.</p>
-                        )}
                       </div>
                     )}
 
@@ -780,7 +819,7 @@ const ProductDetails = () => {
                           <Link to={`/product-details/${p.id}`}>{p.name}</Link>
                         </h5>
                         <div className="product-price">
-                          <span className="current-price">${Number(p.price || 0).toFixed(2)}</span>
+                          <span className="current-price">₹{Number(p.price || 0).toFixed(2)}</span>
                         </div>
                       </div>
                     </div>

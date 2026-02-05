@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 const SUPPLEMENTS_CATEGORY_NAMES = ['supplements', 'suppliments', 'supplement'];
 
 const EditSupplement = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
+  const API_PREFIX = `${process.env.PUBLIC_URL || ''}/backend`;
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -57,16 +57,16 @@ const EditSupplement = () => {
       if (!url) return '/images/placeholder-product.jpg';
       const s = String(url);
       if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('data:')) return s;
-      if (s.startsWith('/backend/')) return `${API_BASE}${s}`;
+      if (s.startsWith('/backend/')) return `${process.env.PUBLIC_URL || ''}${s}`;
       return s;
     };
-  }, [API_BASE]);
+  }, []);
 
   const uploadImage = async (file) => {
     const fd = new FormData();
     fd.append('image', file);
 
-    const res = await fetch(`${API_BASE}/backend/api/admin/upload_product_image.php`, {
+    const res = await fetch(`${API_PREFIX}/api/admin/upload_product_image.php`, {
       method: 'POST',
       credentials: 'include',
       body: fd
@@ -153,11 +153,11 @@ const EditSupplement = () => {
 
       try {
         const [catRes, prodRes] = await Promise.all([
-          fetch(`${API_BASE}/backend/api/admin/get_categories.php`, {
+          fetch(`${API_PREFIX}/api/admin/get_categories.php`, {
             method: 'GET',
             credentials: 'include'
           }),
-          fetch(`${API_BASE}/backend/api/admin/get_product.php?id=${encodeURIComponent(id || '')}`, {
+          fetch(`${API_PREFIX}/api/admin/get_product.php?id=${encodeURIComponent(id || '')}`, {
             method: 'GET',
             credentials: 'include'
           })
@@ -303,7 +303,7 @@ const EditSupplement = () => {
         }
       };
 
-      const res = await fetch(`${API_BASE}/backend/api/admin/update_product.php`, {
+      const res = await fetch(`${API_PREFIX}/api/admin/update_product.php`, {
         method: 'PUT',
         credentials: 'include',
         headers: {
