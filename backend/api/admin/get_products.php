@@ -101,7 +101,23 @@ try {
             p.status,
             p.created_at,
             c.name as category_name,
-            pi.image_url as primary_image
+            pi.image_url as primary_image,
+            (
+                SELECT d.dis_percent
+                FROM discounts d
+                WHERE d.product_id = p.product_id
+                  AND CURDATE() BETWEEN d.from_date AND d.to_date
+                ORDER BY d.from_date DESC
+                LIMIT 1
+            ) AS dis_percent,
+            (
+                SELECT d.dis_amount
+                FROM discounts d
+                WHERE d.product_id = p.product_id
+                  AND CURDATE() BETWEEN d.from_date AND d.to_date
+                ORDER BY d.from_date DESC
+                LIMIT 1
+            ) AS dis_amount
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.category_id
         LEFT JOIN categories pc ON c.parent_id = pc.category_id
@@ -129,6 +145,10 @@ try {
 
     $formattedProducts = [];
     foreach ($products as $product) {
+        $disPercent = isset($product['dis_percent']) ? (float)$product['dis_percent'] : 0.0;
+        $disAmount  = isset($product['dis_amount'])  ? (float)$product['dis_amount']  : 0.0;
+        $hasDiscount = $disPercent > 0 && $disAmount > 0;
+
         $formattedProducts[] = [
             'id' => (int)$product['product_id'],
             'title' => $product['title'],
@@ -139,7 +159,11 @@ try {
             'status' => (int)$product['status'],
             'categoryName' => $product['category_name'],
             'primaryImage' => $product['primary_image'] ?: '/images/placeholder-product.jpg',
-            'createdAt' => $product['created_at']
+            'createdAt' => $product['created_at'],
+            'discount' => $hasDiscount ? [
+                'percent' => $disPercent,
+                'amount' => $disAmount
+            ] : null
         ];
     }
 
