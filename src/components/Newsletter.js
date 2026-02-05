@@ -1,23 +1,99 @@
-import React from 'react';
-
+import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+ 
 const Newsletter = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+ 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+   
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+ 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+ 
+    setIsSubmitting(true);
+ 
+    try {
+      const response = await fetch('/backend/api/subscribe_newsletter.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email
+        })
+      });
+ 
+      const data = await response.json();
+     
+      if (response.ok) {
+        toast.success(data.message || 'Thank you for subscribing!');
+        setEmail('');
+      } else {
+        throw new Error(data.message || 'Failed to subscribe');
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      toast.error(error.message || 'An error occurred. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+ 
   return (
-    <section className="newslatter bg-white go-up">
+    <>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        style={{
+          top: '80px',
+          zIndex: 9999
+        }}
+      />
+      <section className="newslatter bg-white go-up">
       <div className="container">
         <div className="newslatter__bg">
           <div className="text">
             <h3>Get Latest Updates and Deals</h3>
           </div>
           <div className="newslatter__form">
-            <form action="#0">
-              <input type="email" placeholder="Enter your Email" />
-              <button type="submit">Subscribe Now</button>
+            <form onSubmit={handleSubmit}>
+              <input
+                type="email"
+                placeholder="Enter your Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubmitting}
+                required
+              />
+              <button
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Subscribing...' : 'Subscribe Now'}
+              </button>
             </form>
           </div>
         </div>
       </div>
     </section>
+    </>
   );
 };
-
+ 
 export default Newsletter;
