@@ -3,35 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const AddDiyKit = () => {
-  const API_BASE = (() => {
-    const envBase = process.env.REACT_APP_API_BASE;
-    if (envBase) return String(envBase).replace(/\/+$/, '');
-
-    if (typeof window === 'undefined') return 'http://localhost';
-
-    if (window.location.port === '3000') {
-      return '';
-    }
-
-    const origin = window.location.origin;
-    const publicUrl = process.env.PUBLIC_URL;
-
-    if (publicUrl) {
-      try {
-        const u = new URL(publicUrl, origin);
-        const basePath = (u.pathname || '').replace(/\/+$/, '');
-        return `${origin}${basePath}`.replace(/\/+$/, '');
-      } catch (e) {
-        const basePath = String(publicUrl).replace(/\/+$/, '');
-        return `${origin}${basePath}`.replace(/\/+$/, '');
-      }
-    }
-
-    const path = window.location.pathname || '/';
-    const idx = path.toLowerCase().indexOf('/admin');
-    const basePath = idx >= 0 ? path.slice(0, idx) : '';
-    return `${origin}${basePath}`.replace(/\/+$/, '');
-  })();
+  const API_PREFIX = `${process.env.PUBLIC_URL || ''}/backend`;
   const DIY_CATEGORY_NAME = 'diy kits';
 
   const navigate = useNavigate();
@@ -111,7 +83,7 @@ const AddDiyKit = () => {
     const fd = new FormData();
     fd.append('image', file);
 
-    const res = await fetch(`${API_BASE}/backend/api/admin/upload_product_image.php`, {
+    const res = await fetch(`${API_PREFIX}/api/admin/upload_product_image.php`, {
       method: 'POST',
       credentials: 'include',
       body: fd
@@ -165,7 +137,7 @@ const AddDiyKit = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/backend/api/admin/get_categories.php`, {
+        const res = await fetch(`${API_PREFIX}/api/admin/get_categories.php`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -279,7 +251,7 @@ const AddDiyKit = () => {
         }
       };
 
-      const res = await fetch(`${API_BASE}/backend/api/admin/add_product.php`, {
+      const res = await fetch(`${API_PREFIX}/api/admin/add_product.php`, {
         method: 'POST',
         credentials: 'include',
         headers: {

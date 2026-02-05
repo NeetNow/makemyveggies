@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
 const ProductDiyKits = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
+  const API_PREFIX = `${process.env.PUBLIC_URL || ''}/backend`;
   const ROWS_PER_PAGE = 9;
 
   // NOTE: this should match your categories.name for DIY Kits.
@@ -48,15 +48,15 @@ const ProductDiyKits = () => {
       if (!url) return '/images/placeholder-product.jpg';
       const s = String(url);
       if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('data:')) return s;
-      if (s.startsWith('/backend/')) return `${API_BASE}${s}`;
+      if (s.startsWith('/backend/')) return `${process.env.PUBLIC_URL || ''}${s}`;
       return s;
     };
-  }, [API_BASE]);
+  }, []);
 
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await fetch(`${API_BASE}/backend/api/admin/get_categories.php`, {
+        const res = await fetch(`${API_PREFIX}/api/admin/get_categories.php`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -114,7 +114,7 @@ const ProductDiyKits = () => {
       if (statusFilter !== 'all') qs.set('status', String(statusFilter));
       if (sort) qs.set('sort', String(sort));
 
-      const response = await fetch(`${API_BASE}/backend/api/admin/get_products.php?${qs.toString()}`, {
+      const response = await fetch(`${API_PREFIX}/api/admin/get_products.php?${qs.toString()}`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -185,12 +185,12 @@ const ProductDiyKits = () => {
     setProductToDelete(null);
   };
 
-  const confirmDelete = async () => {
+  const confirmDeleteProduct = async () => {
     if (!productToDelete?.id) return;
 
     setDeleting(true);
     try {
-      const res = await fetch(`${API_BASE}/backend/api/admin/delete_product.php?id=${encodeURIComponent(String(productToDelete.id))}`, {
+      const res = await fetch(`${API_PREFIX}/api/admin/delete_product.php?id=${encodeURIComponent(String(productToDelete.id))}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -450,7 +450,7 @@ const ProductDiyKits = () => {
                   <button type="button" className="btn btn-secondary" onClick={closeDeleteModal} disabled={deleting}>
                     Cancel
                   </button>
-                  <button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>
+                  <button type="button" className="btn btn-danger" onClick={confirmDeleteProduct} disabled={deleting}>
                     {deleting ? 'Deleting...' : 'Delete'}
                   </button>
                 </div>
