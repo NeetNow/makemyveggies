@@ -49,9 +49,15 @@ try {
             $whereConditions[] = 'p.category_id = ?';
             $params[] = (int)$categoryParam;
         } else {
-            // Text: match by category name (case-insensitive)
-            $whereConditions[] = 'LOWER(c.name) = ?';
-            $params[] = strtolower($categoryParam);
+            // Text: match by category name (case-insensitive, partial)
+            // Allows queries like ?category=pots to match categories like "Pots & Planters".
+            $needle = strtolower($categoryParam);
+            $needle = str_replace(['-', '_'], ' ', $needle);
+            $needle = preg_replace('/\s+/', ' ', $needle);
+            $needle = trim($needle);
+
+            $whereConditions[] = 'LOWER(c.name) LIKE ?';
+            $params[] = '%' . $needle . '%';
         }
     }
 
