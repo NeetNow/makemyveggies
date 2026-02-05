@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const ViewDiyKit = () => {
-  const API_PREFIX = `${process.env.PUBLIC_URL || ''}/backend`;
+  const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -29,10 +29,10 @@ const ViewDiyKit = () => {
       if (!url) return '/images/placeholder-product.jpg';
       const s = String(url);
       if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('data:')) return s;
-      if (s.startsWith('/backend/')) return `${process.env.PUBLIC_URL || ''}${s}`;
+      if (s.startsWith('/backend/')) return `${API_BASE}${s}`;
       return s;
     };
-  }, []);
+  }, [API_BASE]);
 
   useEffect(() => {
     const load = async () => {
@@ -40,7 +40,7 @@ const ViewDiyKit = () => {
       setProduct(null);
 
       try {
-        const response = await fetch(`${API_PREFIX}/api/admin/get_product.php?id=${encodeURIComponent(id || '')}`, {
+        const response = await fetch(`${API_BASE}/backend/api/admin/get_product.php?id=${encodeURIComponent(id || '')}`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -83,7 +83,7 @@ const ViewDiyKit = () => {
 
     setDeleting(true);
     try {
-      const res = await fetch(`${API_PREFIX}/api/admin/delete_product.php?id=${encodeURIComponent(String(id))}`, {
+      const res = await fetch(`${API_BASE}/backend/api/admin/delete_product.php?id=${encodeURIComponent(String(id))}`, {
         method: 'DELETE',
         credentials: 'include'
       });

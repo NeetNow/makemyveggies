@@ -88,70 +88,6 @@ try {
         exit;
     }
 
-    $imgStmt = $pdo->prepare("SELECT image_url, is_primary FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, image_id ASC");
-    $imgStmt->execute([$product_id]);
-    $imagesRows = $imgStmt->fetchAll(PDO::FETCH_ASSOC);
-
-    $primaryImage = $product['primary_image'] ?: '/images/placeholder-product.jpg';
-    $images = [];
-    $secondaryImages = [];
-    foreach ($imagesRows as $img) {
-        $url = isset($img['image_url']) ? trim((string)$img['image_url']) : '';
-        if ($url === '') continue;
-        if ((int)($img['is_primary'] ?? 0) === 1) {
-            $primaryImage = $url;
-            array_unshift($images, $url);
-        } else {
-            $images[] = $url;
-            $secondaryImages[] = $url;
-        }
-    }
-
-    if (empty($images)) {
-        $images = [$primaryImage];
-    }
-
-    $incStmt = $pdo->prepare("SELECT includes FROM product_includes WHERE product_id = ? ORDER BY id ASC");
-    $incStmt->execute([$product_id]);
-    $includesRows = $incStmt->fetchAll(PDO::FETCH_ASSOC);
-    $productIncludes = [];
-    foreach ($includesRows as $row) {
-        $val = isset($row['includes']) ? trim((string)$row['includes']) : '';
-        if ($val !== '') $productIncludes[] = $val;
-    }
-
-    $reviewsStmt = $pdo->prepare("
-        SELECT r.rating, r.comment, r.created_at,
-               COALESCE(CONCAT(u.first_name, ' ', u.last_name), u.email, 'Customer') AS user_name
-        FROM reviews r
-        LEFT JOIN users u ON u.user_id = r.user_id
-        WHERE r.product_id = ?
-        ORDER BY r.created_at DESC
-        LIMIT 50
-    ");
-    $reviewsStmt->execute([$product_id]);
-    $reviewsRows = $reviewsStmt->fetchAll(PDO::FETCH_ASSOC);
-    $reviewsList = [];
-    foreach ($reviewsRows as $r) {
-        $reviewsList[] = [
-            'userName' => $r['user_name'] ?? 'Customer',
-            'rating' => isset($r['rating']) ? (int)$r['rating'] : 0,
-            'comment' => $r['comment'] ?? '',
-            'createdAt' => $r['created_at'] ?? null
-        ];
-    }
-
-    $breakdownStmt = $pdo->prepare("SELECT rating, COUNT(*) AS cnt FROM reviews WHERE product_id = ? GROUP BY rating");
-    $breakdownStmt->execute([$product_id]);
-    $breakdownRows = $breakdownStmt->fetchAll(PDO::FETCH_ASSOC);
-    $ratingBreakdown = ['5' => 0, '4' => 0, '3' => 0, '2' => 0, '1' => 0];
-    foreach ($breakdownRows as $b) {
-        $k = (string)((int)($b['rating'] ?? 0));
-        if (isset($ratingBreakdown[$k])) {
-            $ratingBreakdown[$k] = (int)($b['cnt'] ?? 0);
-        }
-    }
-
     // Compute discount-aware pricing using discounts table (same as get_products.php)
     $basePrice = (float)$product['price'];
     $disPercent = isset($product['dis_percent']) ? (float)$product['dis_percent'] : 0.0;
@@ -182,16 +118,11 @@ try {
         'sku' => $product['sku'],
         'status' => (int)$product['status'],
         'categoryName' => $product['category_name'],
-        'primaryImage' => $primaryImage,
-        'secondaryImages' => $secondaryImages,
-        'images' => $images,
-        'productIncludes' => $productIncludes,
+        'primaryImage' => $product['primary_image'] ?: '/images/placeholder-product.jpg',
         'createdAt' => $product['created_at'],
         'inStock' => (int)$product['stock'] > 0,
         'rating' => (float)$product['avg_rating'],
-        'reviews' => (int)$product['review_count'],
-        'reviewsList' => $reviewsList,
-        'ratingBreakdown' => $ratingBreakdown
+        'reviews' => (int)$product['review_count']
     ];
 
     echo json_encode([
