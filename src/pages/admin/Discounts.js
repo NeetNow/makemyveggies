@@ -15,7 +15,6 @@ const Discounts = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const [activeModal, setActiveModal] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState(null);
   const [productDetails, setProductDetails] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -123,7 +122,6 @@ const Discounts = () => {
 
   const closeModal = () => {
     setActiveModal(false);
-    setSelectedProductId(null);
     setProductDetails(null);
     setDetailLoading(false);
     setSaving(false);
@@ -132,7 +130,6 @@ const Discounts = () => {
 
   const openManageDiscount = async (productId) => {
     setActiveModal(true);
-    setSelectedProductId(productId);
     setDetailLoading(true);
     setProductDetails(null);
 
