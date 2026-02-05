@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 
 const AdminDashboard = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com';
+  const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
