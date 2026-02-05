@@ -46,19 +46,12 @@ try {
 
     if ($categoryParam !== null && $categoryParam !== '') {
         if (ctype_digit($categoryParam)) {
-            // Numeric: treat as category_id
             $whereConditions[] = 'p.category_id = ?';
             $params[] = (int)$categoryParam;
         } else {
-            // Text: match by category name (case-insensitive, partial)
-            // Allows queries like ?category=pots to match categories like "Pots & Planters".
-            $needle = strtolower($categoryParam);
-            $needle = str_replace(['-', '_'], ' ', $needle);
-            $needle = preg_replace('/\s+/', ' ', $needle);
-            $needle = trim($needle);
-
-            $whereConditions[] = 'LOWER(c.name) LIKE ?';
-            $params[] = '%' . $needle . '%';
+            $whereConditions[] = '(LOWER(c.name) = ? OR LOWER(pc.name) = ?)';
+            $params[] = strtolower($categoryParam);
+            $params[] = strtolower($categoryParam);
         }
     }
 
