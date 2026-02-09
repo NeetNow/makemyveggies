@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
- 
+
 const Newsletter = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-   
+    
     if (!email) {
       toast.error('Please enter your email address');
       return;
     }
- 
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast.error('Please enter a valid email address');
       return;
     }
- 
+
     setIsSubmitting(true);
- 
+
     try {
       const response = await fetch('/backend/api/subscribe_newsletter.php', {
         method: 'POST',
@@ -31,9 +31,9 @@ const Newsletter = () => {
           email
         })
       });
- 
+
       const data = await response.json();
-     
+      
       if (response.ok) {
         toast.success(data.message || 'Thank you for subscribing!');
         setEmail('');
@@ -47,7 +47,7 @@ const Newsletter = () => {
       setIsSubmitting(false);
     }
   };
- 
+
   return (
     <>
       <ToastContainer
@@ -73,16 +73,16 @@ const Newsletter = () => {
           </div>
           <div className="newslatter__form">
             <form onSubmit={handleSubmit}>
-              <input
-                type="email"
-                placeholder="Enter your Email"
+              <input 
+                type="email" 
+                placeholder="Enter your Email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isSubmitting}
                 required
               />
-              <button
-                type="submit"
+              <button 
+                type="submit" 
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Subscribing...' : 'Subscribe Now'}
@@ -95,5 +95,5 @@ const Newsletter = () => {
     </>
   );
 };
- 
+
 export default Newsletter;

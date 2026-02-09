@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Gauge, Box, Receipt, Users, FileText, Tag, LineChart, Search } from 'lucide-react';
+import { Gauge, Box, Receipt, Users, FileText, Tag, LineChart, Search, UserCog } from 'lucide-react';
 import '../../styles/Admin.css';
 
 const AdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+
+  const closeMobileMenu = () => setMobileOpen(false);
 
   const isProductsRoute = location.pathname.startsWith('/admin/products');
 
@@ -14,9 +17,22 @@ const AdminLayout = () => {
     setIsProductsOpen(isProductsRoute);
   }, [isProductsRoute]);
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   return (
-    <div className={`admin-layout d-flex ${collapsed ? 'sidebar-collapsed' : ''}`}>
-      <aside className="admin-sidebar bg-dark text-white d-flex flex-column">
+    <div className={`admin-layout d-flex ${collapsed ? 'sidebar-collapsed' : ''} ${mobileOpen ? 'sidebar-mobile-open' : ''}`}>
+      {mobileOpen && (
+        <button
+          type="button"
+          className="admin-sidebar-backdrop"
+          aria-label="Close menu"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      <aside className="admin-sidebar bg-dark text-white d-flex flex-column" aria-label="Admin navigation">
         <div className="admin-sidebar-header d-flex align-items-center justify-content-between px-3 py-2">
           <div className="d-flex flex-column sidebar-brand-wrap">
             <span className="admin-brand">MMV</span>
@@ -38,7 +54,10 @@ const AdminLayout = () => {
               to="/admin"
               end
               className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => setIsProductsOpen(false)}
+              onClick={() => {
+                setIsProductsOpen(false);
+                closeMobileMenu();
+              }}
             >
               <span className="sidebar-icon me-2"><Gauge size={16} /></span>
               <span className="sidebar-text">Dashboard</span>
@@ -59,6 +78,7 @@ const AdminLayout = () => {
                   className={({ isActive }) =>
                     `nav-link text-white d-flex align-items-center sidebar-sub-link ${isActive ? 'active' : ''}`
                   }
+                  onClick={closeMobileMenu}
                 >
                   <span className="sidebar-icon me-2">•</span>
                   <span className="sidebar-text">DIY Kits</span>
@@ -68,6 +88,7 @@ const AdminLayout = () => {
                   className={({ isActive }) =>
                     `nav-link text-white d-flex align-items-center sidebar-sub-link ${isActive ? 'active' : ''}`
                   }
+                  onClick={closeMobileMenu}
                 >
                   <span className="sidebar-icon me-2">•</span>
                   <span className="sidebar-text">Supplements</span>
@@ -77,7 +98,10 @@ const AdminLayout = () => {
             <NavLink
               to="/admin/orders"
               className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => setIsProductsOpen(false)}
+              onClick={() => {
+                setIsProductsOpen(false);
+                closeMobileMenu();
+              }}
             >
               <span className="sidebar-icon me-2"><Receipt size={16} /></span>
               <span className="sidebar-text">Orders</span>
@@ -85,15 +109,32 @@ const AdminLayout = () => {
             <NavLink
               to="/admin/customers"
               className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => setIsProductsOpen(false)}
+              onClick={() => {
+                setIsProductsOpen(false);
+                closeMobileMenu();
+              }}
             >
               <span className="sidebar-icon me-2"><Users size={16} /></span>
               <span className="sidebar-text">Customers</span>
             </NavLink>
             <NavLink
+              to="/admin/users"
+              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+              onClick={() => {
+                setIsProductsOpen(false);
+                closeMobileMenu();
+              }}
+            >
+              <span className="sidebar-icon me-2"><UserCog size={16} /></span>
+              <span className="sidebar-text">Users</span>
+            </NavLink>
+            <NavLink
               to="/admin/categories"
               className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => setIsProductsOpen(false)}
+              onClick={() => {
+                setIsProductsOpen(false);
+                closeMobileMenu();
+              }}
             >
               <span className="sidebar-icon me-2"><Tag size={16} /></span>
               <span className="sidebar-text">Categories</span>
@@ -101,7 +142,10 @@ const AdminLayout = () => {
             <NavLink
               to="/admin/content"
               className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => setIsProductsOpen(false)}
+              onClick={() => {
+                setIsProductsOpen(false);
+                closeMobileMenu();
+              }}
             >
               <span className="sidebar-icon me-2"><FileText size={16} /></span>
               <span className="sidebar-text">Content</span>
@@ -109,7 +153,10 @@ const AdminLayout = () => {
             <NavLink
               to="/admin/newsletter"
               className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => setIsProductsOpen(false)}
+              onClick={() => {
+                setIsProductsOpen(false);
+                closeMobileMenu();
+              }}
             >
               <span className="sidebar-icon me-2"><FileText size={16} /></span>
               <span className="sidebar-text">Newsletter</span>
@@ -117,7 +164,10 @@ const AdminLayout = () => {
             <NavLink
               to="/admin/discounts"
               className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => setIsProductsOpen(false)}
+              onClick={() => {
+                setIsProductsOpen(false);
+                closeMobileMenu();
+              }}
             >
               <span className="sidebar-icon me-2"><Tag size={16} /></span>
               <span className="sidebar-text">Discounts</span>
@@ -125,7 +175,10 @@ const AdminLayout = () => {
             <NavLink
               to="/admin/analytics"
               className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => setIsProductsOpen(false)}
+              onClick={() => {
+                setIsProductsOpen(false);
+                closeMobileMenu();
+              }}
             >
               <span className="sidebar-icon me-2"><LineChart size={16} /></span>
               <span className="sidebar-text">Analytics</span>
@@ -144,15 +197,25 @@ const AdminLayout = () => {
             <span className="topnav-welcome">WELCOME!</span>
             <small className="text-muted">Here is your analytics dashboard.</small>
           </div>
-          <div className="topnav-search d-none d-md-flex align-items-center px-3 py-1 rounded-pill bg-white border">
-            <span className="me-2 text-muted d-flex align-items-center">
-              <Search size={16} />
-            </span>
-            <input
-              type="text"
-              className="form-control form-control-sm border-0 bg-transparent"
-              placeholder="Search..."
-            />
+          <div className="d-flex align-items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary admin-mobile-menu-btn"
+              onClick={() => setMobileOpen((p) => !p)}
+              aria-label="Open menu"
+            >
+              ☰
+            </button>
+            <div className="topnav-search d-none d-md-flex align-items-center px-3 py-1 rounded-pill bg-white border">
+              <span className="me-2 text-muted d-flex align-items-center">
+                <Search size={16} />
+              </span>
+              <input
+                type="text"
+                className="form-control form-control-sm border-0 bg-transparent"
+                placeholder="Search..."
+              />
+            </div>
           </div>
         </header>
         <main className="admin-content flex-grow-1 p-4">

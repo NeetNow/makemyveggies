@@ -16,7 +16,7 @@ const ProductDetails = () => {
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedTab, setSelectedTab] = useState('description');
+  const [selectedTab, setSelectedTab] = useState('overview');
 
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
@@ -48,6 +48,28 @@ const ProductDetails = () => {
 
   const dummyNoReviewsText =
     'No reviews yet. Be the first to review this product and help other customers make the right choice.';
+
+  const shareProduct = async () => {
+    try {
+      const url = window.location.href;
+      const title = product?.name ? String(product.name) : 'Product';
+
+      if (navigator.share) {
+        await navigator.share({ title, url });
+        return;
+      }
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        window.alert('Link copied');
+        return;
+      }
+
+      window.prompt('Copy this link:', url);
+    } catch (e) {
+      window.alert('Unable to share');
+    }
+  };
 
   const resolveImageUrl = (url) => {
     if (!url) {
@@ -481,7 +503,12 @@ const ProductDetails = () => {
               <div className="col-lg-6">
                 <div className="product-info product-info-panel">
                   <div className="product-category">
-                    Category: {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+                    <span>
+                      Category: {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+                    </span>
+                    <button type="button" className="share-product-btn" onClick={shareProduct} aria-label="Share product">
+                      <i className="fa-solid fa-share-nodes"></i>
+                    </button>
                   </div>
 
                   <h1 className="product-title">{product.name}</h1>
@@ -513,20 +540,6 @@ const ProductDetails = () => {
                     </span>
                   </div>
 
-                  <div className="product-description">
-                    <p>{product.description || dummyDescription}</p>
-                  </div>
-
-                  <div className="product-highlights">
-                    {(product.features && product.features.length > 0 ? product.features.slice(0, 3) : ['Quality Assured', 'Fresh & Safe', 'Fast Delivery']).map(
-                      (item, idx) => (
-                        <div key={idx} className="highlight-item">
-                          <i className="fa-solid fa-circle-check"></i>
-                          <span>{item}</span>
-                        </div>
-                      )
-                    )}
-                  </div>
 
                   {product.inStock && (
                     <div className="quantity-add">
@@ -600,67 +613,24 @@ const ProductDetails = () => {
             <div className="row">
               <div className="col-12">
                 <div className="product-tabs">
-                  <div className="product-accordions">
-                    <details open>
-                      <summary>Overview</summary>
-                      <div className="accordion-drawer">
-                        <div className="accordion-body">
-                          <p>{product.description || dummyDescription}</p>
-                        </div>
-                      </div>
-                    </details>
-                    <details>
-                      <summary>How To Use</summary>
-                      <div className="accordion-drawer">
-                        <div className="accordion-body">
-                          {(product.features.length > 0 ? product.features : dummyFeatures).length > 0 ? (
-                            <ul className="features-list">
-                              {(product.features.length > 0 ? product.features : dummyFeatures).map((feature, index) => (
-                                <li key={index}>
-                                  <i className="fa-solid fa-check"></i>
-                                  {feature}
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p>No information available.</p>
-                          )}
-                        </div>
-                      </div>
-                    </details>
-                    <details>
-                      <summary>Includes</summary>
-                      <div className="accordion-drawer">
-                        <div className="accordion-body">
-                          {product.productIncludes && product.productIncludes.length > 0 ? (
-                            <ul className="features-list">
-                              {product.productIncludes.map((inc, index) => (
-                                <li key={index}>
-                                  <i className="fa-solid fa-check"></i>
-                                  {inc}
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p>No includes available.</p>
-                          )}
-                        </div>
-                      </div>
-                    </details>
-                  </div>
-
                   <div className="tab-buttons">
                     <button
-                      className={`tab-btn ${selectedTab === 'description' ? 'active' : ''}`}
-                      onClick={() => setSelectedTab('description')}
+                      className={`tab-btn ${selectedTab === 'overview' ? 'active' : ''}`}
+                      onClick={() => setSelectedTab('overview')}
                     >
-                      Description
+                      Overview
                     </button>
                     <button
-                      className={`tab-btn ${selectedTab === 'specifications' ? 'active' : ''}`}
-                      onClick={() => setSelectedTab('specifications')}
+                      className={`tab-btn ${selectedTab === 'key_features' ? 'active' : ''}`}
+                      onClick={() => setSelectedTab('key_features')}
                     >
-                      Specifications
+                      Key Features
+                    </button>
+                    <button
+                      className={`tab-btn ${selectedTab === 'includes' ? 'active' : ''}`}
+                      onClick={() => setSelectedTab('includes')}
+                    >
+                      Includes
                     </button>
                     <button
                       className={`tab-btn ${selectedTab === 'reviews' ? 'active' : ''}`}
@@ -671,28 +641,49 @@ const ProductDetails = () => {
                   </div>
 
                   <div className="tab-content">
-                    {selectedTab === 'description' && (
-                      <div className="tab-pane">
+                    {selectedTab === 'overview' && (
+                      <div className="tab-pane active">
                         <p>{product.description || dummyDescription}</p>
                         <p>{dummyDescriptionExtra}</p>
                       </div>
                     )}
 
-                    {selectedTab === 'specifications' && (
-                      <div className="tab-pane">
-                        <div className="specifications-table">
-                          {Object.entries(specificationsToRender).map(([key, value]) => (
-                            <div key={key} className="spec-item">
-                              <span className="spec-label">{key}:</span>
-                              <span className="spec-value">{value || 'N/A'}</span>
-                            </div>
-                          ))}
-                        </div>
+                    {selectedTab === 'key_features' && (
+                      <div className="tab-pane active">
+                        {(product.features.length > 0 ? product.features : dummyFeatures).length > 0 ? (
+                          <ul className="features-list">
+                            {(product.features.length > 0 ? product.features : dummyFeatures).map((feature, index) => (
+                              <li key={index}>
+                                <i className="fa-solid fa-check"></i>
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p>No information available.</p>
+                        )}
+                      </div>
+                    )}
+
+                    {selectedTab === 'includes' && (
+                      <div className="tab-pane active">
+                        {product.productIncludes && product.productIncludes.length > 0 ? (
+                          <ul className="features-list">
+                            {product.productIncludes.map((inc, index) => (
+                              <li key={index}>
+                                <i className="fa-solid fa-check"></i>
+                                {inc}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p>No includes available.</p>
+                        )}
                       </div>
                     )}
 
                     {selectedTab === 'reviews' && (
-                      <div className="tab-pane">
+                      <div className="tab-pane active">
                         <div className="reviews-section">
                           <div className="review-summary">
                             <div className="overall-rating">

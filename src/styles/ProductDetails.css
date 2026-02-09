@@ -166,6 +166,27 @@
 .product-details-page .product-info .product-category {
   font-size: 0.9rem;
   color: #556;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.product-details-page .share-product-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+  background: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #2c5530;
+}
+
+.product-details-page .share-product-btn:hover {
+  background: rgba(40, 167, 69, 0.08);
 }
 
 .product-details-page .product-rating {
