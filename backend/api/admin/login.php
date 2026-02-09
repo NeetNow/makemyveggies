@@ -61,6 +61,7 @@ try {
           AND u.is_active = 1
           AND u.email_verified = 1
           AND r.name IN ('admin', 'super_admin')
+        GROUP BY u.user_id
         LIMIT 1
     ";
 
@@ -77,6 +78,25 @@ try {
     // Verify password
     if (!password_verify($password, $user['password'])) {
         sendResponse(false, 'Invalid admin credentials', null, 401);
+    }
+
+    $rolesStmt = $db->prepare("
+        SELECT r.name
+        FROM user_roles ur
+        INNER JOIN roles r ON r.id = ur.role_id
+        WHERE ur.user_id = ?
+    ");
+    $rolesStmt->execute([(int)$user['user_id']]);
+    $roleRows = $rolesStmt->fetchAll();
+
+    $roles = [];
+    foreach ($roleRows as $rr) {
+        if (!empty($rr['name'])) {
+            $roles[] = $rr['name'];
+        }
+    }
+    if (empty($roles)) {
+        $roles = ['admin'];
     }
 
     // JWT Configuration
@@ -96,7 +116,7 @@ try {
         'email' => $user['email'],
         'first_name' => $user['first_name'],
         'last_name' => $user['last_name'],
-        'roles' => ['admin']
+        'roles' => $roles
     ];
 
     $jwt_token = JWT::encode($payload, $jwt_secret, $jwt_algorithm);

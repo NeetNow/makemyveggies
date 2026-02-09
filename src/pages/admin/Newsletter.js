@@ -23,7 +23,7 @@ const AdminNewsletter = () => {
     const path = '/backend/api/admin/get_newsletter_subscribers.php?limit=1000';
     return [
       path,
-      `https://dev.makemyveggies.com/${path}`
+      `http://localhost/git_mmv/makemyveggies/${path}`
     ];
   }, []);
 

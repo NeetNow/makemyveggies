@@ -41,5 +41,5 @@
             "last 1 safari version"
         ]
     },
-    "proxy": "https://dev.makemyveggies.com"
+    "proxy": "http://localhost/git_mmv/makemyveggies"
 }

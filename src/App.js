@@ -55,6 +55,7 @@ import Content from './pages/admin/Content';
 import AdminNewsletter from './pages/admin/Newsletter';
 import Discounts from './pages/admin/Discounts';
 import Analytics from './pages/admin/Analytics';
+import Users from './pages/admin/Users';
 import ProductDiyKits from './pages/admin/ProductDiyKits';
 import AddDiyKit from './pages/admin/AddDiyKit';
 import ViewDiyKit from './pages/admin/ViewDiyKit';
@@ -175,6 +176,7 @@ function App() {
                 <Route path="categories" element={<Categories />} />
                 <Route path="content" element={<Content />} />
                 <Route path="newsletter" element={<AdminNewsletter />} />
+                <Route path="users" element={<Users />} />
                 <Route path="discounts" element={<Discounts />} />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="products/diy-kits" element={<ProductDiyKits />} />
