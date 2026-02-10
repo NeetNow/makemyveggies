@@ -14,7 +14,7 @@ const Cart = () => {
     return (
       <>
         <main>
-          <section className="pageheader overflow-hidden">
+          <section className="pageheader overflow-hidden"> 
                     <div className="container">
                       <div className="pageheader__content">
                         <h2>Shopping Cart</h2>
