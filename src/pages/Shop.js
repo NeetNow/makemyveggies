@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiShoppingCart, FiHeart, FiSearch, FiX } from 'react-icons/fi';
+import { FiShoppingCart, FiX } from 'react-icons/fi';
 import { FaStar, FaStarHalfAlt, FaRegStar, FaChevronDown, FaChevronUp, FaCheck } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import Footer from '../components/Footer';
@@ -376,10 +376,10 @@ const Shop = () => {
                         />
                         <div className="price-inputs">
                           <div className="price-input">
-                            <span>Min: ${priceRange[0]}</span>
+                            <span>Min: ₹{priceRange[0]}</span>
                           </div>
                           <div className="price-input">
-                            <span>Max: ${priceRange[1]}</span>
+                            <span>Max: ₹{priceRange[1]}</span>
                           </div>
                         </div>
                       </div>
@@ -509,7 +509,7 @@ const Shop = () => {
                 </div>
 
                 {/* Products Grid */}
-                <div className={`products-grid ${viewMode}`} style={{gridTemplateColumns: viewMode === 'grid' ? 'repeat(4, 1fr)' : '1fr'}}>
+                <div className={`products-grid ${viewMode}`}>
                   {loading ? (
                     <div className="no-results"><p>Loading products...</p></div>
                   ) : error ? (
@@ -521,22 +521,9 @@ const Shop = () => {
                           <div className="product-badge">-{product.discount}%</div>
                         )}
                         <div className="product-image-container">
-                          <img src={product.image} alt={product.name} className="product-image" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://via.placeholder.com/300x300/eeeeee/888888?text=Product'; }} />
-                          <div className="product-actions">
-                            <button className="action-btn" title="Add to Wishlist">
-                              <FiHeart />
-                            </button>
-                            <button className="action-btn" title="Quick View">
-                              <FiSearch />
-                            </button>
-                            <button 
-                              className="action-btn cart-btn" 
-                              title="Add to Cart"
-                              onClick={() => handleAddToCart(product)}
-                            >
-                              <FiShoppingCart />
-                            </button>
-                          </div>
+                          <Link to={`/product-details/${product.id}`}>
+                            <img src={product.image} alt={product.name} className="product-image" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://via.placeholder.com/300x300/eeeeee/888888?text=Product'; }} />
+                          </Link>
                         </div>
                         <div className="product-info">
                           <span className="product-category">{product.category}</span>
@@ -548,9 +535,9 @@ const Shop = () => {
                             <span className="rating-count">{product.rating > 0 ? `(${product.rating})` : '(No ratings yet)'}</span>
                           </div>
                           <div className="product-price">
-                            <span className="current-price">${product.price.toFixed(2)}</span>
+                            <span className="current-price">₹{product.price.toFixed(2)}</span>
                             {product.originalPrice > product.price && (
-                              <span className="original-price">${product.originalPrice.toFixed(2)}</span>
+                              <span className="original-price">₹{product.originalPrice.toFixed(2)}</span>
                             )}
                           </div>
                           <button 

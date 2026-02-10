@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
@@ -8,6 +9,7 @@ import '../styles/ProductDetails.css';
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { addToCart: cartAddToCart } = useCart();
   const { currentUser } = useAuth();
   const [product, setProduct] = useState(null);
@@ -19,7 +21,6 @@ const ProductDetails = () => {
   const [selectedTab, setSelectedTab] = useState('overview');
 
   const [reviewRating, setReviewRating] = useState(0);
-  const [reviewComment, setReviewComment] = useState('');
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewError, setReviewError] = useState(null);
   const [reviewSuccess, setReviewSuccess] = useState(null);
@@ -40,34 +41,60 @@ const ProductDetails = () => {
     'Fast delivery and secure packaging'
   ];
 
-  const dummySpecifications = {
-    'Stock Available': 'N/A',
-    'SKU': 'N/A',
-    'Category': 'N/A'
+  const copyToClipboard = (text) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      const ok = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      return ok;
+    } catch (err) {
+      document.body.removeChild(textarea);
+      return false;
+    }
   };
 
-  const dummyNoReviewsText =
-    'No reviews yet. Be the first to review this product and help other customers make the right choice.';
-
   const shareProduct = async () => {
+    const url = window.location.href;
+    const title = product?.name ? String(product.name) : 'Product';
+    const text = `Check out ${title} on Make My Veggies`;
+
     try {
-      const url = window.location.href;
-      const title = product?.name ? String(product.name) : 'Product';
-
-      if (navigator.share) {
-        await navigator.share({ title, url });
+      if (navigator.share && typeof navigator.share === 'function') {
+        await navigator.share({
+          title,
+          text,
+          url
+        });
+        toast.success('Shared successfully!');
         return;
       }
-
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(url);
-        window.alert('Link copied');
-        return;
-      }
-
-      window.prompt('Copy this link:', url);
     } catch (e) {
-      window.alert('Unable to share');
+      if (e?.name === 'AbortError') return;
+      toast.error('Share cancelled or failed.');
+    }
+
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(url);
+        toast.success('Link copied to clipboard!');
+        return;
+      }
+    } catch (err) {
+      // clipboard API failed (e.g. not in secure context)
+    }
+
+    if (copyToClipboard(url)) {
+      toast.success('Link copied to clipboard!');
+    } else {
+      // Last fallback: show a prompt so desktop users clearly see the URL
+      // (useful when toasts are not visible or clipboard APIs are blocked)
+      window.prompt('Copy this product link:', url);
     }
   };
 
@@ -186,7 +213,6 @@ const ProductDetails = () => {
         setProduct(productData);
         setSelectedImage(0);
         setReviewRating(0);
-        setReviewComment('');
         setReviewError(null);
         setReviewSuccess(null);
         setError(null);
@@ -276,8 +302,7 @@ const ProductDetails = () => {
     navigate('/checkout');
   };
 
-  const submitReview = async (e) => {
-    e.preventDefault();
+  const submitRating = async (ratingValue) => {
     setReviewError(null);
     setReviewSuccess(null);
 
@@ -286,11 +311,13 @@ const ProductDetails = () => {
     }
 
     if (!currentUser) {
-      setReviewError('Please lo review.');
+      // Redirect to login and return back to this product page
+      navigate('/login', { state: { from: location.pathname } });
       return;
     }
 
-    if (!reviewRating) {
+    const ratingNum = Number(ratingValue);
+    if (!Number.isFinite(ratingNum) || ratingNum < 1 || ratingNum > 5) {
       setReviewError('Please select a rating.');
       return;
     }
@@ -305,8 +332,7 @@ const ProductDetails = () => {
         },
         body: JSON.stringify({
           product_id: product.id,
-          rating: reviewRating,
-          comment: reviewComment,
+          rating: ratingNum,
         }),
       });
 
@@ -316,9 +342,8 @@ const ProductDetails = () => {
         return;
       }
 
-      setReviewSuccess('Review submitted successfully.');
-      setReviewRating(0);
-      setReviewComment('');
+      setReviewSuccess('Rating submitted successfully.');
+      setReviewRating(ratingNum);
 
       const refresh = await fetch(`/backend/api/get_product.php?id=${product.id}`, {
         method: 'GET',
@@ -386,6 +411,12 @@ const ProductDetails = () => {
     }
   };
 
+  const handleStarClick = (star) => {
+    if (reviewSubmitting) return;
+    setReviewRating(star);
+    submitRating(star);
+  };
+
   if (loading) {
     return (
       <>
@@ -436,11 +467,6 @@ const ProductDetails = () => {
       </>
     );
   }
-
-  const specificationsToRender =
-    product.specifications && Object.keys(product.specifications).length > 0
-      ? product.specifications
-      : dummySpecifications;
 
   return (
     <div className="product-details-page">
@@ -581,15 +607,6 @@ const ProductDetails = () => {
                     </div>
                   )}
 
-                  <div className="product-actions">
-                    <button className="wishlist-btn">
-                      <i className="fa-solid fa-heart"></i> Add to Wishlist
-                    </button>
-                    <button className="compare-btn">
-                      <i className="fa-solid fa-balance-scale"></i> Compare
-                    </button>
-                  </div>
-
                   <div className="product-meta">
                     <div className="meta-item">
                       <span>SKU:</span>
@@ -598,10 +615,22 @@ const ProductDetails = () => {
                     <div className="meta-item">
                       <span>Share:</span>
                       <div className="social-links">
-                        <button type="button"><i className="fa-brands fa-facebook-f"></i></button>
-                        <button type="button"><i className="fa-brands fa-twitter"></i></button>
-                        <button type="button"><i className="fa-brands fa-instagram"></i></button>
-                        <button type="button"><i className="fa-brands fa-pinterest"></i></button>
+                        <a
+                          href="https://www.facebook.com/people/Make-My-Veggies/61581769312519/?mibextid=wwXIfr&rdid=IRuQvgUrHnQgCb6O&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1Cnhb4XHfJ%2F%3Fmibextid%3DwwXIfr"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Make My Veggies on Facebook"
+                        >
+                          <i className="fa-brands fa-facebook-f"></i>
+                        </a>
+                        <a
+                          href="https://www.linkedin.com/company/makemyveggies/?lipi=urn%3Ali%3Apage%3Ad_flagship3_search_srp_all%3Bq2l2qqJdSZWG4zcSWCdQmw%3D%3D"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Make My Veggies on LinkedIn"
+                        >
+                          <i className="fa-brands fa-linkedin-in"></i>
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -715,8 +744,8 @@ const ProductDetails = () => {
                           </div>
 
                           <div className="write-review">
-                            <h5>Write a Review</h5>
-                            <form className="review-form" onSubmit={submitReview}>
+                            <h5>Rate this product</h5>
+                            <div className="review-form">
                               <div className="rating-input">
                                 <label>Your Rating:</label>
                                 <div className="star-rating" role="radiogroup" aria-label="Select rating">
@@ -725,53 +754,24 @@ const ProductDetails = () => {
                                       key={star}
                                       type="button"
                                       className={`star-btn ${reviewRating >= star ? 'active' : ''}`}
-                                      onClick={() => setReviewRating(star)}
+                                      onClick={() => handleStarClick(star)}
                                       aria-label={`${star} star`}
+                                      disabled={reviewSubmitting}
                                     >
                                       <i className={`${reviewRating >= star ? 'fa-solid' : 'fa-regular'} fa-star`}></i>
                                     </button>
                                   ))}
                                 </div>
                               </div>
-                              <div className="form-group">
-                                <label>Your Review:</label>
-                                <textarea
-                                  rows="4"
-                                  placeholder="Share your thoughts about this product..."
-                                  value={reviewComment}
-                                  onChange={(e) => setReviewComment(e.target.value)}
-                                ></textarea>
-                              </div>
+                              <p className="m-0 text-muted" style={{ marginTop: 10 }}>
+                                {currentUser ? 'Tap a star to submit your rating.' : 'Login required to rate. Tap a star and you’ll be redirected to login.'}
+                              </p>
 
                               {reviewError && <div className="review-msg error">{reviewError}</div>}
                               {reviewSuccess && <div className="review-msg success">{reviewSuccess}</div>}
-
-                              <button
-                                type="submit"
-                                className="submit-review-btn"
-                                disabled={reviewSubmitting}
-                              >
-                                {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
-                              </button>
-                            </form>
+                            </div>
                           </div>
 
-                          <div className="reviews-list">
-                            {product.reviewsList && product.reviewsList.length > 0 ? (
-                              product.reviewsList.map((r, idx) => (
-                                <div key={idx} className="review-card">
-                                  <div className="review-top">
-                                    <div className="review-user">{r.userName || 'Customer'}</div>
-                                    <div className="review-stars">{renderRatingStars(r.rating)}</div>
-                                  </div>
-                                  {r.comment && <div className="review-comment">{r.comment}</div>}
-                                  {r.createdAt && <div className="review-date">{new Date(r.createdAt).toLocaleDateString()}</div>}
-                                </div>
-                              ))
-                            ) : (
-                              <p>{dummyNoReviewsText}</p>
-                            )}
-                          </div>
                         </div>
                       </div>
                     )}
