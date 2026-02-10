@@ -7,6 +7,13 @@ const NaturePlant = () => {
       <div className="container-fluid p-0">
         <div className="row g-0 align-items-stretch">
           <div className="col-12 col-lg-6">
+            <div className="mmv-natureplant-split__image imghover">
+              <img src="/assets/img/home-1/welcome/leftimg.png" alt="bakul" />
+            </div>
+          </div>
+
+          <div className="col-12 col-lg-6">
+            
             <div className="mmv-natureplant-split__content">
               <div className="mmv-natureplant-split__content-inner">
                 <div className="section__header natureplant__header">
@@ -26,18 +33,12 @@ const NaturePlant = () => {
                     <li><i className="fa-sharp fa-solid fa-square-check"></i>Designed for Indian climates</li>
                   </ul><br />
 
-                  <h4>Our Mission</h4><br />
+                  <h4>Our Mission</h4>
                   <p>To make home gardening easy, affordable, and rewarding for everyone — 
                     so every home can enjoy fresh, pesticide-free vegetables.</p>
                   <Link to="/about" className="custom-btn">About our company</Link>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div className="col-12 col-lg-6">
-            <div className="mmv-natureplant-split__image imghover">
-              <img src="/assets/img/home-1/welcome/leftimg.png" alt="bakul" />
             </div>
           </div>
         </div>

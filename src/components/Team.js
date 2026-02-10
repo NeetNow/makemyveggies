@@ -19,33 +19,7 @@ const Team = () => {
               <div className="team__item">
                 <div className="team__inner bg-white">
                   <div className="thumb">
-                    <img src="/assets/img/home-1/team/picture9.png" alt="bakul" />
-                  </div>
-                  <div className="text">
-                    <h6><Link to="/team-single">Cherry Tomato</Link></h6>
-                    <p>DIY KITS</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4 col-xl-3">
-              <div className="team__item">
-                <div className="team__inner bg-white">
-                  <div className="thumb">
-                    <img src="/assets/img/home-1/team/picture6.png" alt="bakul" />
-                  </div>
-                  <div className="text">
-                    <h6><Link to="/team-single">Hot Pepper</Link></h6>
-                    <p>DIY KITS</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 col-lg-4 col-xl-3">
-              <div className="team__item">
-                <div className="team__inner bg-white">
-                  <div className="thumb">
-                    <img src="/assets/img/home-1/team/picture7.png" alt="bakul" />
+                    <img src="/assets/img/home-1/team/Capsicum.png" alt="bakul" />
                   </div>
                   <div className="text">
                     <h6><Link to="/team-single">Capsicum</Link></h6>
@@ -58,10 +32,36 @@ const Team = () => {
               <div className="team__item">
                 <div className="team__inner bg-white">
                   <div className="thumb">
-                    <img src="/assets/img/home-1/team/picture8.png" alt="bakul" />
+                    <img src="/assets/img/home-1/team/cherrytomato.png" alt="bakul" />
                   </div>
                   <div className="text">
                     <h6><Link to="/team-single">Cherry Tomato</Link></h6>
+                    <p>DIY KITS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6 col-lg-4 col-xl-3">
+              <div className="team__item">
+                <div className="team__inner bg-white">
+                  <div className="thumb">
+                    <img src="/assets/img/home-1/team/HotPepper.png" alt="bakul" />
+                  </div>
+                  <div className="text">
+                    <h6><Link to="/team-single">Hot Pepper</Link></h6>
+                    <p>DIY KITS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6 col-lg-4 col-xl-3">
+              <div className="team__item">
+                <div className="team__inner bg-white">
+                  <div className="thumb">
+                    <img src="/assets/img/home-1/team/Tomato.png" alt="bakul" />
+                  </div>
+                  <div className="text">
+                    <h6><Link to="/team-single">Tomato</Link></h6>
                     <p>DIY KITS</p>
                   </div>
                 </div>
