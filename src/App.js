@@ -64,6 +64,7 @@ import ProductSupplements from './pages/admin/ProductSupplements';
 import AddSupplement from './pages/admin/AddSupplement';
 import ViewSupplement from './pages/admin/ViewSupplement';
 import EditSupplement from './pages/admin/EditSupplement';
+import ContactMessages from './pages/admin/ContactMessages';
 
 // Component to conditionally render header
 function ConditionalHeader() {
@@ -176,6 +177,7 @@ function App() {
                 <Route path="categories" element={<Categories />} />
                 <Route path="content" element={<Content />} />
                 <Route path="newsletter" element={<AdminNewsletter />} />
+                <Route path="contact-messages" element={<ContactMessages />} />
                 <Route path="users" element={<Users />} />
                 <Route path="discounts" element={<Discounts />} />
                 <Route path="analytics" element={<Analytics />} />
