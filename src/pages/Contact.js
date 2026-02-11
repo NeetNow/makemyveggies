@@ -1,10 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Footer from '../components/Footer';
+import { toast } from 'react-toastify';
+
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost/makemyveggies';
 
 const Contact = () => {
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const email = String(form.email || '').trim();
+    const message = String(form.message || '').trim();
+
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    if (!message) {
+      toast.error('Please enter your message');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${API_BASE}/backend/api/submit_contact.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          firstName: String(form.firstName || '').trim(),
+          lastName: String(form.lastName || '').trim(),
+          phone: String(form.phone || '').trim(),
+          email,
+          subject: String(form.subject || '').trim(),
+          message
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.message || 'Failed to send message');
+      }
+
+      toast.success(data?.message || 'Message sent successfully');
+      setForm({ firstName: '', lastName: '', phone: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      toast.error(error?.message || 'An error occurred. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
       <main>
+
         <section className="pageheader3 overflow-hidden">
                   <div className="container">
                     <div className="pageheader__content">
@@ -19,32 +88,72 @@ const Contact = () => {
               <div className="col-lg-6">
                 <div className="contact__form">
                   <h3>Get In Touch</h3>
-                  <form>
+                  <form onSubmit={handleSubmit}>
                     <div className="row g-3">
                       <div className="col-md-6">
-                        <input type="text" placeholder="First Name" />
+                        <input
+                          type="text"
+                          placeholder="First Name"
+                          value={form.firstName}
+                          onChange={(e) => setForm((p) => ({ ...p, firstName: e.target.value }))}
+                          disabled={isSubmitting}
+                        />
                       </div>
                       <div className="col-md-6">
-                        <input type="text" placeholder="Last Name" />
+                        <input
+                          type="text"
+                          placeholder="Last Name"
+                          value={form.lastName}
+                          onChange={(e) => setForm((p) => ({ ...p, lastName: e.target.value }))}
+                          disabled={isSubmitting}
+                        />
                       </div>
                       <div className="col-12">
-                        <input type="tel" placeholder="Contact Number" />
+                        <input
+                          type="tel"
+                          placeholder="Contact Number"
+                          value={form.phone}
+                          onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                          disabled={isSubmitting}
+                        />
                       </div>
                       <div className="col-12">
-                        <input type="email" placeholder="Email Address" />
+                        <input
+                          type="email"
+                          placeholder="Email Address"
+                          value={form.email}
+                          onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                          disabled={isSubmitting}
+                          required
+                        />
                       </div>
                       <div className="col-12">
-                        <input type="text" placeholder="Subject" />
+                        <input
+                          type="text"
+                          placeholder="Subject"
+                          value={form.subject}
+                          onChange={(e) => setForm((p) => ({ ...p, subject: e.target.value }))}
+                          disabled={isSubmitting}
+                        />
                       </div>
                       <div className="col-12">
-                        <textarea placeholder="Your Message"></textarea>
+                        <textarea
+                          placeholder="Your Message"
+                          value={form.message}
+                          onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))}
+                          disabled={isSubmitting}
+                          required
+                        ></textarea>
                       </div>
                       <div className="col-12">
-                        <button type="submit" className="custom-btn">Send Message</button>
+                        <button type="submit" className="custom-btn" disabled={isSubmitting}>
+                          {isSubmitting ? 'Sending...' : 'Send Message'}
+                        </button>
                       </div>
                     </div>
                   </form>
                 </div>
+
               </div>
               <div className="col-lg-6">
                 <div className="contact__info">

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiUrl } from '../utils/api';
 
 // Create Auth Context
 const AuthContext = createContext();
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const response = await fetch('/backend/api/check_auth.php', {
+        const response = await fetch(apiUrl('/backend/api/check_auth.php'), {
           method: 'GET',
           credentials: 'include', // Include cookies
           headers: {
@@ -29,7 +30,13 @@ export const AuthProvider = ({ children }) => {
           },
         });
 
-        const data = await response.json();
+        const text = await response.text();
+        let data = {};
+        try {
+          data = text ? JSON.parse(text) : {};
+        } catch (e) {
+          data = {};
+        }
         
         if (data.success && data.data) {
           setCurrentUser({
@@ -42,7 +49,6 @@ export const AuthProvider = ({ children }) => {
           setCurrentUser(null);
         }
       } catch (error) {
-        console.error('Error checking auth status:', error);
         setCurrentUser(null);
       } finally {
         setLoading(false);
