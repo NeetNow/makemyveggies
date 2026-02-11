@@ -139,17 +139,7 @@ const AdminLayout = () => {
               <span className="sidebar-icon me-2"><Tag size={16} /></span>
               <span className="sidebar-text">Categories</span>
             </NavLink>
-            <NavLink
-              to="/admin/content"
-              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => {
-                setIsProductsOpen(false);
-                closeMobileMenu();
-              }}
-            >
-              <span className="sidebar-icon me-2"><FileText size={16} /></span>
-              <span className="sidebar-text">Content</span>
-            </NavLink>
+            
             <NavLink
               to="/admin/newsletter"
               className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}

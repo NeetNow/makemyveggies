@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Footer from '../components/Footer';
 import { toast } from 'react-toastify';
 
-const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost/makemyveggies';
+const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
 
 const Contact = () => {
   const [form, setForm] = useState({
