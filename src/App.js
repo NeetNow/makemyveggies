@@ -8,6 +8,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { AdminAuthProvider } from './context/AdminAuthContext';
 
 // Homepage Components
 import Header from './components/Header';
@@ -113,11 +114,12 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          <ConditionalBodyZoom />
-          <ConditionalHeader />
-          <Fragment>
-            <Routes>
+        <AdminAuthProvider>
+          <Router>
+            <ConditionalBodyZoom />
+            <ConditionalHeader />
+            <Fragment>
+              <Routes>
               {/* Homepage */}
               <Route
                 path="/"
@@ -190,23 +192,24 @@ function App() {
                 <Route path="products/supplements/:id" element={<ViewSupplement />} />
                 <Route path="products/supplements/:id/edit" element={<EditSupplement />} />
               </Route>
-            </Routes>
+              </Routes>
 
             {/* Toast Container for notifications */}
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
-            />
-          </Fragment>
-        </Router>
+              <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+            </Fragment>
+          </Router>
+        </AdminAuthProvider>
       </CartProvider>
     </AuthProvider>
   );

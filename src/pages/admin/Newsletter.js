@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RotateCw } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useHasAnyPermission } from '../../rbac/useHasPermission';
 
 const AdminNewsletter = () => {
+  const canRefresh = useHasAnyPermission(['view.newsletter', 'update.newsletter']);
+
   const [subscribers, setSubscribers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -85,6 +88,7 @@ const AdminNewsletter = () => {
   }, [query, subscribers]);
 
   const handleRefresh = async () => {
+    if (!canRefresh) return;
     await fetchSubscribers();
     toast.success('Subscribers refreshed');
   };
@@ -109,10 +113,18 @@ const AdminNewsletter = () => {
             />
           </div>
 
-          <button type="button" className="btn btn-sm btn-success" onClick={handleRefresh} disabled={loading}>
-            <RotateCw size={16} className={loading ? 'me-2' : 'me-2'} />
-            Refresh
-          </button>
+          {canRefresh && (
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-success"
+              onClick={handleRefresh}
+              disabled={loading}
+              aria-label="Refresh"
+              title="Refresh"
+            >
+            <RotateCw size={16} />
+            </button>
+          )}
         </div>
       </div>
 

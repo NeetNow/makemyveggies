@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    $auth = verifyAdminJWTFromCookie(['admin', 'super_admin']);
+    $auth = verifyAdminJWTFromCookie([]);
     if (!$auth['success']) {
         http_response_code(401);
         echo json_encode(['status' => 'error', 'message' => $auth['message']]);
@@ -36,6 +36,8 @@ try {
         echo json_encode(['status' => 'error', 'message' => 'Database connection failed']);
         exit();
     }
+
+    requireAnyAdminPermission($pdo, $auth['user'], ['view.user', 'view.customer']);
 
     $search = isset($_GET['search']) ? trim((string)$_GET['search']) : '';
 

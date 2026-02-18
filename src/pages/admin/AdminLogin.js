@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { getApiBase } from '../../utils/api';
 import '../../assets/css/auth.css';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
+  const API_BASE = getApiBase();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -14,7 +16,7 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('/backend/api/admin/login.php', {
+      const response = await fetch(`${API_BASE}/backend/api/admin/login.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

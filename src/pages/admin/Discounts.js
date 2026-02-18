@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Tag, RefreshCw, Pencil, X } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useHasPermission } from '../../rbac/useHasPermission';
 
 const Discounts = () => {
+  const canUpdateProduct = useHasPermission('update.product');
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [products, setProducts] = useState([]);
@@ -129,6 +132,7 @@ const Discounts = () => {
   };
 
   const openManageDiscount = async (productId) => {
+    if (!canUpdateProduct) return;
     setActiveModal(true);
     setDetailLoading(true);
     setProductDetails(null);
@@ -266,9 +270,15 @@ const Discounts = () => {
           <h4 className="mb-1">Discounts & Promotions</h4>
           <p className="text-muted mb-0 small">Manage product-level discounts shown on your store.</p>
         </div>
-        <button type="button" className="btn btn-sm btn-success" onClick={handleRefresh} disabled={loading || refreshing}>
-          <RefreshCw size={16} className="me-2" />
-          {refreshing ? 'Refreshing...' : 'Refresh'}
+        <button
+          type="button"
+          className="btn btn-sm btn-outline-success"
+          onClick={handleRefresh}
+          disabled={loading || refreshing}
+          aria-label="Refresh"
+          title="Refresh"
+        >
+          <RefreshCw size={16} />
         </button>
       </div>
 
@@ -365,14 +375,17 @@ const Discounts = () => {
                             )}
                           </td>
                           <td className="text-end">
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-outline-primary"
-                              onClick={() => openManageDiscount(p.id)}
-                            >
-                              <Pencil size={16} className="me-2" />
-                              Manage
-                            </button>
+                            {canUpdateProduct && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() => openManageDiscount(p.id)}
+                                aria-label="Manage"
+                                title="Manage"
+                              >
+                                <Pencil size={16} />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       );

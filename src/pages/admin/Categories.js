@@ -1,8 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useHasPermission } from '../../rbac/useHasPermission';
 
 const Categories = () => {
+  const canAddCategory = useHasPermission('add.category');
+  const canUpdateCategory = useHasPermission('update.category');
+  const canDeleteCategory = useHasPermission('delete.category');
+
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -210,9 +215,11 @@ const Categories = () => {
     <div className="container-fluid">
       <div className="d-flex align-items-center justify-content-between mb-3">
         <h4 className="mb-0">Categories</h4>
-        <button type="button" className="btn btn-sm btn-success" onClick={openAddModal}>
-          Add Category
-        </button>
+        {canAddCategory && (
+          <button type="button" className="btn btn-sm btn-success" onClick={openAddModal}>
+            Add Category
+          </button>
+        )}
       </div>
 
       {loading && <p className="text-muted mb-0">Loading...</p>}
@@ -252,22 +259,26 @@ const Categories = () => {
                         >
                           <Eye size={16} />
                         </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => openEditModal(c)}
-                          aria-label="Edit"
-                        >
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => openDeleteModal(c)}
-                          aria-label="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        {canUpdateCategory && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => openEditModal(c)}
+                            aria-label="Edit"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                        )}
+                        {canDeleteCategory && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => openDeleteModal(c)}
+                            aria-label="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

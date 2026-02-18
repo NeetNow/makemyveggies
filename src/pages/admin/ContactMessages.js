@@ -1,8 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Eye, RotateCw, Trash2 } from 'lucide-react';
+import { Archive, Eye, RotateCw, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useHasPermission } from '../../rbac/useHasPermission';
 
 const ContactMessages = () => {
+  const canUpdateMessage = useHasPermission('update.contact_message');
+  const canDeleteMessage = useHasPermission('delete.contact_message');
+
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,6 +77,7 @@ const ContactMessages = () => {
   const closeModal = () => setSelected(null);
 
   const updateStatus = async (id, nextStatus) => {
+    if (!canUpdateMessage) return;
     setIsUpdating(true);
 
     try {
@@ -101,6 +106,7 @@ const ContactMessages = () => {
   };
 
   const deleteMessage = async (id) => {
+    if (!canDeleteMessage) return;
     setIsUpdating(true);
 
     try {
@@ -155,9 +161,15 @@ const ContactMessages = () => {
             <option value="archived">Archived</option>
           </select>
 
-          <button type="button" className="btn btn-sm btn-success" onClick={fetchMessages} disabled={loading}>
-            <RotateCw size={16} className="me-2" />
-            Refresh
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-success"
+            onClick={fetchMessages}
+            disabled={loading}
+            aria-label="Refresh"
+            title="Refresh"
+          >
+            <RotateCw size={16} />
           </button>
         </div>
       </div>
@@ -263,24 +275,30 @@ const ContactMessages = () => {
                       className="btn btn-outline-primary btn-sm"
                       onClick={() => updateStatus(selected.id, 'read')}
                       disabled={isUpdating}
+                      aria-label="Mark Read"
+                      title="Mark Read"
                     >
-                      Mark Read
+                      <Eye size={16} />
                     </button>
                     <button
                       type="button"
                       className="btn btn-outline-secondary btn-sm"
                       onClick={() => updateStatus(selected.id, 'archived')}
                       disabled={isUpdating}
+                      aria-label="Archive"
+                      title="Archive"
                     >
-                      Archive
+                      <Archive size={16} />
                     </button>
                     <button
                       type="button"
                       className="btn btn-outline-success btn-sm"
                       onClick={() => updateStatus(selected.id, 'new')}
                       disabled={isUpdating}
+                      aria-label="Mark New"
+                      title="Mark New"
                     >
-                      Mark New
+                      New
                     </button>
                   </div>
 

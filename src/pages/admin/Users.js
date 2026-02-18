@@ -1,18 +1,34 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
+import { getApiBase } from '../../utils/api';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 
 const Users = () => {
-  const API_BASE = process.env.PUBLIC_URL || '';
+  const API_BASE = getApiBase();
   const apiPrefix = `${API_BASE}/backend/api/admin`;
+
+  const { refresh: refreshAdminAuth } = useAdminAuth();
 
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [permissions, setPermissions] = useState([]);
   const [search, setSearch] = useState('');
+
+  const [activeTab, setActiveTab] = useState('users');
+
+  const roleAssignedUsers = useMemo(() => {
+    return (Array.isArray(users) ? users : []).filter((u) => Array.isArray(u?.roles) && u.roles.length > 0);
+  }, [users]);
 
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [roleSaving, setRoleSaving] = useState(false);
+  const [roleDeletingId, setRoleDeletingId] = useState(null);
+  const [roleForm, setRoleForm] = useState({ id: null, name: '', permissionIds: [] });
 
   const emptyForm = useMemo(
     () => ({
@@ -41,6 +57,168 @@ const Users = () => {
     }
   };
 
+  const permissionMatrix = useMemo(() => {
+    const list = Array.isArray(permissions) ? permissions : [];
+    const actionsSet = new Set();
+    const modulesSet = new Set();
+
+    const byModuleAction = new Map();
+    for (const p of list) {
+      const name = String(p?.name || '');
+      const idx = name.indexOf('.');
+      if (idx <= 0 || idx === name.length - 1) continue;
+
+      const action = name.slice(0, idx).trim();
+      const module = name.slice(idx + 1).trim();
+      if (!action || !module) continue;
+
+      actionsSet.add(action);
+      modulesSet.add(module);
+
+      const key = `${module}::${action}`;
+      byModuleAction.set(key, Number(p?.id));
+    }
+
+    const preferredActionOrder = ['view', 'add', 'create', 'update', 'edit', 'delete', 'export', 'import', 'approve', 'manage'];
+    const actions = Array.from(actionsSet);
+    actions.sort((a, b) => {
+      const ai = preferredActionOrder.indexOf(a);
+      const bi = preferredActionOrder.indexOf(b);
+      if (ai !== -1 || bi !== -1) {
+        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+      }
+      return a.localeCompare(b);
+    });
+
+    const modules = Array.from(modulesSet).sort((a, b) => a.localeCompare(b));
+
+    const getId = (module, action) => {
+      const id = byModuleAction.get(`${module}::${action}`);
+      const n = Number(id);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    };
+
+    const modulePermissionIds = (moduleName) => {
+      const ids = [];
+      for (const action of actions) {
+        const id = getId(moduleName, action);
+        if (id) ids.push(id);
+      }
+      return ids;
+    };
+
+    const allPermissionIds = list
+      .map((x) => Number(x?.id))
+      .filter((x) => Number.isFinite(x) && x > 0);
+
+    return { actions, modules, getId, modulePermissionIds, allPermissionIds };
+  }, [permissions]);
+
+  const openCreateRole = () => {
+    setRoleForm({ id: null, name: '', permissionIds: [] });
+    setShowRoleModal(true);
+  };
+
+  const openEditRole = async (r) => {
+    if (!r?.id) return;
+    setRoleSaving(true);
+    try {
+      const res = await fetch(`${apiPrefix}/get_role_permissions.php?role_id=${encodeURIComponent(String(r.id))}`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+      const data = await readJsonSafe(res);
+      if (!res.ok || data?.status !== 'success') {
+        throw new Error(data?.message || 'Failed to load role permissions');
+      }
+      const ids = Array.isArray(data.permissionIds) ? data.permissionIds.map((x) => Number(x)).filter((x) => Number.isFinite(x) && x > 0) : [];
+      setRoleForm({ id: r.id, name: r.name || '', permissionIds: ids });
+      setShowRoleModal(true);
+    } catch (e) {
+      toast.error(e?.message || 'Failed to load role');
+    } finally {
+      setRoleSaving(false);
+    }
+  };
+
+  const closeRoleModal = () => {
+    if (roleSaving) return;
+    setShowRoleModal(false);
+  };
+
+  const toggleRolePermission = (permId) => {
+    setRoleForm((prev) => {
+      const n = Number(permId);
+      const has = prev.permissionIds.includes(n);
+      return { ...prev, permissionIds: has ? prev.permissionIds.filter((x) => x !== n) : [...prev.permissionIds, n] };
+    });
+  };
+
+  const saveRole = async () => {
+    const name = (roleForm.name || '').trim();
+    if (!name) {
+      toast.error('Role name is required');
+      return;
+    }
+
+    setRoleSaving(true);
+    try {
+      const isEdit = !!roleForm.id;
+      const endpoint = isEdit ? 'update_role.php' : 'create_role.php';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const payload = isEdit
+        ? { id: roleForm.id, name, permissionIds: roleForm.permissionIds }
+        : { name, permissionIds: roleForm.permissionIds };
+
+      const res = await fetch(`${apiPrefix}/${endpoint}`, {
+        method,
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await readJsonSafe(res);
+      if (!res.ok || data?.status !== 'success') {
+        throw new Error(data?.message || 'Failed to save role');
+      }
+
+      toast.success(isEdit ? 'Role updated' : 'Role created');
+      setShowRoleModal(false);
+      await loadRoles();
+      await refreshAdminAuth();
+    } catch (e) {
+      toast.error(e?.message || 'Failed to save role');
+    } finally {
+      setRoleSaving(false);
+    }
+  };
+
+  const deleteRole = async (roleId) => {
+    if (!roleId) return;
+    setRoleDeletingId(roleId);
+    try {
+      const res = await fetch(`${apiPrefix}/delete_role.php`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: roleId })
+      });
+
+      const data = await readJsonSafe(res);
+      if (!res.ok || data?.status !== 'success') {
+        throw new Error(data?.message || 'Failed to delete role');
+      }
+
+      toast.success('Role deleted');
+      await loadRoles();
+    } catch (e) {
+      toast.error(e?.message || 'Failed to delete role');
+    } finally {
+      setRoleDeletingId(null);
+    }
+  };
+
   const loadRoles = async () => {
     const res = await fetch(`${apiPrefix}/get_roles.php`, {
       method: 'GET',
@@ -51,6 +229,18 @@ const Users = () => {
       throw new Error(data?.message || 'Failed to load roles');
     }
     setRoles(Array.isArray(data.roles) ? data.roles : []);
+  };
+
+  const loadPermissions = async () => {
+    const res = await fetch(`${apiPrefix}/get_permissions.php`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+    const data = await readJsonSafe(res);
+    if (!res.ok || data?.status !== 'success') {
+      throw new Error(data?.message || 'Failed to load permissions');
+    }
+    setPermissions(Array.isArray(data.permissions) ? data.permissions : []);
   };
 
   const loadUsers = async () => {
@@ -73,7 +263,7 @@ const Users = () => {
   const refresh = async () => {
     setLoading(true);
     try {
-      await Promise.all([loadRoles(), loadUsers()]);
+      await Promise.all([loadRoles(), loadUsers(), loadPermissions()]);
     } catch (e) {
       toast.error(e?.message || 'Failed to load users');
     } finally {
@@ -200,95 +390,179 @@ const Users = () => {
           <small className="text-muted">Only super admins can create/update/delete users.</small>
         </div>
         <div className="d-flex align-items-center gap-2 flex-wrap">
-          <input
-            className="form-control"
-            placeholder="Search name/email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ minWidth: 220 }}
-          />
-          <button type="button" className="btn btn-success" onClick={openCreate}>
-            + Add User
-          </button>
+          {activeTab === 'users' && (
+            <>
+              <input
+                className="form-control"
+                placeholder="Search name/email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ minWidth: 220 }}
+              />
+              <button type="button" className="btn btn-success" onClick={openCreate}>
+                + Add User
+              </button>
+            </>
+          )}
+          {activeTab === 'roles' && (
+            <button type="button" className="btn btn-success" onClick={openCreateRole}>
+              + Create Role
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="card shadow-sm">
-        <div className="card-body">
-          {loading ? (
-            <div className="text-muted">Loading...</div>
-          ) : (
-            <div className="table-responsive">
-              <table className="table table-striped align-middle mb-0">
-                <thead className="table-light">
-                  <tr>
-                    <th style={{ width: 80 }}>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th style={{ width: 140 }}>Active</th>
-                    <th style={{ width: 160 }}>Verified</th>
-                    <th>Roles</th>
-                    <th style={{ width: 220 }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.length === 0 ? (
+      <ul className="nav nav-tabs mb-3">
+        <li className="nav-item">
+          <button
+            type="button"
+            className={`nav-link ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => setActiveTab('users')}
+          >
+            Users
+          </button>
+        </li>
+        <li className="nav-item">
+          <button
+            type="button"
+            className={`nav-link ${activeTab === 'roles' ? 'active' : ''}`}
+            onClick={() => setActiveTab('roles')}
+          >
+            Roles
+          </button>
+        </li>
+      </ul>
+
+      {activeTab === 'users' && (
+        <div className="card shadow-sm">
+          <div className="card-body">
+            {loading ? (
+              <div className="text-muted">Loading...</div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-striped align-middle mb-0">
+                  <thead className="table-light">
                     <tr>
-                      <td colSpan={7} className="text-center text-muted py-4">
-                        No users found.
-                      </td>
+                      <th style={{ width: 80 }}>ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th style={{ width: 140 }}>Active</th>
+                      <th style={{ width: 160 }}>Verified</th>
+                      <th>Roles</th>
+                      <th style={{ width: 220 }}>Actions</th>
                     </tr>
-                  ) : (
-                    users.map((u) => (
-                      <tr key={u.user_id}>
-                        <td>{u.user_id}</td>
-                        <td>{`${u.first_name || ''} ${u.last_name || ''}`.trim() || '—'}</td>
-                        <td>{u.email}</td>
-                        <td>
-                          <span className={`badge ${u.is_active ? 'bg-success' : 'bg-secondary'}`}>
-                            {u.is_active ? 'Active' : 'Inactive'}
-                          </span>
+                  </thead>
+                  <tbody>
+                    {roleAssignedUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="text-center text-muted py-4">
+                          No users found.
                         </td>
-                        <td>
-                          <span className={`badge ${u.email_verified ? 'bg-success' : 'bg-warning text-dark'}`}>
-                            {u.email_verified ? 'Verified' : 'Not verified'}
-                          </span>
-                        </td>
-                        <td>
-                          {(Array.isArray(u.roles) ? u.roles : []).length ? (
-                            (u.roles || []).map((r) => (
-                              <span key={r} className="badge bg-primary me-1">
-                                {r}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-muted">—</span>
-                          )}
-                        </td>
+                      </tr>
+                    ) : (
+                      roleAssignedUsers.map((u) => (
+                        <tr key={u.user_id}>
+                          <td>{u.user_id}</td>
+                          <td>{`${u.first_name || ''} ${u.last_name || ''}`.trim() || '—'}</td>
+                          <td>{u.email}</td>
+                          <td>
+                            <span className={`badge ${u.is_active ? 'bg-success' : 'bg-secondary'}`}>
+                              {u.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`badge ${u.email_verified ? 'bg-success' : 'bg-warning text-dark'}`}>
+                              {u.email_verified ? 'Verified' : 'Not verified'}
+                            </span>
+                          </td>
+                          <td>
+                            {(Array.isArray(u.roles) ? u.roles : []).length ? (
+                              (u.roles || []).map((r) => (
+                                <span key={r} className="badge bg-primary me-1">
+                                  {r}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                          </td>
+                          <td>
+                            <div className="d-flex gap-2 flex-wrap">
+                              <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => openEdit(u)}>
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() => remove(u.user_id)}
+                                disabled={deletingId === u.user_id}
+                              >
+                                {deletingId === u.user_id ? 'Deleting...' : 'Delete'}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'roles' && (
+        <div className="card shadow-sm">
+          <div className="card-body">
+            {loading ? (
+              <div className="text-muted">Loading...</div>
+            ) : roles.length === 0 ? (
+              <div className="text-muted">No roles found.</div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-striped align-middle mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th style={{ width: 80 }}>ID</th>
+                      <th>Role</th>
+                      <th style={{ width: 240 }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {roles.map((r) => (
+                      <tr key={r.id}>
+                        <td>{r.id}</td>
+                        <td className="fw-semibold">{r.name}</td>
                         <td>
                           <div className="d-flex gap-2 flex-wrap">
-                            <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => openEdit(u)}>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => openEditRole(r)}
+                              disabled={roleSaving}
+                            >
                               Edit
                             </button>
                             <button
                               type="button"
                               className="btn btn-sm btn-outline-danger"
-                              onClick={() => remove(u.user_id)}
-                              disabled={deletingId === u.user_id}
+                              onClick={() => deleteRole(r.id)}
+                              disabled={roleDeletingId === r.id}
                             >
-                              {deletingId === u.user_id ? 'Deleting...' : 'Delete'}
+                              {roleDeletingId === r.id ? 'Deleting...' : 'Delete'}
                             </button>
                           </div>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {showModal && (
         <div className="modal d-block" tabIndex={-1} role="dialog" style={{ background: 'rgba(0,0,0,0.55)' }}>
@@ -398,6 +672,153 @@ const Users = () => {
                 </button>
                 <button type="button" className="btn btn-success" onClick={save} disabled={saving}>
                   {saving ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRoleModal && (
+        <div className="modal d-block" tabIndex={-1} role="dialog" style={{ background: 'rgba(0,0,0,0.55)' }}>
+          <div className="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{roleForm.id ? 'Edit Role' : 'Create Role'}</h5>
+                <button type="button" className="btn-close" aria-label="Close" onClick={closeRoleModal} />
+              </div>
+              <div className="modal-body">
+                <div className="row g-3">
+                  <div className="col-12 col-lg-4">
+                    <label className="form-label">Role name</label>
+                    <input
+                      className="form-control"
+                      value={roleForm.name}
+                      onChange={(e) => setRoleForm((p) => ({ ...p, name: e.target.value }))}
+                      placeholder="e.g. product_manager"
+                    />
+                    <div className="text-muted small mt-2">Assign permissions to control admin actions.</div>
+                  </div>
+
+                  <div className="col-12 col-lg-8">
+                    <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
+                      <div className="fw-semibold">Permissions</div>
+                      <div className="text-muted small">Selected: {roleForm.permissionIds.length}</div>
+                    </div>
+                    <div className="border rounded p-2" style={{ maxHeight: 520, overflow: 'auto' }}>
+                      {permissions.length === 0 ? (
+                        <div className="text-muted">No permissions found.</div>
+                      ) : permissionMatrix.modules.length === 0 || permissionMatrix.actions.length === 0 ? (
+                        <div className="text-muted">No valid permission names found (expected format like add.product).</div>
+                      ) : (
+                        <>
+                          <div className="d-flex gap-2 flex-wrap mb-2">
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-secondary"
+                              onClick={() =>
+                                setRoleForm((p) => ({
+                                  ...p,
+                                  permissionIds: permissionMatrix.allPermissionIds
+                                }))
+                              }
+                              disabled={roleSaving}
+                            >
+                              Select all
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-secondary"
+                              onClick={() => setRoleForm((p) => ({ ...p, permissionIds: [] }))}
+                              disabled={roleSaving}
+                            >
+                              Clear
+                            </button>
+                          </div>
+
+                          <div className="table-responsive">
+                            <table className="table table-sm table-bordered align-middle mb-0">
+                              <thead className="table-light">
+                                <tr>
+                                  <th style={{ minWidth: 160 }}>Module</th>
+                                  <th style={{ width: 120 }}>All</th>
+                                  {permissionMatrix.actions.map((a) => (
+                                    <th key={a} style={{ minWidth: 110 }}>
+                                      {a}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {permissionMatrix.modules.map((m) => {
+                                  const ids = permissionMatrix.modulePermissionIds(m);
+                                  const selectedCount = ids.filter((id) => roleForm.permissionIds.includes(id)).length;
+                                  const allSelected = ids.length > 0 && selectedCount === ids.length;
+
+                                  return (
+                                    <tr key={m}>
+                                      <td className="fw-semibold">{m}</td>
+                                      <td>
+                                        <div className="form-check mb-0">
+                                          <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            checked={allSelected}
+                                            onChange={() => {
+                                              setRoleForm((p) => {
+                                                const current = Array.isArray(p.permissionIds) ? p.permissionIds : [];
+                                                if (allSelected) {
+                                                  return { ...p, permissionIds: current.filter((x) => !ids.includes(x)) };
+                                                }
+                                                return { ...p, permissionIds: Array.from(new Set([...current, ...ids])) };
+                                              });
+                                            }}
+                                            disabled={roleSaving}
+                                            id={`mod-${m}`}
+                                          />
+                                          <label className="form-check-label" htmlFor={`mod-${m}`}>
+                                            {selectedCount}/{ids.length}
+                                          </label>
+                                        </div>
+                                      </td>
+                                      {permissionMatrix.actions.map((a) => {
+                                        const id = permissionMatrix.getId(m, a);
+                                        if (!id) return <td key={`${m}-${a}`} />;
+
+                                        const checked = roleForm.permissionIds.includes(id);
+                                        return (
+                                          <td key={`${m}-${a}`}>
+                                            <div className="form-check mb-0">
+                                              <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                checked={checked}
+                                                onChange={() => toggleRolePermission(id)}
+                                                disabled={roleSaving}
+                                                id={`perm-${id}`}
+                                              />
+                                            </div>
+                                          </td>
+                                        );
+                                      })}
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline-secondary" onClick={closeRoleModal} disabled={roleSaving}>
+                  Cancel
+                </button>
+                <button type="button" className="btn btn-success" onClick={saveRole} disabled={roleSaving}>
+                  {roleSaving ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </div>

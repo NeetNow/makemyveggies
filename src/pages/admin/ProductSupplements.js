@@ -2,12 +2,17 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { useHasPermission } from '../../rbac/useHasPermission';
 
 const SUPPLEMENTS_CATEGORIES = ['supplements', 'suppliments', 'supplement'];
 
 const ProductSupplements = () => {
   const API_PREFIX = `${process.env.PUBLIC_URL || ''}/backend`;
   const ROWS_PER_PAGE = 9;
+
+  const canAddProduct = useHasPermission('add.product');
+  const canUpdateProduct = useHasPermission('update.product');
+  const canDeleteProduct = useHasPermission('delete.product');
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -228,9 +233,11 @@ const ProductSupplements = () => {
     <div className="container-fluid">
       <div className="d-flex align-items-center justify-content-between mb-3">
         <h4 className="mb-0">Supplements</h4>
-        <button type="button" className="btn btn-success btn-sm" onClick={() => navigate('/admin/products/supplements/add')}>
-          Add Supplement
-        </button>
+        {canAddProduct && (
+          <button type="button" className="btn btn-success btn-sm" onClick={() => navigate('/admin/products/supplements/add')}>
+            Add Supplement
+          </button>
+        )}
       </div>
 
       <div className="card mb-3">
@@ -369,32 +376,38 @@ const ProductSupplements = () => {
                           <div className="text-muted small">Stock: {p.stock ?? 0}</div>
                         </div>
 
-                        <div className="mt-3 d-flex gap-2">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onEdit(p);
-                            }}
-                            aria-label="Edit"
-                            title="Edit"
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete(p);
-                            }}
-                            aria-label="Delete"
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
+                        {(canUpdateProduct || canDeleteProduct) && (
+                          <div className="mt-3 d-flex gap-2">
+                            {canUpdateProduct && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onEdit(p);
+                                }}
+                                aria-label="Edit"
+                                title="Edit"
+                              >
+                                <Pencil size={16} />
+                              </button>
+                            )}
+                            {canDeleteProduct && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDelete(p);
+                                }}
+                                aria-label="Delete"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
