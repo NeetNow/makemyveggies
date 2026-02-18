@@ -1,9 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Pencil, Trash2 } from 'lucide-react';
+import { useHasPermission } from '../../rbac/useHasPermission';
+import { getApiBase } from '../../utils/api';
 
 const ViewOrder = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
+  const API_BASE = getApiBase();
+
+  const canUpdateOrder = useHasPermission('update.order');
+  const canDeleteOrder = useHasPermission('delete.order');
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -153,12 +159,28 @@ const ViewOrder = () => {
           <Link to="/admin/orders" className="btn btn-outline-secondary btn-sm">
             Orders List
           </Link>
-          <Link to={`/admin/orders/${id}`} className="btn btn-outline-success btn-sm">
-            Edit
-          </Link>
-          <button type="button" className="btn btn-outline-danger btn-sm" onClick={openCancelModal} disabled={cancelling}>
-            Delete
-          </button>
+          {canUpdateOrder && (
+            <Link
+              to={`/admin/orders/${id}`}
+              className="btn btn-outline-success btn-sm"
+              aria-label="Edit"
+              title="Edit"
+            >
+              <Pencil size={16} />
+            </Link>
+          )}
+          {canDeleteOrder && (
+            <button
+              type="button"
+              className="btn btn-outline-danger btn-sm"
+              onClick={openCancelModal}
+              disabled={cancelling}
+              aria-label="Delete"
+              title="Delete"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
         </div>
       </div>
 

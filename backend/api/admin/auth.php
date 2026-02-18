@@ -40,16 +40,22 @@ function verifyAdminJWTFromCookie(array $requiredRoles = ['admin', 'super_admin'
             }
         }
 
-        $hasRole = false;
-        foreach ($requiredRoles as $rr) {
-            if (in_array($rr, $roles, true)) {
-                $hasRole = true;
-                break;
+        if (count($requiredRoles) === 0) {
+            if (count($roles) === 0) {
+                return ['success' => false, 'message' => 'Forbidden'];
             }
-        }
+        } else {
+            $hasRole = false;
+            foreach ($requiredRoles as $rr) {
+                if (in_array($rr, $roles, true)) {
+                    $hasRole = true;
+                    break;
+                }
+            }
 
-        if (!$hasRole) {
-            return ['success' => false, 'message' => 'Forbidden'];
+            if (!$hasRole) {
+                return ['success' => false, 'message' => 'Forbidden'];
+            }
         }
 
         $data['roles'] = $roles;
@@ -67,5 +73,87 @@ function readJsonInput() {
         return null;
     }
     return $input;
+}
+
+function getAdminPermissions(PDO $pdo, int $userId) {
+    $stmt = $pdo->prepare(
+        "SELECT DISTINCT p.name
+        FROM user_roles ur
+        INNER JOIN role_permissions rp ON rp.role_id = ur.role_id
+        INNER JOIN permissions p ON p.id = rp.permission_id
+        WHERE ur.user_id = ?"
+    );
+    $stmt->execute([$userId]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $perms = [];
+    foreach ($rows as $r) {
+        if (!empty($r['name'])) {
+            $perms[] = $r['name'];
+        }
+    }
+    return $perms;
+}
+
+function requireAdminPermission(PDO $pdo, array $authUser, string $permissionName) {
+    $roles = [];
+    if (isset($authUser['roles']) && is_array($authUser['roles'])) {
+        $roles = $authUser['roles'];
+    }
+
+    if (in_array('super_admin', $roles, true)) {
+        return true;
+    }
+
+    $userId = isset($authUser['user_id']) ? (int)$authUser['user_id'] : 0;
+    if ($userId <= 0) {
+        http_response_code(401);
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        exit();
+    }
+
+    $perms = getAdminPermissions($pdo, $userId);
+    if (!in_array($permissionName, $perms, true)) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+        exit();
+    }
+
+    return true;
+}
+
+function requireAnyAdminPermission(PDO $pdo, array $authUser, array $permissionNames) {
+    $roles = [];
+    if (isset($authUser['roles']) && is_array($authUser['roles'])) {
+        $roles = $authUser['roles'];
+    }
+
+    if (in_array('super_admin', $roles, true)) {
+        return true;
+    }
+
+    $userId = isset($authUser['user_id']) ? (int)$authUser['user_id'] : 0;
+    if ($userId <= 0) {
+        http_response_code(401);
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        exit();
+    }
+
+    if (!is_array($permissionNames) || count($permissionNames) === 0) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+        exit();
+    }
+
+    $perms = getAdminPermissions($pdo, $userId);
+    foreach ($permissionNames as $p) {
+        if (in_array((string)$p, $perms, true)) {
+            return true;
+        }
+    }
+
+    http_response_code(403);
+    echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+    exit();
 }
 ?>

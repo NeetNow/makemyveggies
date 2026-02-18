@@ -1,9 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Eye, Pencil, XCircle } from 'lucide-react';
+import { useHasPermission } from '../../rbac/useHasPermission';
+import { getApiBase } from '../../utils/api';
 
 const Orders = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
+  const API_BASE = getApiBase();
+
+  const canViewOrder = useHasPermission('view.order');
+  const canUpdateOrder = useHasPermission('update.order');
+  const canDeleteOrder = useHasPermission('delete.order');
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -255,19 +262,37 @@ const Orders = () => {
                         <td className="text-muted">{o.placedAt}</td>
                         <td className="text-end">
                           <div className="d-inline-flex gap-2">
-                            <Link to={`/admin/orders/${o.id}`} className="btn btn-sm btn-outline-primary">
-                              View
-                            </Link>
-                            <Link to={`/admin/orders/${o.id}`} className="btn btn-sm btn-outline-success">
-                              Edit
-                            </Link>
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={() => openCancelModal(o)}
-                            >
-                              Delete
-                            </button>
+                            {canViewOrder && (
+                              <Link
+                                to={`/admin/orders/${o.id}`}
+                                className="btn btn-sm btn-outline-primary"
+                                aria-label="View"
+                                title="View"
+                              >
+                                <Eye size={16} />
+                              </Link>
+                            )}
+                            {(canUpdateOrder || canDeleteOrder) && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={() => openCancelModal(o)}
+                                aria-label="Cancel"
+                                title="Cancel"
+                              >
+                                <XCircle size={16} />
+                              </button>
+                            )}
+                            {canUpdateOrder && (
+                              <Link
+                                to={`/admin/orders/${o.id}`}
+                                className="btn btn-sm btn-outline-success"
+                                aria-label="Edit"
+                                title="Edit"
+                              >
+                                <Pencil size={16} />
+                              </Link>
+                            )}
                           </div>
                         </td>
                       </tr>

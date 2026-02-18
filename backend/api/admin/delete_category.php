@@ -4,6 +4,7 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/auth.php';
 
 setCorsHeaders();
 
@@ -21,6 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
+    $auth = verifyAdminJWTFromCookie([]);
+    if (!$auth['success']) {
+        http_response_code(401);
+        echo json_encode(['status' => 'error', 'message' => $auth['message']]);
+        exit();
+    }
+
     $input = json_decode(file_get_contents('php://input'), true);
 
     $id = isset($input['id']) ? (int)$input['id'] : 0;
@@ -39,6 +47,8 @@ try {
         echo json_encode(['status' => 'error', 'message' => 'Database connection failed']);
         exit();
     }
+
+    requireAdminPermission($conn, $auth['user'], 'delete.category');
 
     $sql = "DELETE FROM categories WHERE category_id = :id";
     $stmt = $conn->prepare($sql);

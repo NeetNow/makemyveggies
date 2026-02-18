@@ -51,7 +51,7 @@ try {
         sendResponse(false, 'Database connection failed: ' . $e->getMessage(), null, 500);
     }
 
-    // Check if user exists, is active, verified, and has an admin role
+    // Check if user exists, is active, verified, and has at least one role assigned
     $query = "
         SELECT u.user_id, u.first_name, u.last_name, u.password, u.email, u.email_verified, u.is_active
         FROM users u
@@ -60,7 +60,6 @@ try {
         WHERE u.email = ?
           AND u.is_active = 1
           AND u.email_verified = 1
-          AND r.name IN ('admin', 'super_admin')
         GROUP BY u.user_id
         LIMIT 1
     ";
@@ -96,7 +95,7 @@ try {
         }
     }
     if (empty($roles)) {
-        $roles = ['admin'];
+        sendResponse(false, 'No role assigned to this user', null, 403);
     }
 
     // JWT Configuration

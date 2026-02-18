@@ -5,9 +5,7 @@ ini_set('log_errors', 1);
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
-
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+require_once __DIR__ . '/auth.php';
 
 setCorsHeaders();
 
@@ -18,46 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 header('Content-Type: application/json');
 
-function verifyAdminJWTFromCookie() {
-    $jwt_secret = $_ENV['JWT_SECRET'] ?? 'your-super-secret-jwt-key-change-this-in-production-2024';
-    $jwt_algorithm = 'HS256';
-
-    try {
-        if (!isset($_COOKIE['admin_auth_token'])) {
-            return ['success' => false, 'message' => 'No authentication token found'];
-        }
-
-        $jwt_token = $_COOKIE['admin_auth_token'];
-        $decoded = JWT::decode($jwt_token, new Key($jwt_secret, $jwt_algorithm));
-        $data = (array)$decoded;
-
-        if (isset($data['exp']) && $data['exp'] < time()) {
-            return ['success' => false, 'message' => 'Token has expired'];
-        }
-
-        $roles = [];
-        if (isset($data['roles'])) {
-            if (is_array($data['roles'])) {
-                $roles = $data['roles'];
-            } elseif (is_object($data['roles'])) {
-                $roles = (array)$data['roles'];
-            } elseif (is_string($data['roles'])) {
-                $decodedRoles = json_decode($data['roles'], true);
-                if (is_array($decodedRoles)) $roles = $decodedRoles;
-            }
-        }
-
-        if (!in_array('admin', $roles, true) && !in_array('super_admin', $roles, true)) {
-            return ['success' => false, 'message' => 'Forbidden'];
-        }
-
-        return ['success' => true, 'user' => $data];
-    } catch (Exception $e) {
-        error_log('Admin JWT verification error: ' . $e->getMessage());
-        return ['success' => false, 'message' => 'Invalid token'];
-    }
-}
-
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
@@ -65,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    $auth = verifyAdminJWTFromCookie();
+    $auth = verifyAdminJWTFromCookie([]);
     if (!$auth['success']) {
         http_response_code(401);
         echo json_encode(['status' => 'error', 'message' => $auth['message']]);
@@ -87,6 +45,8 @@ try {
         echo json_encode(['status' => 'error', 'message' => 'Database connection failed']);
         exit();
     }
+
+    requireAdminPermission($pdo, $auth['user'], 'view.order');
 
     $orderRow = null;
     $shippingAddressText = '';

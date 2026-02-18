@@ -1,9 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useHasPermission } from '../../rbac/useHasPermission';
 
 const ViewSupplement = () => {
   const API_PREFIX = `${process.env.PUBLIC_URL || ''}/backend`;
+
+  const canUpdateProduct = useHasPermission('update.product');
+  const canDeleteProduct = useHasPermission('delete.product');
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -113,12 +117,16 @@ const ViewSupplement = () => {
           <div className="text-muted small">Product details</div>
         </div>
         <div className="d-flex gap-2">
-          <button type="button" className="btn btn-outline-primary btn-sm" onClick={onEdit}>
-            Edit
-          </button>
-          <button type="button" className="btn btn-outline-danger btn-sm" onClick={onDelete}>
-            Delete
-          </button>
+          {canUpdateProduct && (
+            <button type="button" className="btn btn-outline-primary btn-sm" onClick={onEdit}>
+              Edit
+            </button>
+          )}
+          {canDeleteProduct && (
+            <button type="button" className="btn btn-outline-danger btn-sm" onClick={onDelete}>
+              Delete
+            </button>
+          )}
           <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate('/admin/products/supplements')}>
             Back
           </button>

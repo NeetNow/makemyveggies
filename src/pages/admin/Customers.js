@@ -1,6 +1,82 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
+import { getApiBase } from '../../utils/api';
+import { useHasPermission } from '../../rbac/useHasPermission';
 
 const Customers = () => {
+  const API_BASE = getApiBase();
+  const apiPrefix = `${API_BASE}/backend/api/admin`;
+
+  const canViewCustomers = useHasPermission('view.customer');
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState('');
+
+  const customers = useMemo(() => {
+    return (Array.isArray(users) ? users : []).filter((u) => !Array.isArray(u?.roles) || u.roles.length === 0);
+  }, [users]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return customers;
+    return customers.filter((u) => {
+      const hay = [u?.first_name, u?.last_name, u?.email, u?.phone]
+        .filter(Boolean)
+        .map((v) => String(v).toLowerCase())
+        .join(' ');
+      return hay.includes(q);
+    });
+  }, [customers, search]);
+
+  useEffect(() => {
+    const load = async () => {
+      if (!canViewCustomers) {
+        setLoading(false);
+        setUsers([]);
+        setError('Access denied');
+        return;
+      }
+
+      setLoading(true);
+      setError('');
+      try {
+        const params = new URLSearchParams();
+        if (search.trim()) params.set('search', search.trim());
+
+        const res = await fetch(`${apiPrefix}/get_users.php?${params.toString()}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        const text = await res.text();
+        let data;
+        try {
+          data = text ? JSON.parse(text) : {};
+        } catch (e) {
+          const preview = text?.slice(0, 200) || '';
+          throw new Error(`Invalid server response. ${preview}`);
+        }
+
+        if (!res.ok || data?.status !== 'success') {
+          throw new Error(data?.message || 'Failed to load customers');
+        }
+
+        setUsers(Array.isArray(data?.users) ? data.users : []);
+      } catch (e) {
+        setUsers([]);
+        setError(e?.message || 'Failed to load customers');
+        toast.error(e?.message || 'Failed to load customers');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const t = setTimeout(load, 250);
+    return () => clearTimeout(t);
+  }, [apiPrefix, canViewCustomers, search]);
+
   return (
     <div className="container-fluid">
       <div className="d-flex align-items-center justify-content-between mb-3">
@@ -8,7 +84,68 @@ const Customers = () => {
       </div>
       <div className="card shadow-sm">
         <div className="card-body">
-          <p className="text-muted mb-0">Customers management placeholder.</p>
+          <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
+            <div className="input-group input-group-sm" style={{ maxWidth: 420, width: '100%' }}>
+              <span className="input-group-text" style={{ height: 31, display: 'flex', alignItems: 'center' }}>
+                Search
+              </span>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                placeholder="name / email / phone"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ height: 31 }}
+              />
+            </div>
+            <div className="text-muted small">Total: {loading ? '—' : filtered.length}</div>
+          </div>
+
+          {loading && <p className="text-muted mb-0">Loading...</p>}
+          {!loading && error && <p className="text-danger mb-0">{error}</p>}
+
+          {!loading && !error && (
+            <div className="table-responsive">
+              <table className="table table-hover align-middle mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th style={{ width: 90 }}>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th style={{ width: 160 }}>Phone</th>
+                    <th style={{ width: 140 }}>Active</th>
+                    <th style={{ width: 160 }}>Verified</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="text-center text-muted py-4">
+                        No customers found.
+                      </td>
+                    </tr>
+                  ) : (
+                    filtered.map((u) => (
+                      <tr key={u.user_id}>
+                        <td>{u.user_id}</td>
+                        <td className="fw-semibold">{`${u.first_name || ''} ${u.last_name || ''}`.trim() || '—'}</td>
+                        <td>{u.email || '—'}</td>
+                        <td className="text-muted">{u.phone || '—'}</td>
+                        <td>
+                          <span className={`badge ${u.is_active ? 'bg-success' : 'bg-secondary'}`}>{u.is_active ? 'Active' : 'Inactive'}</span>
+                        </td>
+                        <td>
+                          <span className={`badge ${u.email_verified ? 'bg-success' : 'bg-warning text-dark'}`}>{
+                            u.email_verified ? 'Verified' : 'Not verified'
+                          }</span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>
