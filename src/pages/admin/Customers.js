@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getApiBase } from '../../utils/api';
-import { useHasPermission } from '../../rbac/useHasPermission';
+import { useHasAnyPermission } from '../../rbac/useHasPermission';
 
 const Customers = () => {
   const API_BASE = getApiBase();
   const apiPrefix = `${API_BASE}/backend/api/admin`;
 
-  const canViewCustomers = useHasPermission('view.customer');
+  const canViewCustomers = useHasAnyPermission(['view.customer', 'view.user']);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
