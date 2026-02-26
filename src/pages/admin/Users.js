@@ -25,6 +25,10 @@ const Users = () => {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
+  const [userPickSearch, setUserPickSearch] = useState('');
+  const [userPickLoading, setUserPickLoading] = useState(false);
+  const [userPickResults, setUserPickResults] = useState([]);
+
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [roleSaving, setRoleSaving] = useState(false);
   const [roleDeletingId, setRoleDeletingId] = useState(null);
@@ -286,6 +290,8 @@ const Users = () => {
 
   const openCreate = () => {
     setForm(emptyForm);
+    setUserPickSearch('');
+    setUserPickResults([]);
     setShowModal(true);
   };
 
@@ -307,6 +313,62 @@ const Users = () => {
   const closeModal = () => {
     if (saving) return;
     setShowModal(false);
+    setUserPickSearch('');
+    setUserPickResults([]);
+  };
+
+  useEffect(() => {
+    if (!showModal) return;
+    if (form.user_id) return;
+
+    const q = userPickSearch.trim();
+    if (q.length < 2) {
+      setUserPickResults([]);
+      return;
+    }
+
+    const t = setTimeout(() => {
+      (async () => {
+        setUserPickLoading(true);
+        try {
+          const params = new URLSearchParams();
+          params.set('search', q);
+          const res = await fetch(`${apiPrefix}/get_users.php?${params.toString()}`, {
+            method: 'GET',
+            credentials: 'include'
+          });
+          const data = await readJsonSafe(res);
+          if (!res.ok || data?.status !== 'success') {
+            throw new Error(data?.message || 'Failed to search users');
+          }
+          setUserPickResults(Array.isArray(data.users) ? data.users : []);
+        } catch (e) {
+          setUserPickResults([]);
+        } finally {
+          setUserPickLoading(false);
+        }
+      })();
+    }, 250);
+
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userPickSearch, showModal, form.user_id]);
+
+  const selectExistingUser = (u) => {
+    if (!u?.user_id) return;
+    setForm({
+      user_id: u.user_id,
+      first_name: u.first_name || '',
+      last_name: u.last_name || '',
+      email: u.email || '',
+      phone: u.phone || '',
+      password: '',
+      email_verified: !!u.email_verified,
+      is_active: !!u.is_active,
+      roles: Array.isArray(u.roles) ? u.roles : []
+    });
+    setUserPickSearch('');
+    setUserPickResults([]);
   };
 
   const toggleRole = (roleName) => {
@@ -574,6 +636,44 @@ const Users = () => {
               </div>
               <div className="modal-body">
                 <div className="row g-3">
+                  {!form.user_id && (
+                    <div className="col-12">
+                      <label className="form-label">Find existing customer/user</label>
+                      <input
+                        className="form-control"
+                        placeholder="Search by name or email..."
+                        value={userPickSearch}
+                        onChange={(e) => setUserPickSearch(e.target.value)}
+                      />
+
+                      {(userPickLoading || userPickResults.length > 0) && (
+                        <div className="border rounded mt-2" style={{ maxHeight: 220, overflow: 'auto' }}>
+                          {userPickLoading ? (
+                            <div className="p-2 text-muted">Searching...</div>
+                          ) : (
+                            <div className="list-group list-group-flush">
+                              {userPickResults.map((u) => {
+                                const fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim();
+                                return (
+                                  <button
+                                    key={u.user_id}
+                                    type="button"
+                                    className="list-group-item list-group-item-action"
+                                    onClick={() => selectExistingUser(u)}
+                                  >
+                                    <div className="fw-semibold">{fullName || '—'}</div>
+                                    <div className="text-muted small">{u.email}</div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="text-muted small mt-1">Select a user to assign roles, or fill the form below to create a new user.</div>
+                    </div>
+                  )}
                   <div className="col-md-6">
                     <label className="form-label">First name</label>
                     <input
