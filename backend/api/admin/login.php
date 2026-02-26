@@ -103,7 +103,7 @@ try {
     $jwt_algorithm = 'HS256';
 
     $current_time = time();
-    $expiration_time = $current_time + (7 * 24 * 60 * 60); // 7 days
+    $expiration_time = $current_time + (24 * 60 * 60); // 24 hours
 
     $payload = [
         'iss' => 'makemyveggies', // Issuer

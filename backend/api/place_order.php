@@ -168,7 +168,7 @@ try {
 
     // Create order
     $orderYearIst = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))->format('Y');
-    $orderNumber = 'MMV-' . $orderYearIst . '-' . strtoupper(bin2hex(random_bytes(4)));
+    $orderNumber = 'MMV' . $orderYearIst . strtoupper(bin2hex(random_bytes(4)));
 
     $orderSql = 'INSERT INTO orders (user_id, order_number, shipping_address_id, total_amount, status, payment_status, placed_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
     $status = 'Pending';

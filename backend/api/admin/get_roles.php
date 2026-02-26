@@ -37,7 +37,7 @@ try {
         exit();
     }
 
-    $rows = $pdo->query('SELECT id, name FROM roles ORDER BY name ASC')->fetchAll(PDO::FETCH_ASSOC);
+    $rows = $pdo->query("SELECT id, name FROM roles WHERE name <> 'super_admin' ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
     $roles = [];
     foreach ($rows as $r) {
         $roles[] = ['id' => (int)$r['id'], 'name' => (string)$r['name']];

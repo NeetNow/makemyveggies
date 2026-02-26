@@ -64,6 +64,12 @@ try {
         LEFT JOIN user_roles ur ON ur.user_id = u.user_id
         LEFT JOIN roles r ON r.id = ur.role_id
         WHERE {$where}
+          AND u.user_id NOT IN (
+            SELECT ur2.user_id
+            FROM user_roles ur2
+            INNER JOIN roles r2 ON r2.id = ur2.role_id
+            WHERE r2.name = 'super_admin'
+          )
         GROUP BY u.user_id
         ORDER BY u.created_at DESC
         LIMIT 200
