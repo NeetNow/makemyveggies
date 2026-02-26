@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Gauge, Box, Receipt, Users, FileText, Tag, LineChart, Search, UserCog, CreditCard } from 'lucide-react';
+import { Gauge, Box, Receipt, Users, FileText, Tag, LineChart, Search, UserCog } from 'lucide-react';
 import '../../styles/Admin.css';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import { getApiBase } from '../../utils/api';
 
 const AdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -12,23 +13,228 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const { permissions, adminUser } = useAdminAuth();
 
+  const API_BASE = getApiBase();
+  const apiPrefix = `${API_BASE}/backend/api/admin`;
+
   const closeMobileMenu = () => setMobileOpen(false);
 
   const isProductsRoute = location.pathname.startsWith('/admin/products');
 
   const isSuperAdmin = Array.isArray(adminUser?.roles) && adminUser.roles.includes('super_admin');
 
-  const canSeeModule = (moduleName) => {
+  const hasAny = (permissionList) => {
     if (isSuperAdmin) return true;
-    if (!moduleName) return false;
     const list = Array.isArray(permissions) ? permissions : [];
-    return list.some((p) => String(p || '').endsWith(`.${moduleName}`));
+    if (!Array.isArray(permissionList) || permissionList.length === 0) return false;
+    return permissionList.some((p) => list.includes(String(p)));
   };
 
-  const canSeeProducts = canSeeModule('product');
-  const canSeeOrders = canSeeModule('order');
-  const canSeeUsers = canSeeModule('user') || canSeeModule('role') || canSeeModule('permission');
-  const canSeeCategories = canSeeModule('category');
+  const canSeeProducts = hasAny(['view.product', 'add.product', 'update.product', 'delete.product']);
+  const canSeeOrders = hasAny(['view.order', 'add.order', 'update.order', 'delete.order']);
+  const canSeeCustomers = hasAny(['view.customer', 'view.user']);
+  const canSeeUsers = hasAny(['view.user', 'view.role', 'view.permission', 'manage.user', 'manage.role', 'manage.permission']);
+  const canSeeCategories = hasAny(['view.category', 'add.category', 'update.category', 'delete.category']);
+  const canSeeNewsletter = hasAny(['view.newsletter', 'add.newsletter', 'update.newsletter', 'delete.newsletter']);
+  const canSeeContact = hasAny(['view.contact', 'add.contact', 'update.contact', 'delete.contact']);
+  const canSeeDiscounts = hasAny(['view.discount', 'add.discount', 'update.discount', 'delete.discount']);
+  const canSeeAnalytics = hasAny(['view.analytics']);
+
+  const [topSearch, setTopSearch] = useState('');
+  const [topSearchOpen, setTopSearchOpen] = useState(false);
+  const [topSearchLoading, setTopSearchLoading] = useState(false);
+  const [topSearchResults, setTopSearchResults] = useState([]);
+  const topSearchWrapRef = useRef(null);
+
+  const readJsonSafe = async (response) => {
+    const text = await response.text();
+    try {
+      return text ? JSON.parse(text) : {};
+    } catch (e) {
+      const preview = text?.slice(0, 200) || '';
+      throw new Error(`Invalid server response. ${preview}`);
+    }
+  };
+
+  const canUseTopSearch = useMemo(() => {
+    return canSeeProducts || canSeeOrders || canSeeCustomers || canSeeCategories;
+  }, [canSeeCategories, canSeeCustomers, canSeeOrders, canSeeProducts]);
+
+  useEffect(() => {
+    if (!topSearchOpen) return;
+    const onDocDown = (e) => {
+      const el = topSearchWrapRef.current;
+      if (!el) return;
+      if (el.contains(e.target)) return;
+      setTopSearchOpen(false);
+    };
+    document.addEventListener('mousedown', onDocDown);
+    return () => document.removeEventListener('mousedown', onDocDown);
+  }, [topSearchOpen]);
+
+  useEffect(() => {
+    const q = topSearch.trim();
+    if (!canUseTopSearch) return;
+    if (q.length < 2) {
+      setTopSearchResults([]);
+      setTopSearchLoading(false);
+      return;
+    }
+
+    const t = setTimeout(() => {
+      (async () => {
+        setTopSearchLoading(true);
+        try {
+          const results = [];
+
+          if (canSeeProducts) {
+            try {
+              const params = new URLSearchParams();
+              params.set('search', q);
+              params.set('limit', '5');
+              params.set('offset', '0');
+              const res = await fetch(`${apiPrefix}/get_products.php?${params.toString()}`, {
+                method: 'GET',
+                credentials: 'include'
+              });
+              const data = await readJsonSafe(res);
+              if (res.ok && data?.status === 'success' && Array.isArray(data.products)) {
+                for (const p of data.products) {
+                  results.push({
+                    type: 'product',
+                    id: p.id,
+                    title: p.title || `Product #${p.id}`,
+                    subtitle: p.sku ? `SKU: ${p.sku}` : (p.categoryName ? String(p.categoryName) : ''),
+                    meta: p
+                  });
+                }
+              }
+            } catch (e) {
+              // ignore
+            }
+          }
+
+          if (canSeeCategories) {
+            try {
+              const res = await fetch(`${apiPrefix}/get_categories.php`, {
+                method: 'GET',
+                credentials: 'include'
+              });
+              const data = await readJsonSafe(res);
+              if (res.ok && data?.status === 'success' && Array.isArray(data.categories)) {
+                const q2 = q.toLowerCase();
+                const matches = data.categories
+                  .filter((c) => {
+                    const hay = [c?.name, c?.description]
+                      .filter(Boolean)
+                      .map((v) => String(v).toLowerCase())
+                      .join(' ');
+                    return hay.includes(q2);
+                  })
+                  .slice(0, 5);
+
+                for (const c of matches) {
+                  results.push({
+                    type: 'category',
+                    id: c.id,
+                    title: c.name || `Category #${c.id}`,
+                    subtitle: c.productCount ? `${c.productCount} products` : '',
+                    meta: c
+                  });
+                }
+              }
+            } catch (e) {
+              // ignore
+            }
+          }
+
+          if (canSeeOrders) {
+            try {
+              const params = new URLSearchParams();
+              params.set('search', q);
+              params.set('limit', '5');
+              params.set('offset', '0');
+              const res = await fetch(`${apiPrefix}/get_orders.php?${params.toString()}`, {
+                method: 'GET',
+                credentials: 'include'
+              });
+              const data = await readJsonSafe(res);
+              if (res.ok && data?.status === 'success' && Array.isArray(data.orders)) {
+                for (const o of data.orders) {
+                  results.push({
+                    type: 'order',
+                    id: o.id,
+                    title: o.orderNumber ? `#${o.orderNumber}` : `Order #${o.id}`,
+                    subtitle: o.customerName ? String(o.customerName) : '',
+                    meta: o
+                  });
+                }
+              }
+            } catch (e) {
+              // ignore
+            }
+          }
+
+          if (canSeeCustomers) {
+            try {
+              const params = new URLSearchParams();
+              params.set('search', q);
+              const res = await fetch(`${apiPrefix}/get_users.php?${params.toString()}`, {
+                method: 'GET',
+                credentials: 'include'
+              });
+              const data = await readJsonSafe(res);
+              if (res.ok && data?.status === 'success' && Array.isArray(data.users)) {
+                const onlyCustomers = data.users.filter((u) => !Array.isArray(u?.roles) || u.roles.length === 0);
+                for (const u of onlyCustomers.slice(0, 5)) {
+                  const name = `${u.first_name || ''} ${u.last_name || ''}`.trim() || '—';
+                  results.push({
+                    type: 'customer',
+                    id: u.user_id,
+                    title: name,
+                    subtitle: u.email || '',
+                    meta: u
+                  });
+                }
+              }
+            } catch (e) {
+              // ignore
+            }
+          }
+
+          setTopSearchResults(results);
+        } finally {
+          setTopSearchLoading(false);
+        }
+      })();
+    }, 300);
+
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topSearch, canUseTopSearch, canSeeProducts, canSeeOrders, canSeeCustomers, apiPrefix]);
+
+  const onSelectTopSearch = (item) => {
+    if (!item) return;
+    setTopSearchOpen(false);
+
+    if (item.type === 'order') {
+      navigate(`/admin/orders/${encodeURIComponent(String(item.id))}`);
+      return;
+    }
+
+    if (item.type === 'customer') {
+      navigate(`/admin/customers`);
+      return;
+    }
+
+    if (item.type === 'product') {
+      navigate(`/admin/products/diy-kits`);
+      return;
+    }
+
+    if (item.type === 'category') {
+      navigate(`/admin/categories`);
+    }
+  };
 
   useEffect(() => {
     setIsProductsOpen(isProductsRoute);
@@ -140,17 +346,19 @@ const AdminLayout = () => {
                 <span className="sidebar-text">Orders</span>
               </NavLink>
             )}
-            <NavLink
-              to="/admin/customers"
-              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => {
-                setIsProductsOpen(false);
-                closeMobileMenu();
-              }}
-            >
-              <span className="sidebar-icon me-2"><Users size={16} /></span>
-              <span className="sidebar-text">Customers</span>
-            </NavLink>
+            {canSeeCustomers && (
+              <NavLink
+                to="/admin/customers"
+                className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+                onClick={() => {
+                  setIsProductsOpen(false);
+                  closeMobileMenu();
+                }}
+              >
+                <span className="sidebar-icon me-2"><Users size={16} /></span>
+                <span className="sidebar-text">Customers</span>
+              </NavLink>
+            )}
             {canSeeUsers && (
               <NavLink
                 to="/admin/users"
@@ -179,61 +387,58 @@ const AdminLayout = () => {
               </NavLink>
             )}
             
-            <NavLink
-              to="/admin/newsletter"
-              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => {
-                setIsProductsOpen(false);
-                closeMobileMenu();
-              }}
-            >
-              <span className="sidebar-icon me-2"><FileText size={16} /></span>
-              <span className="sidebar-text">Newsletter</span>
-            </NavLink>
-            <NavLink
-              to="/admin/contact-messages"
-              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => {
-                setIsProductsOpen(false);
-                closeMobileMenu();
-              }}
-            >
-              <span className="sidebar-icon me-2"><FileText size={16} /></span>
-              <span className="sidebar-text">Contact</span>
-            </NavLink>
-            <NavLink
-              to="/admin/discounts"
-              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => {
-                setIsProductsOpen(false);
-                closeMobileMenu();
-              }}
-            >
-              <span className="sidebar-icon me-2"><Tag size={16} /></span>
-              <span className="sidebar-text">Discounts</span>
-            </NavLink>
-            <NavLink
-              to="/admin/payments"
-              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => {
-                setIsProductsOpen(false);
-                closeMobileMenu();
-              }}
-            >
-              <span className="sidebar-icon me-2"><CreditCard size={16} /></span>
-              <span className="sidebar-text">Payments</span>
-            </NavLink>
-            <NavLink
-              to="/admin/analytics"
-              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
-              onClick={() => {
-                setIsProductsOpen(false);
-                closeMobileMenu();
-              }}
-            >
-              <span className="sidebar-icon me-2"><LineChart size={16} /></span>
-              <span className="sidebar-text">Analytics</span>
-            </NavLink>
+            {canSeeNewsletter && (
+              <NavLink
+                to="/admin/newsletter"
+                className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+                onClick={() => {
+                  setIsProductsOpen(false);
+                  closeMobileMenu();
+                }}
+              >
+                <span className="sidebar-icon me-2"><FileText size={16} /></span>
+                <span className="sidebar-text">Newsletter</span>
+              </NavLink>
+            )}
+            {canSeeContact && (
+              <NavLink
+                to="/admin/contact-messages"
+                className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+                onClick={() => {
+                  setIsProductsOpen(false);
+                  closeMobileMenu();
+                }}
+              >
+                <span className="sidebar-icon me-2"><FileText size={16} /></span>
+                <span className="sidebar-text">Contact</span>
+              </NavLink>
+            )}
+            {canSeeDiscounts && (
+              <NavLink
+                to="/admin/discounts"
+                className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+                onClick={() => {
+                  setIsProductsOpen(false);
+                  closeMobileMenu();
+                }}
+              >
+                <span className="sidebar-icon me-2"><Tag size={16} /></span>
+                <span className="sidebar-text">Discounts</span>
+              </NavLink>
+            )}
+            {canSeeAnalytics && (
+              <NavLink
+                to="/admin/analytics"
+                className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+                onClick={() => {
+                  setIsProductsOpen(false);
+                  closeMobileMenu();
+                }}
+              >
+                <span className="sidebar-icon me-2"><LineChart size={16} /></span>
+                <span className="sidebar-text">Analytics</span>
+              </NavLink>
+            )}
           </nav>
         </div>
 
@@ -260,19 +465,64 @@ const AdminLayout = () => {
             >
               ☰
             </button>
-            <button type="button" className="btn btn-sm btn-outline-danger" onClick={logout}>
-              Logout
-            </button>
-            <div className="topnav-search d-none d-md-flex align-items-center px-3 py-1 rounded-pill bg-white border">
-              <span className="me-2 text-muted d-flex align-items-center">
-                <Search size={16} />
-              </span>
-              <input
-                type="text"
-                className="form-control form-control-sm border-0 bg-transparent"
-                placeholder="Search..."
-              />
-            </div>
+            {canUseTopSearch && (
+              <div ref={topSearchWrapRef} className="position-relative d-none d-md-block">
+                <div
+                  className="topnav-search d-flex align-items-center bg-white border"
+                  style={{ height: 36, borderRadius: 10, width: 360 }}
+                >
+                  <span className="ms-3 me-2 text-muted d-flex align-items-center">
+                    <Search size={16} />
+                  </span>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm border-0"
+                    placeholder="Search..."
+                    value={topSearch}
+                    onChange={(e) => {
+                      setTopSearch(e.target.value);
+                      setTopSearchOpen(true);
+                    }}
+                    onFocus={() => setTopSearchOpen(true)}
+                    style={{ boxShadow: 'none', height: 34 }}
+                  />
+                </div>
+
+                {topSearchOpen && (topSearchLoading || topSearchResults.length > 0) && (
+                  <div
+                    className="dropdown-menu show mt-2 p-0"
+                    style={{
+                      width: 360,
+                      maxHeight: 360,
+                      overflow: 'auto'
+                    }}
+                  >
+                    {topSearchLoading ? (
+                      <div className="px-3 py-2 text-muted small">Searching...</div>
+                    ) : (
+                      <>
+                        {topSearchResults.map((r) => (
+                          <button
+                            key={`${r.type}-${r.id}`}
+                            type="button"
+                            className="dropdown-item"
+                            onClick={() => onSelectTopSearch(r)}
+                          >
+                            <div className="d-flex align-items-center justify-content-between">
+                              <div className="fw-semibold" style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {r.title}
+                              </div>
+                              <span className="badge bg-light text-dark text-uppercase">{r.type}</span>
+                            </div>
+                            {r.subtitle ? <div className="text-muted small">{r.subtitle}</div> : null}
+                          </button>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </header>
         <main className="admin-content flex-grow-1 p-4">

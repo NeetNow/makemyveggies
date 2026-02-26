@@ -14,6 +14,8 @@ const Checkout = () => {
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
 
+  const [savedProfile, setSavedProfile] = useState(null);
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -58,6 +60,29 @@ const Checkout = () => {
     }));
   };
 
+  const clearBillingFields = () => {
+    setFormData((prev) => ({
+      ...prev,
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: ''
+    }));
+  };
+
+  const switchBillingMode = (mode) => {
+    setBillingMode(mode);
+    if (mode === 'new') {
+      clearBillingFields();
+    }
+  };
+
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
@@ -85,8 +110,57 @@ const Checkout = () => {
     fetchAddresses();
   }, []);
 
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const res = await fetch('/backend/api/get_user_profile.php', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (data && data.status === 'success' && data.user) {
+          setSavedProfile(data.user);
+        } else {
+          setSavedProfile(null);
+        }
+      } catch (e) {
+        setSavedProfile(null);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  useEffect(() => {
+    if (!savedProfile) return;
+    setFormData((prev) => ({
+      ...prev,
+      firstName: prev.firstName || savedProfile.firstName || '',
+      lastName: prev.lastName || savedProfile.lastName || '',
+      email: prev.email || savedProfile.email || '',
+      phone: prev.phone || savedProfile.phone || ''
+    }));
+  }, [savedProfile]);
+
+  useEffect(() => {
+    if (billingMode !== 'saved') return;
+    if (!selectedAddressId) return;
+    const addr = (Array.isArray(addresses) ? addresses : []).find((a) => a.address_id === selectedAddressId);
+    if (!addr) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      addressLine1: addr.address_line1 || '',
+      addressLine2: addr.address_line2 || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      postalCode: addr.postal_code || '',
+      country: addr.country || ''
+    }));
+  }, [billingMode, selectedAddressId, addresses]);
+
   const subtotal = getCartTotal();
-  const shipping = subtotal > 0 && subtotal < 200 ? 15.0 : 0.0;
+  const shipping = 0;
   const total = subtotal + shipping;
 
   const handleSubmit = async (e) => {
@@ -318,7 +392,7 @@ const Checkout = () => {
                                   <td><strong>Total</strong></td>
                                   <td>
                                     <strong className="primary-color">
-                                      ${orderTotal.toFixed(2)}
+                                      ₹{orderTotal.toFixed(2)}
                                     </strong>
                                   </td>
                                 </tr>
@@ -343,128 +417,143 @@ const Checkout = () => {
                       <h4 className="mb-3">Billing Details</h4>
 
                       <div className="row g-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label>First Name *</label>
-                            <input 
-                              type="text" 
-                              name="firstName" 
-                              className="form-control" 
-                              value={formData.firstName}
-                              onChange={handleChange}
-                              required
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label>Last Name *</label>
-                            <input 
-                              type="text" 
-                              name="lastName" 
-                              className="form-control" 
-                              value={formData.lastName}
-                              onChange={handleChange}
-                              required
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label>Email Address *</label>
-                            <input 
-                              type="email" 
-                              name="email" 
-                              className="form-control" 
-                              value={formData.email}
-                              onChange={handleChange}
-                              required
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label>Phone *</label>
-                            <input 
-                              type="tel" 
-                              name="phone" 
-                              className="form-control" 
-                              value={formData.phone}
-                              onChange={handleChange}
-                              required
-                            />
-                          </div>
-                        </div>
-                        {/* Address mode options: only show when user has saved addresses */}
-                      {addresses.length > 0 && (
-                        <div className="mt-4">
-                          <div className="mb-2">
-                            <strong>Select billing / shipping address</strong>
-                          </div>
-                          <div className="mb-2">
-                            <div className="form-check form-check-inline">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="billingMode"
-                                id="billing-saved"
-                                value="saved"
-                                checked={billingMode === 'saved'}
-                                onChange={() => setBillingMode('saved')}
-                              />
-                              <label className="form-check-label" htmlFor="billing-saved">
-                                Use saved address
-                              </label>
+                        {/* Details mode options: show when we have any saved details */}
+                        {(addresses.length > 0 || savedProfile) && (
+                          <div className="mt-2">
+                            <div className="mb-2">
+                              <strong>Select billing details</strong>
                             </div>
-                            <div className="form-check form-check-inline">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="billingMode"
-                                id="billing-new"
-                                value="new"
-                                checked={billingMode === 'new'}
-                                onChange={() => setBillingMode('new')}
-                              />
-                              <label className="form-check-label" htmlFor="billing-new">
-                                Use different billing address
-                              </label>
-                            </div>
-                          </div>
-
-                          {billingMode === 'saved' && (
-                            <div className="mb-3">
-                              <label className="form-label">Choose from your saved addresses</label>
-                              <div className="list-group">
-                                {addresses.map(addr => (
-                                  <button
-                                    type="button"
-                                    key={addr.address_id}
-                                    className={`list-group-item list-group-item-action ${selectedAddressId === addr.address_id ? 'active' : ''}`}
-                                    onClick={() => setSelectedAddressId(addr.address_id)}
-                                  >
-                                    <div>
-                                      <div>{addr.address_line1}</div>
-                                      {addr.address_line2 && <div>{addr.address_line2}</div>}
-                                      <div>{addr.city}, {addr.state} {addr.postal_code}</div>
-                                      <div>{addr.country}</div>
-                                    </div>
-                                  </button>
-                                ))}
+                            <div className="mb-2">
+                              <div className="form-check form-check-inline">
+                                <input
+                                  className="form-check-input"
+                                  type="radio"
+                                  name="billingMode"
+                                  id="billing-saved"
+                                  value="saved"
+                                  checked={billingMode === 'saved'}
+                                  onChange={() => switchBillingMode('saved')}
+                                />
+                                <label className="form-check-label" htmlFor="billing-saved">
+                                  Use saved details
+                                </label>
+                              </div>
+                              <div className="form-check form-check-inline">
+                                <input
+                                  className="form-check-input"
+                                  type="radio"
+                                  name="billingMode"
+                                  id="billing-new"
+                                  value="new"
+                                  checked={billingMode === 'new'}
+                                  onChange={() => switchBillingMode('new')}
+                                />
+                                <label className="form-check-label" htmlFor="billing-new">
+                                  Use different billing details
+                                </label>
                               </div>
                             </div>
-                          )}
-                        </div>
-                      )}
-                        {/* Address fields logic:
-                           - If no saved addresses: always show fields
-                           - If saved addresses: show fields only when billingMode === 'new'
-                        */}
-                        {(addresses.length === 0 || billingMode === 'new') && (
+                          </div>
+                        )}
+
+                        {billingMode === 'saved' && (addresses.length > 0 || savedProfile) && (
+                          <div className="col-12">
+                            <div className="alert alert-light border mb-0">
+                              <div className="fw-semibold mb-2">Saved billing details</div>
+
+                              {savedProfile && (
+                                <div className="mb-2 small">
+                                  <div className="fw-semibold">{`${savedProfile.firstName || ''} ${savedProfile.lastName || ''}`.trim() || '—'}</div>
+                                  <div className="text-muted">{savedProfile.email || '—'}</div>
+                                  <div className="text-muted">{savedProfile.phone || '—'}</div>
+                                </div>
+                              )}
+
+                              {addresses.length > 0 && (
+                                <div className="small">
+                                  <div className="fw-semibold mb-2">Choose saved address</div>
+                                  <div className="list-group">
+                                    {addresses.map((addr) => (
+                                      <button
+                                        type="button"
+                                        key={addr.address_id}
+                                        className={`list-group-item list-group-item-action ${selectedAddressId === addr.address_id ? 'active' : ''}`}
+                                        onClick={() => setSelectedAddressId(addr.address_id)}
+                                      >
+                                        <div>
+                                          <div>{addr.address_line1}</div>
+                                          {addr.address_line2 && <div>{addr.address_line2}</div>}
+                                          <div>{addr.city}, {addr.state} {addr.postal_code}</div>
+                                          <div>{addr.country}</div>
+                                        </div>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Input fields: show only when no saved details OR when user chooses different billing details */}
+                        {(billingMode === 'new' && !orderPlaced) && (
                           <>
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label>First Name *</label>
+                                <input
+                                  type="text"
+                                  name="firstName"
+                                  className="form-control"
+                                  value={formData.firstName}
+                                  onChange={handleChange}
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label>Last Name *</label>
+                                <input
+                                  type="text"
+                                  name="lastName"
+                                  className="form-control"
+                                  value={formData.lastName}
+                                  onChange={handleChange}
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label>Email Address *</label>
+                                <input
+                                  type="email"
+                                  name="email"
+                                  className="form-control"
+                                  value={formData.email}
+                                  onChange={handleChange}
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label>Phone *</label>
+                                <input
+                                  type="tel"
+                                  name="phone"
+                                  className="form-control"
+                                  value={formData.phone}
+                                  onChange={handleChange}
+                                  required
+                                />
+                              </div>
+                            </div>
+
                             <div className="col-12">
                               <div className="form-group">
                                 <label>Address Line 1 *</label>
@@ -635,20 +724,20 @@ const Checkout = () => {
                                     <td>
                                       {item.name} <strong>× {item.quantity}</strong>
                                     </td>
-                                    <td>${(item.price * item.quantity).toFixed(2)}</td>
+                                    <td>₹{(item.price * item.quantity).toFixed(2)}</td>
                                   </tr>
                                 ))}
                                 <tr>
                                   <td>Subtotal</td>
-                                  <td>${subtotal.toFixed(2)}</td>
+                                  <td>₹{subtotal.toFixed(2)}</td>
                                 </tr>
                                 <tr>
                                   <td>Shipping</td>
-                                  <td>${shipping.toFixed(2)}</td>
+                                  <td>₹{shipping.toFixed(2)}</td>
                                 </tr>
                                 <tr className="total">
                                   <td><strong>Total</strong></td>
-                                  <td><strong className="primary-color">${total.toFixed(2)}</strong></td>
+                                  <td><strong className="primary-color">₹{total.toFixed(2)}</strong></td>
                                 </tr>
                               </tbody>
                             </table>

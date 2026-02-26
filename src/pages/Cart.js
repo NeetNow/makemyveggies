@@ -7,7 +7,7 @@ const Cart = () => {
   const { cartItems, updateQuantity, clearCart } = useCart();
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal > 200 ? 0 : 15; // Free shipping over $200
+  const shipping = 0; // Free shipping over $200
   const total = subtotal + shipping;
 
   if (cartItems.length === 0) {
@@ -59,21 +59,20 @@ const Cart = () => {
     <>
       <main>
         {/* Page Header */}
-        <section className="pageheader padding-block">
-          <div className="container">
-            <div className="row">
-              <div className="col-12">
-                <div className="section__header">
-                  <ul className="breadcum">
-                    <li><Link to="/">Home</Link></li>
-                    <li>Cart</li>
-                  </ul>
-                  <h2>Shopping Cart</h2>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <section className="pageheader overflow-hidden">
+                  <div className="container">
+                    <div className="pageheader__content">
+                      <h2>Shopping Cart</h2>
+                      <nav aria-label="breadcrumb">
+                        <ol className="breadcrumb">
+                          <li><Link to="/">Home</Link></li>
+                          <li><Link to="/shop">Shop</Link></li>
+                          <li><Link to="/cart">Cart</Link></li>
+                        </ol>
+                      </nav>
+                    </div>
+                  </div>
+                </section>
 
         {/* Cart Section */}
         <section className="cart padding-block bg-white">
@@ -95,7 +94,7 @@ const Cart = () => {
                           </div>
                         </div>
                         <div className="item-price">
-                          <span className="unit-price">${item.price.toFixed(2)}</span>
+                          <span className="unit-price">₹{item.price.toFixed(2)}</span>
                         </div>
                         <div className="item-quantity">
                           <div className="quantity-controls">
@@ -122,7 +121,7 @@ const Cart = () => {
                           </div>
                         </div>
                         <div className="item-total">
-                          <span className="total-price">${(item.price * item.quantity).toFixed(2)}</span>
+                          <span className="total-price">₹{(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                         <div className="item-actions">
                           <button
@@ -156,26 +155,26 @@ const Cart = () => {
                     <h3>Cart Summary</h3>
                     <div className="summary-row">
                       <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items):</span>
-                      <span>${subtotal.toFixed(2)}</span>
+                      <span>₹{subtotal.toFixed(2)}</span>
                     </div>
                     <div className="summary-row">
                       <span>Shipping:</span>
                       <span className={shipping === 0 ? 'text-success' : ''}>
-                        {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
+                        {shipping === 0 ? 'FREE' : `₹${shipping.toFixed(2)}`}
                       </span>
                     </div>
                     <hr className="summary-divider" />
                     <div className="summary-row summary-total">
                       <span>Total:</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>₹{total.toFixed(2)}</span>
                     </div>
 
-                    {subtotal < 200 && (
+                    {/* {subtotal < 200 && (
                       <div className="shipping-notice">
                         <i className="fa-solid fa-info-circle"></i>
-                        <span>Add ${(200 - subtotal).toFixed(2)} more for FREE shipping!</span>
+                        <span>Add ₹{(200 - subtotal).toFixed(2)} more for FREE shipping!</span>
                       </div>
-                    )}
+                    )} */}
 
                     <div className="checkout-section">
                       <Link to="/checkout" className="checkout-btn">

@@ -11,7 +11,7 @@ export const getApiBase = () => {
   if (typeof window === 'undefined') return 'http://localhost';
 
   if (window.location.port === '3000') {
-    return 'https://dev.makemyveggies.com';
+    return process.env.REACT_APP_API_BASE;
   }
 
   const origin = window.location.origin;
