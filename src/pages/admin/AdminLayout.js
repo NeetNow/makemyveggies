@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Gauge, Box, Receipt, Users, FileText, Tag, LineChart, Search, UserCog } from 'lucide-react';
+import { Gauge, Box, Receipt, Users, FileText, Tag, LineChart, Search, UserCog, CreditCard } from 'lucide-react';
 import '../../styles/Admin.css';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 
@@ -211,6 +211,17 @@ const AdminLayout = () => {
             >
               <span className="sidebar-icon me-2"><Tag size={16} /></span>
               <span className="sidebar-text">Discounts</span>
+            </NavLink>
+            <NavLink
+              to="/admin/payments"
+              className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+              onClick={() => {
+                setIsProductsOpen(false);
+                closeMobileMenu();
+              }}
+            >
+              <span className="sidebar-icon me-2"><CreditCard size={16} /></span>
+              <span className="sidebar-text">Payments</span>
             </NavLink>
             <NavLink
               to="/admin/analytics"
