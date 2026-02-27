@@ -10,8 +10,8 @@ const Blog = () => {
             <div className="col-md-8 col-lg-9 col-xl-10">
               <span>Our News Update<img src="/assets/img/logo/pata.png" alt="bakul" /></span>
               <h3>Latest Blogs & Articles</h3>
-              <p>Continually productize compelling quality packed business consulting
-                Setting up to website and creating pages.</p>
+              <p>Discover creative, simple ways to turn everyday vegetables into exciting meals.
+            From quick recipes to smart cooking tips, we make healthy eating effortless and delicious.</p>
             </div>
             <div className="col-md-4 col-lg-3 col-xl-2">
               <div className="blog__btn mt-md-0 mt-4">

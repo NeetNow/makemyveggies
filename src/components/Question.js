@@ -32,48 +32,48 @@ const Question = () => {
                 <div className="accordion-item accordion-item--itme2Serpage">
                   <h2 className="accordion-header" id="headingOne">
                     <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                      Automobile Manufacturing<span className="plus-icon"></span>
+                      How do Make My Veggies(MMV) grow kits work?<span className="plus-icon"></span>
                     </button>
                   </h2>
                   <div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                     <div className="accordion-body">
-                      <p>Since 2000 we have been and visionary and an reliable software engineering partner for world class brands an We are a boutique digital transformation consultancy.</p>
+                      <p>Our kits have everything you need — seeds, soil mix, and basic tools. Just follow the simple steps in the guide, and your plants will start growing.</p>
                     </div>
                   </div>
                 </div>
                 <div className="accordion-item accordion-item--itme2Serpage">
                   <h2 className="accordion-header" id="headingTwo">
                     <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                      Oil Gas & Power Energy Plant <span className="plus-icon"></span>
+                      What can I grow with MMV kits?<span className="plus-icon"></span>
                     </button>
                   </h2>
                   <div id="collapseTwo" className="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                     <div className="accordion-body">
-                      <p>Since 2000 we have been and visionary and an reliable software engineering partner for world class brands an We are a boutique digital transformation consultancy.</p>
+                      <p>You can grow fresh vegetables, herbs, and other useful plants. We have different kits based on what you want to grow.</p>
                     </div>
                   </div>
                 </div>
                 <div className="accordion-item accordion-item--itme2Serpage">
                   <h2 className="accordion-header" id="headingThree">
                     <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                      Petroleum & Refinery <span className="plus-icon"></span>
+                      Are MMV kits good for beginners?<span className="plus-icon"></span>
                     </button>
                   </h2>
                   <div id="collapseThree" className="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
                     <div className="accordion-body">
-                      <p>Since 2000 we have been and visionary and an reliable software engineering partner for world class brands an We are a boutique digital transformation consultancy.</p>
+                      <p>Yes! Our kits are perfect for beginners. The instructions are simple and easy to follow.</p>
                     </div>
                   </div>
                 </div>
                 <div className="accordion-item accordion-item--itme2Serpage">
                   <h2 className="accordion-header" id="headingFour">
                     <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                      Automobile Manufacturing <span className="plus-icon"></span>
+                      How long does it take for plants to grow?<span className="plus-icon"></span>
                     </button>
                   </h2>
                   <div id="collapseFour" className="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
                     <div className="accordion-body">
-                      <p>Since 2000 we have been and visionary and an reliable software engineering partner for world class brands an We are a boutique digital transformation consultancy.</p>
+                      <p>It depends on the plant. Most plants start growing within a few weeks if you take good care of them.</p>
                     </div>
                   </div>
                 </div>
