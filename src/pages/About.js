@@ -15,7 +15,7 @@ const About = () => {
         <section className="pageheader overflow-hidden">
           <div className="container">
             <div className="pageheader__content">
-              <h2>about our company</h2>
+              <h2>About Make My Veggies</h2>
             </div>
           </div>
         </section>
