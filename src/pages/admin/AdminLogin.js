@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getApiBase } from '../../utils/api';
 import '../../assets/css/auth.css';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const API_BASE = getApiBase();
+  const { refresh: refreshAdminAuth } = useAdminAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,6 +42,12 @@ const AdminLogin = () => {
       }
 
       localStorage.setItem('isAdminLoggedIn', 'true');
+
+      try {
+        await refreshAdminAuth();
+      } catch (e) {
+        // ignore
+      }
 
       toast.success('Admin login successful!', {
         position: 'top-right',

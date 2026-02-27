@@ -1,8 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CreditCard, RefreshCw, Eye, CheckCircle, XCircle, Clock, IndianRupee } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { getApiBase } from '../../utils/api';
+import { useHasPermission } from '../../rbac/useHasPermission';
 
 const Payments = () => {
+  const API_BASE = getApiBase();
+  const canViewPayments = useHasPermission('view.payments');
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [orders, setOrders] = useState([]);
@@ -33,14 +38,8 @@ const Payments = () => {
     }
   }, []);
 
-  const getEndpointCandidates = useCallback((path) => {
-    return [
-      path,
-      `http://localhost/makemyveggies-main${path}`
-    ];
-  }, []);
-
   const fetchOrders = useCallback(async () => {
+    if (!canViewPayments) return;
     setError('');
 
     try {
@@ -53,58 +52,55 @@ const Payments = () => {
       if (statusFilter) params.set('status', statusFilter);
 
       const path = `/backend/api/admin/get_orders.php?${params.toString()}`;
-      const urls = getEndpointCandidates(path);
-      let lastError = null;
 
-      for (const url of urls) {
-        try {
-          const res = await fetch(url, { method: 'GET', credentials: 'include' });
-          const contentType = res.headers.get('content-type') || '';
-          if (!contentType.toLowerCase().includes('application/json')) {
-            const text = await res.text();
-            const preview = text?.slice(0, 200) || '';
-            throw new Error(`Invalid server response. ${preview}`);
-          }
-
-          const data = await readJsonSafe(res);
-          if (!res.ok || data?.status !== 'success') {
-            throw new Error(data?.message || 'Failed to load orders');
-          }
-
-          const rows = Array.isArray(data?.orders) ? data.orders : [];
-          setOrders(rows);
-          setTotalPages(data?.pagination?.totalPages || 1);
-          setTotalCount(data?.pagination?.total || 0);
-          lastError = null;
-          break;
-        } catch (innerErr) {
-          lastError = innerErr;
-        }
+      const res = await fetch(`${API_BASE}${path}`, { method: 'GET', credentials: 'include' });
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.toLowerCase().includes('application/json')) {
+        const text = await res.text();
+        const preview = text?.slice(0, 200) || '';
+        throw new Error(`Invalid server response. ${preview}`);
       }
 
-      if (lastError) throw lastError;
+      const data = await readJsonSafe(res);
+      if (!res.ok || data?.status !== 'success') {
+        throw new Error(data?.message || 'Failed to load orders');
+      }
+
+      const rows = Array.isArray(data?.orders) ? data.orders : [];
+      setOrders(rows);
+      setTotalPages(data?.pagination?.totalPages || 1);
+      setTotalCount(data?.pagination?.total || 0);
     } catch (e) {
       setError(e?.message || 'Failed to load orders');
       setOrders([]);
       setTotalPages(1);
       setTotalCount(0);
     }
-  }, [getEndpointCandidates, limit, page, query, paymentFilter, statusFilter, readJsonSafe]);
+  }, [API_BASE, canViewPayments, limit, page, query, paymentFilter, statusFilter, readJsonSafe]);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      if (!canViewPayments) {
+        setOrders([]);
+        setTotalPages(1);
+        setTotalCount(0);
+        setError('Access denied');
+        setLoading(false);
+        return;
+      }
       await fetchOrders();
       setLoading(false);
     };
     load();
-  }, [fetchOrders]);
+  }, [canViewPayments, fetchOrders]);
 
   useEffect(() => {
     setPage(1);
   }, [query, paymentFilter, statusFilter]);
 
   const handleRefresh = async () => {
+    if (!canViewPayments) return;
     setRefreshing(true);
     await fetchOrders();
     setRefreshing(false);
@@ -121,7 +117,28 @@ const Payments = () => {
     setSelectedOrder(order);
   };
 
+  const normalizePaymentStatus = useCallback((v) => {
+    const s = String(v || '').trim().toLowerCase();
+    if (!s) return 'unknown';
+    if (s === 'paid' || s === 'success' || s === 'successful') return 'paid';
+    if (s === 'pending') return 'pending';
+    if (s === 'failed' || s === 'failure') return 'failed';
+    if (s === 'refunded' || s === 'refund') return 'refunded';
+    return s;
+  }, []);
+
+  const normalizedOrders = useMemo(() => {
+    return (Array.isArray(orders) ? orders : []).map((o) => {
+      const raw = o?.paymentStatusRaw ?? o?.paymentStatus;
+      return {
+        ...o,
+        paymentStatusNorm: normalizePaymentStatus(raw)
+      };
+    });
+  }, [normalizePaymentStatus, orders]);
+
   const getPaymentStatusBadge = (status) => {
+    const s = normalizePaymentStatus(status);
     switch (status) {
       case 'paid':
         return <span className="badge text-bg-success"><CheckCircle size={12} className="me-1" />Paid</span>;
@@ -132,7 +149,7 @@ const Payments = () => {
       case 'refunded':
         return <span className="badge text-bg-info"><IndianRupee size={12} className="me-1" />Refunded</span>;
       default:
-        return <span className="badge text-bg-secondary">{status || 'Unknown'}</span>;
+        return <span className="badge text-bg-secondary">{s || 'Unknown'}</span>;
     }
   };
 
@@ -154,19 +171,19 @@ const Payments = () => {
   };
 
   const totalPaid = useMemo(() => {
-    return orders
-      .filter(o => o.paymentStatus === 'paid')
+    return normalizedOrders
+      .filter((o) => o.paymentStatusNorm === 'paid')
       .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-  }, [orders]);
+  }, [normalizedOrders]);
 
   const totalPending = useMemo(() => {
-    return orders
-      .filter(o => o.paymentStatus === 'pending')
+    return normalizedOrders
+      .filter((o) => o.paymentStatusNorm === 'pending')
       .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-  }, [orders]);
+  }, [normalizedOrders]);
 
-  const paidCount = orders.filter(o => o.paymentStatus === 'paid').length;
-  const pendingCount = orders.filter(o => o.paymentStatus === 'pending').length;
+  const paidCount = normalizedOrders.filter((o) => o.paymentStatusNorm === 'paid').length;
+  const pendingCount = normalizedOrders.filter((o) => o.paymentStatusNorm === 'pending').length;
 
   return (
     <div className="container-fluid">
@@ -175,10 +192,18 @@ const Payments = () => {
           <h4 className="mb-1">Payments</h4>
           <p className="text-muted mb-0 small">Manage order payments and track payment status.</p>
         </div>
-        <button type="button" className="btn btn-sm btn-success" onClick={handleRefresh} disabled={loading || refreshing}>
-          <RefreshCw size={16} className="me-2" />
-          {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
+        {canViewPayments && (
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-success"
+            onClick={handleRefresh}
+            disabled={loading || refreshing}
+            aria-label="Refresh"
+            title="Refresh"
+          >
+            <RefreshCw size={16} />
+          </button>
+        )}
       </div>
 
       {/* Summary Cards */}
@@ -305,14 +330,14 @@ const Payments = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.length === 0 ? (
+                  {normalizedOrders.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-muted text-center py-4">
+                      <td colSpan={8} className="text-muted text-center py-4">
                         No orders found.
                       </td>
                     </tr>
                   ) : (
-                    orders.map((o) => (
+                    normalizedOrders.map((o) => (
                       <tr key={o.id}>
                         <td className="fw-semibold">{o.orderNumber}</td>
                         <td>
@@ -320,7 +345,7 @@ const Payments = () => {
                           <div className="text-muted small">{o.customerEmail}</div>
                         </td>
                         <td className="fw-semibold">{moneyFmt(o.totalAmount)}</td>
-                        <td>{getPaymentStatusBadge(o.paymentStatus)}</td>
+                        <td>{getPaymentStatusBadge(o.paymentStatusNorm)}</td>
                         <td>{getOrderStatusBadge(o.status)}</td>
                         <td className="text-muted small">
                           {o.placedAt ? new Date(o.placedAt).toLocaleString() : '—'}
@@ -330,9 +355,10 @@ const Payments = () => {
                             type="button"
                             className="btn btn-sm btn-outline-primary"
                             onClick={() => openOrderDetails(o)}
+                            aria-label="View"
+                            title="View"
                           >
-                            <Eye size={16} className="me-1" />
-                            View
+                            <Eye size={16} />
                           </button>
                         </td>
                       </tr>
@@ -393,12 +419,22 @@ const Payments = () => {
                       <div>{selectedOrder.placedAt ? new Date(selectedOrder.placedAt).toLocaleString() : '—'}</div>
                     </div>
                     <div className="col-12 col-md-6">
+                      <label className="form-label text-muted small mb-1">Transaction ID</label>
+                      <div className="fw-medium">{selectedOrder.transactionId || '—'}</div>
+                      {selectedOrder.gatewayOrderId ? <div className="text-muted small">Gateway Order: {selectedOrder.gatewayOrderId}</div> : null}
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <label className="form-label text-muted small mb-1">Payment Method</label>
+                      <div className="fw-medium">{selectedOrder.paymentMethod || '—'}</div>
+                      {selectedOrder.paymentGateway ? <div className="text-muted small">Gateway: {selectedOrder.paymentGateway}</div> : null}
+                    </div>
+                    <div className="col-12 col-md-6">
                       <label className="form-label text-muted small mb-1">Order Status</label>
                       <div>{getOrderStatusBadge(selectedOrder.status)}</div>
                     </div>
                     <div className="col-12 col-md-6">
                       <label className="form-label text-muted small mb-1">Payment Status</label>
-                      <div>{getPaymentStatusBadge(selectedOrder.paymentStatus)}</div>
+                      <div>{getPaymentStatusBadge(selectedOrder.paymentStatusNorm ?? selectedOrder.paymentStatusRaw ?? selectedOrder.paymentStatus)}</div>
                     </div>
                     <div className="col-12">
                       <label className="form-label text-muted small mb-1">Total Amount</label>

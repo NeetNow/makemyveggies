@@ -57,6 +57,7 @@ import AdminNewsletter from './pages/admin/Newsletter';
 import Discounts from './pages/admin/Discounts';
 import Analytics from './pages/admin/Analytics';
 import Users from './pages/admin/Users';
+import Payments from './pages/admin/Payments';
 import ProductDiyKits from './pages/admin/ProductDiyKits';
 import AddDiyKit from './pages/admin/AddDiyKit';
 import ViewDiyKit from './pages/admin/ViewDiyKit';
@@ -175,6 +176,7 @@ function App() {
                 <Route index element={<AdminDashboard />} />
                 <Route path="orders" element={<Orders />} />
                 <Route path="orders/:id" element={<ViewOrder />} />
+                <Route path="payments" element={<Payments />} />
                 <Route path="customers" element={<Customers />} />
                 <Route path="categories" element={<Categories />} />
                 <Route path="content" element={<Content />} />

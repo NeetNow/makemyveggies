@@ -39,7 +39,7 @@ try {
         exit();
     }
 
-    requireAdminPermission($pdo, $auth['user'], 'view.order');
+    requireAnyAdminPermission($pdo, $auth['user'], ['view.order', 'view.payments']);
 
     $search = isset($_GET['search']) ? trim((string)$_GET['search']) : '';
     $statusParam = isset($_GET['status']) ? trim((string)$_GET['status']) : '';
@@ -96,10 +96,16 @@ try {
             u.first_name,
             u.last_name,
             u.email,
-            COUNT(oi.order_item_id) AS item_count
+            COUNT(oi.order_item_id) AS item_count,
+            MAX(p.transaction_id) AS transaction_id,
+            MAX(p.gateway_order_id) AS gateway_order_id,
+            MAX(p.payment_method) AS payment_method,
+            MAX(p.payment_gateway) AS payment_gateway,
+            MAX(p.payment_status) AS payment_row_status
         FROM orders o
         LEFT JOIN users u ON o.user_id = u.user_id
         LEFT JOIN order_items oi ON o.order_id = oi.order_id
+        LEFT JOIN payments p ON p.order_id = o.order_id
         WHERE $whereClause
         GROUP BY o.order_id
         ORDER BY $orderBy
@@ -132,10 +138,15 @@ try {
             'totalAmount' => (float)$r['total_amount'],
             'status' => $r['status'],
             'paymentStatus' => $r['payment_status'],
+            'paymentStatusRaw' => $r['payment_row_status'],
             'placedAt' => $r['placed_at'],
             'items' => (int)$r['item_count'],
             'customerName' => $customerName,
-            'customerEmail' => $r['email']
+            'customerEmail' => $r['email'],
+            'transactionId' => $r['transaction_id'],
+            'gatewayOrderId' => $r['gateway_order_id'],
+            'paymentMethod' => $r['payment_method'],
+            'paymentGateway' => $r['payment_gateway']
         ];
     }
 
