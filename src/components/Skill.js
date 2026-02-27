@@ -24,7 +24,7 @@ const Skill = () => {
                     </div>
                   </div>
                   <div className="skillbar-container clearfix" data-percent="70%">
-                    <div className="skills" style={{ background: '#73B611' }}></div>
+                    <div className="skills" style={{ background: '#73B611', width: '70%' }}></div>
                   </div>
                 </div>
                 <div className="skill__item skill__item--itemaboutpage">
@@ -36,7 +36,7 @@ const Skill = () => {
                     </div>
                   </div>
                   <div className="skillbar-container clearfix" data-percent="60%">
-                    <div className="skills" style={{ background: '#73B611' }}></div>
+                    <div className="skills" style={{ background: '#73B611', width: '60%' }}></div>
                   </div>
                 </div>
                 <div className="skill__item skill__item--itemaboutpage">
@@ -48,7 +48,7 @@ const Skill = () => {
                     </div>
                   </div>
                   <div className="skillbar-container clearfix" data-percent="90%">
-                    <div className="skills" style={{ background: '#73B611' }}></div>
+                    <div className="skills" style={{ background: '#73B611', width: '90%' }}></div>
                   </div>
                 </div>
               </div>
