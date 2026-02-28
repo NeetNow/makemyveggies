@@ -22,7 +22,7 @@ const Question = () => {
           <div className="col-lg-7 col-xl-6">
             <span>Asked Questions<img src="/assets/img/logo/pata.png" alt="bakul" /></span>
             <h3>Frequently Asked Questions.</h3>
-            <p>Continually productize compelling quality packed business consulting Setting up to website and creating pages.</p>
+            <p>Get quick answers about grow kits, plant care, and product use— <br />everything you need to start and succeed in your home gardening journey 🌱</p>
           </div>
         </div>
         <div className="row g-4 align-items-center">
@@ -31,11 +31,11 @@ const Question = () => {
               <div className="accordion" id="accordionExample">
                 <div className="accordion-item accordion-item--itme2Serpage">
                   <h2 className="accordion-header" id="headingOne">
-                    <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                       How do Make My Veggies grow kits work?<span className="plus-icon"></span>
                     </button>
                   </h2>
-                  <div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                  <div id="collapseOne" className="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                     <div className="accordion-body">
                       <p>Our kits have everything you need — seeds, soil mix, and basic tools. Just follow the simple steps in the guide, and your plants will start growing.</p>
                     </div>
