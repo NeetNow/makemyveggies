@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Gauge, Box, Receipt, Users, FileText, Tag, LineChart, Search, UserCog } from 'lucide-react';
+import { Gauge, Box, Receipt, Users, FileText, Tag, LineChart, Search, UserCog, CreditCard } from 'lucide-react';
 import '../../styles/Admin.css';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { getApiBase } from '../../utils/api';
@@ -11,7 +11,7 @@ const AdminLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { permissions, adminUser } = useAdminAuth();
+  const { permissions, adminUser, loading: adminLoading } = useAdminAuth();
 
   const API_BASE = getApiBase();
   const apiPrefix = `${API_BASE}/backend/api/admin`;
@@ -38,6 +38,7 @@ const AdminLayout = () => {
   const canSeeContact = hasAny(['view.contact', 'add.contact', 'update.contact', 'delete.contact']);
   const canSeeDiscounts = hasAny(['view.discount', 'add.discount', 'update.discount', 'delete.discount']);
   const canSeeAnalytics = hasAny(['view.analytics']);
+  const canSeePayments = hasAny(['view.payments']);
 
   const [topSearch, setTopSearch] = useState('');
   const [topSearchOpen, setTopSearchOpen] = useState(false);
@@ -283,6 +284,9 @@ const AdminLayout = () => {
         <div className="admin-sidebar-menu flex-grow-1 mt-3 px-2">
           <div className="admin-menu-section-title px-2 mb-1">GENERAL</div>
           <nav className="nav flex-column">
+            {adminLoading && (
+              <div className="px-2 py-2 text-muted small">Loading permissions...</div>
+            )}
             <NavLink
               to="/admin"
               end
@@ -344,6 +348,20 @@ const AdminLayout = () => {
               >
                 <span className="sidebar-icon me-2"><Receipt size={16} /></span>
                 <span className="sidebar-text">Orders</span>
+              </NavLink>
+            )}
+
+            {canSeePayments && (
+              <NavLink
+                to="/admin/payments"
+                className={({ isActive }) => `nav-link text-white d-flex align-items-center ${isActive ? 'active' : ''}`}
+                onClick={() => {
+                  setIsProductsOpen(false);
+                  closeMobileMenu();
+                }}
+              >
+                <span className="sidebar-icon me-2"><CreditCard size={16} /></span>
+                <span className="sidebar-text">Payments</span>
               </NavLink>
             )}
             {canSeeCustomers && (
