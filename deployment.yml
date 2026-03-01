@@ -11,7 +11,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Optional: Add build steps here if using React/Vue
       - name: Install & Build
          run: |
            npm install
