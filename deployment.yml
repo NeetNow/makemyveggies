@@ -1,4 +1,4 @@
-name: Deploy to Hostinger Telecarezone
+name: Deploy to Hostinger Make My veggies
 on:
   push:
     branches:
