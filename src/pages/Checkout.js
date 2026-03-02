@@ -36,6 +36,7 @@ const Checkout = () => {
   const [orderTotal, setOrderTotal] = useState(0);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [error, setError] = useState('');
+  const [razorpayReady, setRazorpayReady] = useState(false);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -51,6 +52,22 @@ const Checkout = () => {
       document.body.appendChild(script);
     });
   };
+
+  useEffect(() => {
+    (async () => {
+      const ok = await loadRazorpayScript();
+      setRazorpayReady(ok);
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (formData.paymentMethod !== 'ONLINE') return;
+    if (razorpayReady) return;
+    (async () => {
+      const ok = await loadRazorpayScript();
+      setRazorpayReady(ok);
+    })();
+  }, [formData.paymentMethod, razorpayReady]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -234,8 +251,7 @@ const Checkout = () => {
         });
       } else {
         // Razorpay online payment flow
-        const scriptLoaded = await loadRazorpayScript();
-        if (!scriptLoaded) {
+        if (!razorpayReady) {
           setError('Unable to load Razorpay payment. Please try again or choose Cash on Delivery.');
           return;
         }

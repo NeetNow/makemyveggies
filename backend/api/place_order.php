@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../middleware/jwt_auth.php';
 require_once __DIR__ . '/../utils/email_production.php';
+require_once __DIR__ . '/../utils/sms_services.php';
 
 setCorsHeaders();
 
@@ -254,6 +255,28 @@ try {
 
     $pdo->commit();
 
+    if (strtoupper((string)$paymentMethod) !== 'COD') {
+        sendResponse(true, 'Order placed successfully', [
+            'order_id' => $orderId,
+            'order_number' => $orderNumber,
+            'payment_method' => $paymentMethod,
+            'total_amount' => $totalAmount,
+            'items' => $orderItemsSummary,
+            'billing' => [
+                'first_name' => $billingInsert['first_name'],
+                'last_name' => $billingInsert['last_name'],
+                'email' => $billingInsert['email'] ?? $user['email'] ?? null,
+                'phone' => $billingInsert['phone'] ?? null,
+                'address_line1' => $billingInsert['address_line1'],
+                'address_line2' => $billingInsert['address_line2'],
+                'city' => $billingInsert['city'],
+                'state' => $billingInsert['state'],
+                'country' => $billingInsert['country'],
+                'postal_code' => $billingInsert['postal_code'],
+            ],
+        ]);
+    }
+
     // Always send order confirmation email to account (login) email
     $accountEmail = $user['email'] ?? null;
     $accountName  = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
@@ -326,6 +349,22 @@ try {
         } else {
             error_log('Fast2SMS WhatsApp skipped: FAST2SMS_AUTH_KEY is empty');
         }
+    }
+
+    // SMS notification: send to both account phone and billing phone (no duplicates)
+    try {
+        $smsService = new SmsService();
+        $smsCountryCode = $_ENV['SMS_COUNTRY_CODE'] ?? '+91';
+        $smsText = "Order placed successfully. Order: {$orderNumber}. Amount: ₹" . number_format((float)$totalAmount, 2) . ".";
+
+        foreach ($phonesToNotify as $phoneNumber => $name) {
+            $sent = $smsService->sendMessage($smsCountryCode, $phoneNumber, $smsText);
+            if (!$sent) {
+                error_log('Order placed SMS failed for ' . $phoneNumber . ' order ' . $orderNumber);
+            }
+        }
+    } catch (Exception $e) {
+        error_log('Order placed SMS error: ' . $e->getMessage());
     }
 
     sendResponse(true, 'Order placed successfully', [

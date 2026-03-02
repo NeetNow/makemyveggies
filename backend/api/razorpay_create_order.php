@@ -82,6 +82,8 @@ try {
         CURLOPT_USERPWD        => $razorpayKeyId . ':' . $razorpayKeySecret,
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS     => json_encode($payload),
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT        => 15,
     ]);
 
     $response = curl_exec($ch);
