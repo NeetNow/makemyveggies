@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
@@ -34,6 +34,10 @@ const UserProfile = () => {
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [orders, setOrders] = useState([]);
+    const [expandedOrderId, setExpandedOrderId] = useState(null);
+    const [expandedOrderLoading, setExpandedOrderLoading] = useState(false);
+    const [expandedOrderError, setExpandedOrderError] = useState('');
+    const [expandedOrderDetails, setExpandedOrderDetails] = useState(null);
 
     // Close mobile menu when clicking outside
     useEffect(() => {
@@ -85,6 +89,41 @@ const UserProfile = () => {
             setIsLoading(false);
         }
     }, [currentUser]);
+
+    const loadOrderDetails = useCallback(async (orderId) => {
+        setExpandedOrderLoading(true);
+        setExpandedOrderError('');
+        setExpandedOrderDetails(null);
+
+        try {
+            const response = await fetch(`/backend/api/get_user_order_details.php?id=${encodeURIComponent(orderId)}`, {
+                credentials: 'include'
+            });
+            const data = await response.json();
+
+            if (!response.ok || data.status !== 'success') {
+                throw new Error(data.message || 'Failed to load order details');
+            }
+
+            setExpandedOrderDetails(data.order);
+        } catch (error) {
+            setExpandedOrderError(error?.message || 'Failed to load order details');
+        } finally {
+            setExpandedOrderLoading(false);
+        }
+    }, []);
+
+    const toggleOrderExpand = useCallback((orderId) => {
+        if (expandedOrderId === orderId) {
+            setExpandedOrderId(null);
+            setExpandedOrderError('');
+            setExpandedOrderDetails(null);
+            return;
+        }
+
+        setExpandedOrderId(orderId);
+        loadOrderDetails(orderId);
+    }, [expandedOrderId, loadOrderDetails]);
 
     const loadUserOrders = useCallback(async () => {
         try {
@@ -553,7 +592,15 @@ const UserProfile = () => {
                 <div className="orders-list">
                     {orders.map((order, index) => (
                         <div key={index} className="order-item card mb-3">
-                            <div className="card-body">
+                            <div
+                                className="card-body"
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => toggleOrderExpand(order.id)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') toggleOrderExpand(order.id);
+                                }}
+                            >
                                 <div className="row">
                                     <div className="col-md-8">
                                         <h5 className="card-title">Order #{order.id}</h5>
@@ -569,6 +616,80 @@ const UserProfile = () => {
                                         </span>
                                     </div>
                                 </div>
+
+                                {expandedOrderId === order.id && (
+                                    <div className="mt-3">
+                                        {expandedOrderLoading ? (
+                                            <div className="text-muted">Loading order details...</div>
+                                        ) : expandedOrderError ? (
+                                            <div className="alert alert-danger mb-0">{expandedOrderError}</div>
+                                        ) : expandedOrderDetails ? (
+                                            <>
+                                                <div className="row g-3">
+                                                    <div className="col-md-6">
+                                                        <div className="card">
+                                                            <div className="card-body p-3">
+                                                                <h6 className="mb-2">Payment</h6>
+                                                                <div className="small">
+                                                                    <div className="d-flex justify-content-between">
+                                                                        <span className="text-muted">Method</span>
+                                                                        <span>{expandedOrderDetails.payment?.paymentMethod || '—'}</span>
+                                                                    </div>
+                                                                    <div className="d-flex justify-content-between">
+                                                                        <span className="text-muted">Gateway</span>
+                                                                        <span>{expandedOrderDetails.payment?.paymentGateway || '—'}</span>
+                                                                    </div>
+                                                                    <div className="d-flex justify-content-between">
+                                                                        <span className="text-muted">Transaction</span>
+                                                                        <span>{expandedOrderDetails.payment?.transactionId || '—'}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-md-6">
+                                                        <div className="card">
+                                                            <div className="card-body p-3">
+                                                                <h6 className="mb-2">Total</h6>
+                                                                <div className="h6 text-success mb-0">₹{Number(expandedOrderDetails.totalAmount || 0).toFixed(2)}</div>
+                                                                <div className="text-muted small mt-2">Payment Status: {expandedOrderDetails.paymentStatus || '—'}</div>
+                                                                <div className="text-muted small">Order Status: {expandedOrderDetails.status || '—'}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="card mt-3">
+                                                    <div className="card-body p-3">
+                                                        <h6 className="mb-2">Items</h6>
+                                                        <div className="table-responsive">
+                                                            <table className="table table-sm align-middle mb-0">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Product</th>
+                                                                        <th className="text-end" style={{ width: 90 }}>Qty</th>
+                                                                        <th className="text-end" style={{ width: 120 }}>Unit</th>
+                                                                        <th className="text-end" style={{ width: 120 }}>Total</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {(expandedOrderDetails.items || []).map((it) => (
+                                                                        <tr key={it.id}>
+                                                                            <td>{it.title}</td>
+                                                                            <td className="text-end">{it.quantity}</td>
+                                                                            <td className="text-end">₹{Number(it.unitPrice || 0).toFixed(2)}</td>
+                                                                            <td className="text-end">₹{Number(it.totalPrice || 0).toFixed(2)}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        ) : null}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
