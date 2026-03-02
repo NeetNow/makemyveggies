@@ -8,8 +8,7 @@ const Team = () => {
         <div className="section__header section__header--header2">
           <span>Our Products<img src="/assets/img/logo/pata.png" alt="bakul" /></span>
           <h3>our professional landscapers</h3>
-          <p>Continually productize compelling quality for packed business consulting
-            Setting up to website and creating pages.</p>
+          <p>Explore our premium DIY gardening kits designed to help you grow fresh, healthy vegetables at home with ease.</p>
         </div>
       </div>
       <div className="section__wrapper team__wrapper">
