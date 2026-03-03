@@ -1,0 +1,201 @@
+/* Enhanced Mobile Responsiveness for Profile Page */
+
+@media (max-width: 768px) {
+    .profile-header {
+        padding: 60px 0 40px;
+    }
+    
+    .profile-title {
+        font-size: 2rem;
+    }
+    
+    .profile-subtitle {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+    
+    .header-stats {
+        gap: 20px;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    
+    .section-icon {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .form-card {
+        padding: 20px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .order-card {
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .order-body {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 0;
+    }
+    
+    .order-total {
+        text-align: left;
+    }
+    
+    .order-footer {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-view-order, .btn-reorder {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-header {
+        padding: 40px 0 30px;
+    }
+    
+    .profile-title {
+        font-size: 1.5rem;
+    }
+    
+    .profile-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .header-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .stat-divider {
+        width: 40px;
+        height: 1px;
+    }
+    
+    .form-card {
+        padding: 15px;
+    }
+    
+    .order-card {
+        padding: 15px;
+    }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+    .btn-modern:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .btn-modern:active {
+        transform: scale(0.95);
+    }
+    
+    .order-card:hover {
+        transform: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .order-card:active {
+        transform: scale(0.98);
+    }
+    
+    .sidebar-nav .nav-link:hover {
+        transform: none;
+    }
+    
+    .sidebar-nav .nav-link:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Enhanced Mobile Navigation */
+@media (max-width: 768px) {
+    .mobile-nav-dropdown {
+        background: white;
+        box-shadow: 0 8px 30px rgba(40, 167, 69, 0.15);
+        border-radius: 0 0 16px 16px;
+        position: relative;
+        z-index: 1000;
+        animation: slideDown 0.4s ease;
+        margin: 0 15px;
+    }
+    
+    .mobile-nav .nav-link:hover {
+        transform: translateX(5px);
+    }
+    
+    .mobile-nav .nav-link:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Dark mode support for enhanced design */
+@media (prefers-color-scheme: dark) {
+    .profile-page {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    }
+    
+    .form-card, .order-card, .profile-sidebar {
+        background: #2d2d2d;
+        border-color: #404040;
+        color: #ffffff;
+    }
+    
+    .form-control {
+        background: #404040;
+        border-color: #555555;
+        color: #ffffff;
+    }
+    
+    .form-control:focus {
+        border-color: #28a745;
+        background: #404040;
+    }
+    
+    .section-title h3, .user-name, .order-id {
+        color: #ffffff;
+    }
+    
+    .section-title p, .user-email, .order-date, .items-info {
+        color: #cccccc;
+    }
+}
