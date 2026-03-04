@@ -88,7 +88,7 @@ const Header = () => {
                       <li className="menu-item-has-children">
                         <Link to="#" onClick={(e) => e.preventDefault()}>Suppliments</Link>
                         <ul>
-                          <li><Link to="/shop?category=nutrition-spray">Nutrition Spray</Link></li>
+                          <li><Link to="/shop?category=nutrition spray">Nutrition Spray</Link></li>
                           <li><Link to="/shop?category=seeds">Seeds</Link></li>
                           <li><Link to="/shop?category=soil">Soil</Link></li>
                           <li><Link to="/shop?category=pots">Pots</Link></li>
