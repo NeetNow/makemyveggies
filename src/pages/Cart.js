@@ -43,7 +43,7 @@ const Cart = () => {
                     </div>
                     <h3>Your cart is empty</h3>
                     <p>Looks like you haven't added anything to your cart yet.</p>
-                    <Link to="/shop" className="custom-btn" style={{ padding: '2px 11px', fontSize: '0.9rem', marginTop: '20px' }}>Continue Shopping</Link>
+                    <Link to="/shop" className="custom-btn">Continue Shopping</Link>
                   </div>
                 </div>
               </div>
@@ -138,7 +138,7 @@ const Cart = () => {
 
                   {/* Cart Actions */}
                   <div className="cart-actions">
-                    <Link to="/shop" className="continue-shopping-btn" style={{ padding: '2px 11px', fontSize: '0.9rem' }}>
+                    <Link to="/shop" className="continue-shopping-btn">
                       <i className="fa-solid fa-arrow-left"></i>
                       Continue Shopping
                     </Link>

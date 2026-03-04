@@ -73,7 +73,63 @@ const Feedback = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="swiper-slide">
+                    <div className="feedback__item">
+                      <div className="feedback__inner bg-white">
+                        <div className="top">
+                          <div className="thumb">
+                            <img src="/assets/img/home-1/feedback/img1.png" alt="bakul" />
+                          </div>
+                          <div className="profile">
+                            <div className="name">
+                              <h6>Shashank Mohite</h6>
+                            </div>
+                            <div className="star">
+                              <ul>
+                                <li><i className="fa-solid fa-star"></i></li>
+                                <li><i className="fa-solid fa-star"></i></li>
+                                <li><i className="fa-solid fa-star"></i></li>
+                                <li><i className="fa-solid fa-star"></i></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bottom">
+                          <p>This DIY kit made balcony gardening easy. The potting mix is great, 
+                            and the guide helped with watering. My cherry tomatoes are already 
+                            flowering! Just be sure your spot gets at least 2 hours of sunlight.</p>
+                        </div>
+                      </div>
+                      <div className="feedback__inner bg-white">
+                        <div className="top">
+                          <div className="thumb">
+                            <img src="/assets/img/home-1/feedback/img2.png" alt="bakul" />
+                          </div>
+                          <div className="profile">
+                            <div className="name">
+                              <h6>Aparna Shah</h6>
+                            </div>
+                            <div className="star">
+                              <ul>
+                                <li><i className="fa-solid fa-star"></i></li>
+                                <li><i className="fa-solid fa-star"></i></li>
+                                <li><i className="fa-solid fa-star"></i></li>
+                                <li><i className="fa-solid fa-star"></i></li>
+                                <li><i className="fa-solid fa-star"></i></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bottom">
+                          <p>The Microgreen kit is amazing for quick, easy salads. I chose 
+                          Mustard seeds and had a full harvest in just 12 days. It’s very 
+                          beginner-friendly, and the spray bottle makes watering simple. 
+                          A great way to start urban farming!</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
+                </div>
               </div>
             </div>
           </div>

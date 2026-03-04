@@ -562,11 +562,7 @@ const ProductDetails = () => {
 
                   <div className="stock-status">
                     <span className={`stock-badge ${product.inStock ? 'in-stock' : 'out-of-stock'}`}>
-                      {product.inStock ? (
-                        product.stockCount <= 10 
-                          ? `✓ Last ${product.stockCount} products left` 
-                          : `✓ In Stock`
-                      ) : '✗ Out of Stock'}
+                      {product.inStock ? `✓ In Stock (${product.stockCount} available)` : '✗ Out of Stock'}
                     </span>
                   </div>
 
@@ -612,6 +608,10 @@ const ProductDetails = () => {
                   )}
 
                   <div className="product-meta">
+                    <div className="meta-item">
+                      <span>SKU:</span>
+                      <span>GP-{product.id.toString().padStart(3, '0')}</span>
+                    </div>
                     <div className="meta-item">
                       <span>Share:</span>
                       <div className="social-links">

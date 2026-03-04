@@ -403,7 +403,7 @@ const Checkout = () => {
                       </div>
                       
                       <div className="text-center mt-4">
-                        <Link to="/shop" className="custom-btn" style={{ padding: '2px 11px', fontSize: '0.9rem' }}>Continue Shopping</Link>
+                        <Link to="/shop" className="custom-btn">Continue Shopping</Link>
                       </div>
                     </div>
                   </div>
