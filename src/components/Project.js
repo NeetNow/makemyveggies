@@ -7,7 +7,8 @@ const Project = () => {
         <div className="section__header section__header--header2">
           <span>makemyveggies Project<img src="/assets/img/logo/pata.png" alt="bakul" /></span>
           <h3>makemyveggies Our Garden Project</h3>
-          <p>Explore our premium DIY gardening kits designed to help you grow fresh, healthy vegetables at home with ease.</p>
+          <p>Continually productize compelling quality for packed business consulting
+            Setting up to website and creating pages.</p>
         </div>
       </div>
       <div className="section__wrapper project__wrapper">
