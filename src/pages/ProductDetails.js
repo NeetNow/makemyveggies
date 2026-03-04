@@ -562,7 +562,11 @@ const ProductDetails = () => {
 
                   <div className="stock-status">
                     <span className={`stock-badge ${product.inStock ? 'in-stock' : 'out-of-stock'}`}>
-                      {product.inStock ? `✓ In Stock (${product.stockCount} available)` : '✗ Out of Stock'}
+                      {product.inStock ? (
+                        product.stockCount <= 10 
+                          ? `✓ Last ${product.stockCount} products left` 
+                          : `✓ In Stock`
+                      ) : '✗ Out of Stock'}
                     </span>
                   </div>
 
