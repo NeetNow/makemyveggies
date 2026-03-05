@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
+import { ShoppingBag, IndianRupee, Package, Users, TrendingUp, Calendar, CreditCard } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
@@ -57,93 +59,141 @@ const AdminDashboard = () => {
   }, []);
 
   return (
-    <div className="container-fluid">
-      <div className="row mb-4">
-        <div className="col-md-3 mb-3 card-animate">
-          <div className="card shadow-sm stat-card stat-card--primary">
-            <div className="card-body py-3">
-              <h6 className="text-muted mb-1">Total Orders</h6>
-              <h3 className="mb-0 stat-value">{loading ? '—' : stats?.ordersTotal ?? 0}</h3>
+    <div className="container-fluid py-4">
+      {/* Stat Cards Row */}
+      <div className="row g-3 mb-4">
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card shadow-sm stat-card stat-card--primary h-100">
+            <div className="card-body d-flex align-items-center justify-content-between py-3">
+              <div>
+                <div className="text-muted small mb-1">Total Orders</div>
+                <div className="fw-bold fs-4">{loading ? '—' : stats?.ordersTotal ?? 0}</div>
+              </div>
+              <div className="stat-icon bg-primary bg-opacity-10 text-primary rounded-3 p-2">
+                <ShoppingBag size={20} />
+              </div>
             </div>
           </div>
         </div>
-        <div className="col-md-3 mb-3 card-animate">
-          <div className="card shadow-sm stat-card stat-card--warning">
-            <div className="card-body py-3">
-              <h6 className="text-muted mb-1">Revenue</h6>
-              <h3 className="mb-0 stat-value">{loading ? '—' : revenueFmt(stats?.paidRevenueTotal)}</h3>
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card shadow-sm stat-card stat-card--warning h-100">
+            <div className="card-body d-flex align-items-center justify-content-between py-3">
+              <div>
+                <div className="text-muted small mb-1">Revenue</div>
+                <div className="fw-bold fs-4">{loading ? '—' : revenueFmt(stats?.paidRevenueTotal)}</div>
+              </div>
+              <div className="stat-icon bg-warning bg-opacity-10 text-warning rounded-3 p-2">
+                <IndianRupee size={20} />
+              </div>
             </div>
           </div>
         </div>
-        <div className="col-md-3 mb-3 card-animate">
-          <div className="card shadow-sm stat-card stat-card--info">
-            <div className="card-body py-3">
-              <h6 className="text-muted mb-1">Products</h6>
-              <h3 className="mb-0 stat-value">{loading ? '—' : stats?.productsTotal ?? 0}</h3>
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card shadow-sm stat-card stat-card--info h-100">
+            <div className="card-body d-flex align-items-center justify-content-between py-3">
+              <div>
+                <div className="text-muted small mb-1">Products</div>
+                <div className="fw-bold fs-4">{loading ? '—' : stats?.productsTotal ?? 0}</div>
+              </div>
+              <div className="stat-icon bg-info bg-opacity-10 text-info rounded-3 p-2">
+                <Package size={20} />
+              </div>
             </div>
           </div>
         </div>
-        <div className="col-md-3 mb-3 card-animate">
-          <div className="card shadow-sm stat-card stat-card--danger">
-            <div className="card-body py-3">
-              <h6 className="text-muted mb-1">Customers</h6>
-              <h3 className="mb-0 stat-value">{loading ? '—' : stats?.customersTotal ?? 0}</h3>
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card shadow-sm stat-card stat-card--danger h-100">
+            <div className="card-body d-flex align-items-center justify-content-between py-3">
+              <div>
+                <div className="text-muted small mb-1">Customers</div>
+                <div className="fw-bold fs-4">{loading ? '—' : stats?.customersTotal ?? 0}</div>
+              </div>
+              <div className="stat-icon bg-danger bg-opacity-10 text-danger rounded-3 p-2">
+                <Users size={20} />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="row">
-        <div className="col-lg-8 mb-3">
+      {/* Main Content Row */}
+      <div className="row g-4">
+        {/* Sales Overview */}
+        <div className="col-lg-8">
           <div className="card shadow-sm h-100">
+            <div className="card-header bg-white border-bottom py-3">
+              <div className="d-flex align-items-center justify-content-between">
+                <h5 className="card-title mb-0 fw-semibold">Sales Overview</h5>
+                <Link to="/admin/analytics" className="btn btn-sm btn-outline-primary">
+                  View Analytics
+                </Link>
+              </div>
+            </div>
             <div className="card-body">
-              <h5 className="card-title mb-3">Sales Overview</h5>
               {loading ? (
-                <p className="text-muted mb-0">Loading...</p>
+                <div className="text-center py-5">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                </div>
               ) : error ? (
-                <p className="text-danger mb-0">{error}</p>
+                <div className="alert alert-danger mb-0">{error}</div>
               ) : (
                 <>
-                  <div className="row g-2 mb-3">
+                  {/* Quick Stats Cards */}
+                  <div className="row g-3 mb-4">
                     <div className="col-12 col-md-4">
-                      <div className="p-3 border rounded">
-                        <div className="text-muted small">Today Revenue</div>
-                        <div className="fw-semibold">{revenueFmt(stats?.todayRevenue)}</div>
-                        <div className="text-muted small mt-1">Today Orders: {stats?.todayOrders ?? 0}</div>
+                      <div className="p-3 bg-light rounded-3 border">
+                        <div className="d-flex align-items-center mb-2">
+                          <Calendar size={16} className="text-primary me-2" />
+                          <span className="text-muted small">Today Revenue</span>
+                        </div>
+                        <div className="fw-bold fs-5">{revenueFmt(stats?.todayRevenue)}</div>
+                        <div className="text-muted small mt-1">{stats?.todayOrders ?? 0} orders today</div>
                       </div>
                     </div>
                     <div className="col-12 col-md-4">
-                      <div className="p-3 border rounded">
-                        <div className="text-muted small">This Month Revenue</div>
-                        <div className="fw-semibold">{revenueFmt(stats?.monthRevenue)}</div>
-                        <div className="text-muted small mt-1">Last 7 days Orders: {stats?.weekOrders ?? 0}</div>
+                      <div className="p-3 bg-light rounded-3 border">
+                        <div className="d-flex align-items-center mb-2">
+                          <TrendingUp size={16} className="text-success me-2" />
+                          <span className="text-muted small">This Month</span>
+                        </div>
+                        <div className="fw-bold fs-5">{revenueFmt(stats?.monthRevenue)}</div>
+                        <div className="text-muted small mt-1">{stats?.weekOrders ?? 0} orders (7 days)</div>
                       </div>
                     </div>
                     <div className="col-12 col-md-4">
-                      <div className="p-3 border rounded">
-                        <div className="text-muted small">Paid Revenue Total</div>
-                        <div className="fw-semibold">{revenueFmt(stats?.paidRevenueTotal)}</div>
-                        <div className="text-muted small mt-1">All Orders: {stats?.ordersTotal ?? 0}</div>
+                      <div className="p-3 bg-light rounded-3 border">
+                        <div className="d-flex align-items-center mb-2">
+                          <CreditCard size={16} className="text-info me-2" />
+                          <span className="text-muted small">Total Paid</span>
+                        </div>
+                        <div className="fw-bold fs-5">{revenueFmt(stats?.paidRevenueTotal)}</div>
+                        <div className="text-muted small mt-1">{stats?.ordersTotal ?? 0} total orders</div>
                       </div>
                     </div>
                   </div>
 
+                  {/* 7-Day Sales Table */}
+                  <h6 className="fw-semibold mb-3">Last 7 Days Revenue</h6>
                   {sales7.length === 0 ? (
-                    <p className="text-muted mb-0">No sales data found for last 7 days.</p>
+                    <div className="text-center py-4 text-muted bg-light rounded-3">
+                      No sales data found for last 7 days.
+                    </div>
                   ) : (
                     <div className="table-responsive">
-                      <table className="table table-sm table-bordered align-middle mb-0">
+                      <table className="table table-hover align-middle mb-0">
                         <thead className="table-light">
                           <tr>
-                            <th style={{ width: 160 }}>Date</th>
-                            <th>Revenue</th>
+                            <th className="fw-semibold" style={{ width: 180 }}>Date</th>
+                            <th className="fw-semibold text-end">Revenue</th>
                           </tr>
                         </thead>
                         <tbody>
                           {sales7.map((r) => (
                             <tr key={r.date}>
-                              <td>{r.date}</td>
-                              <td className="fw-semibold">{revenueFmt(r.revenue)}</td>
+                              <td className="text-muted">{r.date}</td>
+                              <td className="text-end fw-semibold text-success">{revenueFmt(r.revenue)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -155,40 +205,56 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
-        <div className="col-lg-4 mb-3">
+
+        {/* Recent Orders */}
+        <div className="col-lg-4">
           <div className="card shadow-sm h-100">
-            <div className="card-body">
-              <h5 className="card-title mb-3">Recent Orders</h5>
+            <div className="card-header bg-white border-bottom py-3">
+              <div className="d-flex align-items-center justify-content-between">
+                <h5 className="card-title mb-0 fw-semibold">Recent Orders</h5>
+                <Link to="/admin/orders" className="btn btn-sm btn-outline-primary">
+                  View All
+                </Link>
+              </div>
+            </div>
+            <div className="card-body p-0">
               {loading ? (
-                <p className="text-muted mb-0">Loading...</p>
+                <div className="text-center py-5">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                </div>
               ) : error ? (
-                <p className="text-danger mb-0">{error}</p>
+                <div className="alert alert-danger m-3">{error}</div>
               ) : recentOrders.length === 0 ? (
-                <p className="text-muted mb-0">No recent orders.</p>
+                <div className="text-center py-5 text-muted">
+                  <ShoppingBag size={48} className="mb-3 opacity-25" />
+                  <p>No recent orders.</p>
+                </div>
               ) : (
-                <div className="table-responsive">
-                  <table className="table table-sm table-hover align-middle mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th>Order</th>
-                        <th className="text-end">Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentOrders.map((o) => (
-                        <tr key={o.id}>
-                          <td>
-                            <div className="fw-semibold">{o.orderNumber}</div>
-                            <div className="text-muted small">{o.customerName}</div>
-                            <div className="text-muted small">
-                              {o.status} • {o.paymentStatus} • Items: {o.items}
-                            </div>
-                          </td>
-                          <td className="text-end fw-semibold">{revenueFmt(o.totalAmount)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="list-group list-group-flush">
+                  {recentOrders.map((o) => (
+                    <Link
+                      key={o.id}
+                      to={`/admin/orders/${o.id}`}
+                      className="list-group-item list-group-item-action py-3"
+                    >
+                      <div className="d-flex justify-content-between align-items-start">
+                        <div>
+                          <div className="fw-semibold">{o.orderNumber}</div>
+                          <div className="text-muted small">{o.customerName}</div>
+                          <div className="text-muted small mt-1">
+                            <span className="badge bg-light text-dark me-1">{o.status}</span>
+                            <span className="badge bg-light text-dark">{o.items} items</span>
+                          </div>
+                        </div>
+                        <div className="text-end">
+                          <div className="fw-semibold text-success">{revenueFmt(o.totalAmount)}</div>
+                          <div className="text-muted small">{o.paymentStatus}</div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>

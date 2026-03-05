@@ -6,7 +6,6 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { getApiBase } from '../../utils/api';
 
 const AdminLayout = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
@@ -256,7 +255,7 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className={`admin-layout d-flex ${collapsed ? 'sidebar-collapsed' : ''} ${mobileOpen ? 'sidebar-mobile-open' : ''}`}>
+    <div className={`admin-layout d-flex ${mobileOpen ? 'sidebar-mobile-open' : ''}`}>
       {mobileOpen && (
         <button
           type="button"
@@ -272,13 +271,6 @@ const AdminLayout = () => {
             <span className="admin-brand">MMV</span>
             <small className="text-muted-50 sidebar-brand-sub">Admin</small>
           </div>
-          <button
-            type="button"
-            className="btn btn-sm btn-outline-light sidebar-toggle"
-            onClick={() => setCollapsed(!collapsed)}
-          >
-            {collapsed ? '»' : '«'}
-          </button>
         </div>
 
         <div className="admin-sidebar-menu flex-grow-1 mt-3 px-2">

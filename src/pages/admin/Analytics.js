@@ -24,6 +24,171 @@ const Analytics = () => {
     return (v) => `₹${Number(v || 0).toFixed(2)}`;
   }, []);
 
+  const exportPdfHtml = useCallback(() => {
+    const now = new Date();
+    const stamp = now.toLocaleString();
+    const safe = (v) => String(v ?? '').replace(/[&<>"']/g, (ch) => {
+      switch (ch) {
+        case '&':
+          return '&amp;';
+        case '<':
+          return '&lt;';
+        case '>':
+          return '&gt;';
+        case '"':
+          return '&quot;';
+        case "'":
+          return '&#39;';
+        default:
+          return ch;
+      }
+    });
+
+    const s = stats || {};
+    const kpiRows = [
+      { label: 'Total Orders', value: s.ordersTotal ?? 0 },
+      { label: 'Total Products', value: s.productsTotal ?? 0 },
+      { label: 'Active Customers', value: s.customersTotal ?? 0 },
+      { label: 'Paid Revenue (Total)', value: moneyFmt(s.paidRevenueTotal ?? 0) },
+      { label: "Today's Revenue", value: moneyFmt(s.todayRevenue ?? 0) },
+      { label: 'This Month Revenue', value: moneyFmt(s.monthRevenue ?? 0) },
+      { label: 'Today Orders', value: s.todayOrders ?? 0 },
+      { label: 'Orders (Last 7 Days)', value: s.weekOrders ?? 0 }
+    ];
+
+    const salesRows = (Array.isArray(salesLast7Days) ? salesLast7Days : []).map((p) => {
+      return {
+        date: p?.date || '—',
+        revenue: moneyFmt(p?.revenue || 0)
+      };
+    });
+
+    const orderRows = (Array.isArray(recentOrders) ? recentOrders : []).map((o) => {
+      return {
+        order: o?.orderNumber || `#${o?.id ?? ''}`,
+        customer: o?.customerName || '—',
+        items: o?.items ?? 0,
+        total: moneyFmt(o?.totalAmount || 0),
+        status: o?.status || '—',
+        payment: o?.paymentStatus || '—',
+        placed: o?.placedAt || '—'
+      };
+    });
+
+    const html = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Analytics Report</title>
+    <style>
+      @page { size: A4; margin: 14mm; }
+      * { box-sizing: border-box; }
+      body { font-family: Arial, Helvetica, sans-serif; color: #111; }
+      .header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #939E5B; padding-bottom: 10px; margin-bottom: 14px; }
+      .title { font-size: 18px; font-weight: 700; }
+      .meta { font-size: 12px; color: #555; }
+      .section { margin: 14px 0; }
+      .section h2 { font-size: 14px; margin: 0 0 8px; color: #2c2c2c; }
+      .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .kpi { border: 1px solid #e6e6e6; border-radius: 8px; padding: 10px; }
+      .kpi .label { font-size: 11px; color: #666; margin-bottom: 6px; }
+      .kpi .value { font-size: 14px; font-weight: 700; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { border: 1px solid #e6e6e6; padding: 8px; font-size: 12px; text-align: left; }
+      th { background: #f6f7f5; }
+      .muted { color: #666; }
+      .footer { margin-top: 18px; padding-top: 10px; border-top: 1px solid #e6e6e6; font-size: 11px; color: #666; }
+      @media print {
+        .no-print { display: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div>
+        <div class="title">Analytics & Reporting</div>
+        <div class="meta">Generated: ${safe(stamp)}</div>
+      </div>
+      <div class="meta">MakeMyVeggies Admin</div>
+    </div>
+
+    <div class="section">
+      <h2>Summary KPIs</h2>
+      <div class="kpi-grid">
+        ${kpiRows.map((r) => `
+          <div class="kpi">
+            <div class="label">${safe(r.label)}</div>
+            <div class="value">${safe(r.value)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Revenue (Last 7 Days)</h2>
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Revenue</th></tr>
+        </thead>
+        <tbody>
+          ${salesRows.length === 0 ? '<tr><td colspan="2" class="muted">No data</td></tr>' : salesRows.map((r) => `
+            <tr>
+              <td>${safe(r.date)}</td>
+              <td>${safe(r.revenue)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Recent Orders</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Placed</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${orderRows.length === 0 ? '<tr><td colspan="7" class="muted">No orders</td></tr>' : orderRows.map((r) => `
+            <tr>
+              <td>${safe(r.order)}</td>
+              <td>${safe(r.customer)}</td>
+              <td>${safe(r.items)}</td>
+              <td>${safe(r.total)}</td>
+              <td>${safe(r.status)}</td>
+              <td>${safe(r.payment)}</td>
+              <td>${safe(r.placed)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      This report is generated from the currently loaded analytics data in the admin panel.
+    </div>
+  </body>
+</html>`;
+
+    const w = window.open('', '_blank');
+    if (!w) return;
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    w.onload = () => {
+      w.print();
+    };
+  }, [moneyFmt, recentOrders, salesLast7Days, stats]);
+
   const getDashboardStatsEndpointCandidates = useCallback(() => {
     const path = '/backend/api/admin/dashboard_stats.php';
     return [
@@ -166,15 +331,25 @@ const Analytics = () => {
           <h4 className="mb-1">Analytics & Reporting</h4>
           <p className="text-muted mb-0 small">Sales summary, customer activity, and recent orders.</p>
         </div>
-        <button
-          type="button"
-          className="btn btn-sm btn-success"
-          onClick={handleRefresh}
-          disabled={loading || refreshing}
-        >
-          <RefreshCw size={16} className="me-2" />
-          {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
+        <div className="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary"
+            onClick={exportPdfHtml}
+            disabled={loading || !!error || !stats}
+          >
+            Export
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm btn-success"
+            onClick={handleRefresh}
+            disabled={loading || refreshing}
+          >
+            <RefreshCw size={16} className="me-2" />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
       <div className="row g-3 mb-3">
