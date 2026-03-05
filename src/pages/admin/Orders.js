@@ -139,80 +139,91 @@ const Orders = () => {
       </div>
 
       <div className="card shadow-sm mb-3">
-        <div className="card-body">
-          <div className="row g-2 align-items-end">
-            <div className="col-12 col-sm-6 col-lg-4">
-              <label className="form-label small text-muted mb-1">Search</label>
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                placeholder="Order # / customer name / email"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                style={{ height: 31 }}
-              />
-            </div>
-            <div className="col-12 col-sm-6 col-lg-2">
-              <label className="form-label small text-muted mb-1">Order Status</label>
-              <select
-                className="form-select form-select-sm"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                style={{ height: 31 }}
-              >
-                <option value="">All</option>
-                <option value="Pending">Pending</option>
-                <option value="Confirmed">Confirmed</option>
-                <option value="Processing">Processing</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
-            </div>
-            <div className="col-12 col-sm-6 col-lg-2">
-              <label className="form-label small text-muted mb-1">Payment Status</label>
-              <select
-                className="form-select form-select-sm"
-                value={paymentStatus}
-                onChange={(e) => setPaymentStatus(e.target.value)}
-                style={{ height: 31 }}
-              >
-                <option value="">All</option>
-                <option value="Pending">Pending</option>
-                <option value="Success">Success</option>
-                <option value="Paid">Paid</option>
-                <option value="Failed">Failed</option>
-                <option value="Refunded">Refunded</option>
-              </select>
-            </div>
-            <div className="col-12 col-sm-6 col-lg-2">
-              <label className="form-label small text-muted mb-1">Sort</label>
-              <select className="form-select form-select-sm" value={sort} onChange={(e) => setSort(e.target.value)} style={{ height: 31 }}>
-                <option value="newest">Newest</option>
-                <option value="oldest">Oldest</option>
-                <option value="amount_high">Amount: High to Low</option>
-                <option value="amount_low">Amount: Low to High</option>
-              </select>
-            </div>
-            <div className="col-12 col-sm-6 col-lg-2">
-              <button
-                type="button"
-                className="btn btn-outline-secondary btn-sm w-100"
-                onClick={() => {
-                  setSearch('');
-                  setStatus('');
-                  setPaymentStatus('');
-                  setSort('newest');
-                }}
-                disabled={loading}
-                style={{ height: 31 }}
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        </div>
+  <div className="card-body">
+    <div className="row g-2 align-items-end">
+
+      <div className="col-md-4">
+        <label className="form-label small text-muted mb-1">Search</label>
+        <input
+          type="text"
+          className="form-control form-control-sm"
+          placeholder="Order # / Customer Name / Email"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{height:"38px"}}
+        />
       </div>
+
+      <div className="col-md-2 mb-3">
+        <label className="form-label small text-muted mb-1">Order Status</label>
+        <select
+          className="form-select form-select-sm"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          style={{height:"38px"}}
+        >
+          <option value="">All</option>
+          <option value="Pending">Pending</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="Processing">Processing</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <div className="col-md-2 mb-3">
+        <label className="form-label small text-muted mb-1">Payment Status</label>
+        <select
+          className="form-select form-select-sm"
+          value={paymentStatus}
+          onChange={(e) => setPaymentStatus(e.target.value)}
+          style={{height:"38px"}}
+        >
+          <option value="">All</option>
+          <option value="Pending">Pending</option>
+          <option value="Success">Success</option>
+          <option value="Paid">Paid</option>
+          <option value="Failed">Failed</option>
+          <option value="Refunded">Refunded</option>
+        </select>
+      </div>
+
+      <div className="col-md-2 mb-3">
+        <label className="form-label small text-muted mb-1">Sort</label>
+        <select
+          className="form-select form-select-sm"
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          style={{height:"38px"}}
+        >
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="amount_high">Amount: High to Low</option>
+          <option value="amount_low">Amount: Low to High</option>
+        </select>
+      </div>
+
+      <div className="col-md-2 mb-3">
+        <label className="form-label small text-muted mb-1">&nbsp;</label>
+        <button
+          type="button"
+          className="btn btn-outline-secondary btn-sm w-100"
+          style={{height:"38px"}}
+          onClick={() => {
+            setSearch('');
+            setStatus('');
+            setPaymentStatus('');
+            setSort('newest');
+          }}
+        >
+          Clear
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
       <div className="card shadow-sm">
         <div className="card-body p-0">

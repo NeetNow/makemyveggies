@@ -7,6 +7,50 @@ const Customers = () => {
   const API_BASE = getApiBase();
   const apiPrefix = `${API_BASE}/backend/api/admin`;
 
+  const maskPhone = (phone) => {
+    if (!phone) return '—';
+    const digits = String(phone).replace(/\D/g, '');
+    if (!digits) return '—';
+    const last4 = digits.slice(-4);
+    return `XXXXXX${last4}`;
+  };
+
+  const exportCsv = (rows) => {
+    const safe = (v) => {
+      const s = v === null || v === undefined ? '' : String(v);
+      return `"${s.replace(/"/g, '""')}"`;
+    };
+
+    const header = ['ID', 'Name', 'Email', 'Phone', 'Active', 'Email Verified'];
+    const lines = [header.map(safe).join(',')];
+
+    (Array.isArray(rows) ? rows : []).forEach((u) => {
+      const name = `${u?.first_name || ''} ${u?.last_name || ''}`.trim();
+      lines.push(
+        [
+          u?.user_id,
+          name || '',
+          u?.email || '',
+          maskPhone(u?.phone),
+          u?.is_active ? 'Active' : 'Inactive',
+          u?.email_verified ? 'Verified' : 'Not verified'
+        ].map(safe).join(',')
+      );
+    });
+
+    const csv = lines.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    a.href = url;
+    a.download = `customers-${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const canViewCustomers = useHasAnyPermission(['view.customer', 'view.user']);
 
   const [loading, setLoading] = useState(true);
@@ -98,7 +142,17 @@ const Customers = () => {
                 style={{ height: 31 }}
               />
             </div>
-            <div className="text-muted small">Total: {loading ? '—' : filtered.length}</div>
+            <div className="d-flex align-items-center gap-2">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                disabled={loading || !!error || filtered.length === 0}
+                onClick={() => exportCsv(filtered)}
+              >
+                Export
+              </button>
+              <div className="text-muted small">Total: {loading ? '—' : filtered.length}</div>
+            </div>
           </div>
 
           {loading && <p className="text-muted mb-0">Loading...</p>}
@@ -130,7 +184,7 @@ const Customers = () => {
                         <td>{u.user_id}</td>
                         <td className="fw-semibold">{`${u.first_name || ''} ${u.last_name || ''}`.trim() || '—'}</td>
                         <td>{u.email || '—'}</td>
-                        <td className="text-muted">{u.phone || '—'}</td>
+                        <td className="text-muted">{maskPhone(u.phone)}</td>
                         <td>
                           <span className={`badge ${u.is_active ? 'bg-success' : 'bg-secondary'}`}>{u.is_active ? 'Active' : 'Inactive'}</span>
                         </td>

@@ -102,14 +102,17 @@ const AdminNewsletter = () => {
         </div>
 
         <div className="d-flex gap-2">
-          <div className="input-group input-group-sm" style={{ maxWidth: 360 }}>
-            <span className="input-group-text">Search</span>
+          <div className="input-group input-group-sm" style={{ maxWidth: 420, width: '100%' }}>
+            <span className="input-group-text" style={{ height: 31, display: 'flex', alignItems: 'center' }}>
+              Search
+            </span>
             <input
               type="text"
-              className="form-control"
+              className="form-control form-control-sm"
               placeholder="email@example.com"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              style={{ height: 31 }}
             />
           </div>
 
@@ -121,8 +124,9 @@ const AdminNewsletter = () => {
               disabled={loading}
               aria-label="Refresh"
               title="Refresh"
+              style={{ height: 31 }}
             >
-            <RotateCw size={16} />
+              <RotateCw size={16} />
             </button>
           )}
         </div>

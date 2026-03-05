@@ -228,62 +228,6 @@
     gap: 10px;
 }
 
-/* mobile login icon styling */
-.mobile-login-icon {
-    color: #D06228;
-    font-size: 20px;
-    
-    border-radius: 5px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s;
-}
-.mobile-login-icon:hover {
-    background: #28a745;
-    color: #fff;
-}
-.mobile-login-icon.d-xl-none {
-    display: none !important;
-}
-@media (max-width: 1199.98px) {
-  .mobile-login-icon.d-xl-none {
-      display: inline-flex !important;
-  }
-}
-
-/* move icons inside hamburger for <372px */
-@media (max-width: 372px) {
-  .header .right .carticon,
-  .header .right .mobile-login-icon {
-    display: none !important;
-  }
-  .mobile-icons { 
-    display: flex !important; 
-    justify-content: center;
-    gap: 24px;
-    padding: 12px 0;
-    margin-top: 10px;
-  }
-  .mobile-icons .menu-icon {
-    color: #28a745;
-    font-size: 24px;
-    position: relative;
-  }
-  .mobile-icons .cart-count {
-    position: absolute;
-    top: -4px;
-    right: -6px;
-    background: #e74c3c;
-    color: #fff;
-    border-radius: 50%;
-    padding: 0 4px;
-    font-size: 10px;
-  }
-}
-
-/* align icons in one row below 371px and reduce size */
-
 .login-btn,
 .register-btn {
     padding: 8px 16px;
@@ -815,10 +759,6 @@
     .settings-item.danger-zone {
         padding: 1.2rem;
     }
-    .login-btn {
-        padding: 4px 8px;
-        font-size: 12px;
-    }
 }
 
 @media (max-width: 576px) {
@@ -851,29 +791,4 @@
     .settings-item {
         padding: 1rem;
     }
-}
-
-/* (reverted desktop-only cart icon color) */
-
-/* Cart Icon Colors Based on Screen Size and Placement */
-/* Desktop (xl+): black. Mobile/small screen outside hamburger: orange. Inside hamburger: green. */
-.header__cart button {
-  color: #F28C28;
-}
-
-.header__cart button svg {
-  color: #F28C28;
-  stroke: #F28C28;
-}
-
-/* Desktop view: cart icon black */
-@media (min-width: 1200px) {
-  .header__cart button {
-    color: #000;
-  }
-  
-  .header__cart button svg {
-    color: #000;
-    stroke: #000;
-  }
 }
