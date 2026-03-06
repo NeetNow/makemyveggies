@@ -88,7 +88,7 @@ const ViewSupplement = () => {
     setDeleting(true);
     try {
       const res = await fetch(`${API_PREFIX}/api/admin/delete_product.php?id=${encodeURIComponent(String(id))}`, {
-        method: 'DELETE',
+        method: 'POST',
         credentials: 'include'
       });
 
