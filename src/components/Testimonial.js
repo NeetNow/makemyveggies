@@ -8,7 +8,7 @@ const Testimonial = () => {
           <div className="col-md-8">
             <span>Our Feedback<img src="/assets/img/logo/pata.png" alt="bakul" /></span>
             <h3>what Our Client Say About Us</h3>
-            <p>Continually productize compelling quality packed business consulting Setting up to website and creating pages.</p>
+            <p>We provide high-quality DIY gardening kits and expert support to make home gardening simple, effective, and enjoyable.</p>
           </div>
         </div>
         <div className="section__wrapper">

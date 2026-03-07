@@ -12,13 +12,7 @@ const About = () => {
     <>
       <main>
         {/* Page Header */}
-        <section className="pageheader overflow-hidden">
-          <div className="container">
-            <div className="pageheader__content">
-              <h2>About Make My Veggies</h2>
-            </div>
-          </div>
-        </section>
+        
 
         {/* Natureplant Section */}
         <NaturePlant />

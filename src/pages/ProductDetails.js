@@ -609,10 +609,6 @@ const ProductDetails = () => {
 
                   <div className="product-meta">
                     <div className="meta-item">
-                      <span>SKU:</span>
-                      <span>GP-{product.id.toString().padStart(3, '0')}</span>
-                    </div>
-                    <div className="meta-item">
                       <span>Share:</span>
                       <div className="social-links">
                         <a

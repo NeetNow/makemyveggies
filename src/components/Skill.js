@@ -10,7 +10,7 @@ const Skill = () => {
               <div className="col-lg-12 col-xl-10">
                 <span>We’re Skilled Full<img src="/assets/img/logo/pata.png" alt="bakul" /></span>
                 <h3>Experience Gardening & Landscape Center</h3>
-                <p>Continually productize compelling quality for packed in business consulting Setting up to website and creating pages.</p>
+                <p>We provide high-quality DIY gardening kits and expert support to make home gardening simple, effective, and enjoyable.</p>
               </div>
             </div>
             <div className="section-wrapper">
