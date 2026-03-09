@@ -204,30 +204,30 @@ const ProductSupplements = () => {
     setProductToDelete(null);
   };
 
-  const confirmDelete = async () => {
-    if (!productToDelete?.id) return;
-
-    setDeleting(true);
-    try {
-      const res = await fetch(`${API_PREFIX}/api/admin/delete_product.php?id=${encodeURIComponent(String(productToDelete.id))}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-
-      const data = await readJsonSafe(res);
-      if (!res.ok || data?.status !== 'success') {
-        throw new Error(data?.message || 'Failed to delete product');
+  const confirmDeleteProduct = async () => {
+      if (!productToDelete?.id) return;
+  
+      setDeleting(true);
+      try {
+        const res = await fetch(`${API_PREFIX}/api/admin/delete_product.php?id=${encodeURIComponent(String(productToDelete.id))}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+  
+        const data = await readJsonSafe(res);
+        if (!res.ok || data?.status !== 'success') {
+          throw new Error(data?.message || 'Failed to delete product');
+        }
+  
+        toast.success('Product deleted');
+        fetchProducts();
+        closeDeleteModal();
+      } catch (e) {
+        toast.error(e?.message || 'Failed to delete product');
+      } finally {
+        setDeleting(false);
       }
-
-      toast.success('Product deleted');
-      fetchProducts();
-      closeDeleteModal();
-    } catch (e) {
-      toast.error(e?.message || 'Failed to delete product');
-    } finally {
-      setDeleting(false);
-    }
-  };
+    };
 
   return (
     <div className="container-fluid">
@@ -470,7 +470,7 @@ const ProductSupplements = () => {
                   <button type="button" className="btn btn-secondary" onClick={closeDeleteModal} disabled={deleting}>
                     Cancel
                   </button>
-                  <button type="button" className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>
+                  <button type="button" className="btn btn-danger" onClick={confirmDeleteProduct} disabled={deleting}>
                     {deleting ? 'Deleting...' : 'Delete'}
                   </button>
                 </div>

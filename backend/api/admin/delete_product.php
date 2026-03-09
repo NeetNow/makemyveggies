@@ -4,6 +4,7 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/auth.php';
 
 setCorsHeaders();
 
@@ -14,14 +15,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
     exit();
 }
 
 try {
-    $productId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    $auth = verifyAdminJWTFromCookie([]);
+    if (!$auth['success']) {
+        http_response_code(401);
+        echo json_encode(['status' => 'error', 'message' => $auth['message']]);
+        exit();
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $productId = isset($input['id']) ? (int)$input['id'] : 0;
 
     if ($productId <= 0) {
         http_response_code(400);
@@ -37,6 +46,8 @@ try {
         echo json_encode(['status' => 'error', 'message' => 'Database connection failed']);
         exit();
     }
+
+    requireAdminPermission($pdo, $auth['user'], 'delete.product');
 
     $pdo->beginTransaction();
 
