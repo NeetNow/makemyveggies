@@ -265,25 +265,24 @@ const Payments = () => {
       {/* Filters */}
       <div className="card shadow-sm mb-3">
         <div className="card-body">
-          <div className="row g-2 align-items-end">
-            <div className="col-md-4">
-              <label className="form-label small text-muted mb-1">Search</label>
+          <div className="d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between">
+            <div className="input-group input-group-sm" style={{ maxWidth: 300 }}>
+              <span className="input-group-text">Search</span>
               <input
                 type="text"
-                className="form-control form-control-sm"
+                className="form-control"
                 placeholder="Order # or customer"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                style={{ height: 38 }}
               />
             </div>
-            <div className="col-md-3 mb-3">
-              <label className="form-label small text-muted mb-1">Payment Status</label>
+
+            <div className="d-flex gap-2">
               <select
                 className="form-select form-select-sm"
                 value={paymentFilter}
                 onChange={(e) => setPaymentFilter(e.target.value)}
-                style={{ height: 38 }}
+                style={{ minWidth: 150 }}
               >
                 <option value="">All Payment Status</option>
                 <option value="paid">Paid</option>
@@ -291,14 +290,12 @@ const Payments = () => {
                 <option value="failed">Failed</option>
                 <option value="refunded">Refunded</option>
               </select>
-            </div>
-            <div className="col-md-3 mb-3">
-              <label className="form-label small text-muted mb-1">Order Status</label>
+
               <select
                 className="form-select form-select-sm"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                style={{ height: 38 }}
+                style={{ minWidth: 150 }}
               >
                 <option value="">All Order Status</option>
                 <option value="placed">Placed</option>

@@ -285,28 +285,24 @@ const Discounts = () => {
       <div className="card shadow-sm mb-3">
         <div className="card-body">
           <div className="d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-between">
-            <div className="input-group input-group-sm" style={{ maxWidth: 420, width: '100%' }}>
-              <span className="input-group-text" style={{ height: 31, display: 'flex', alignItems: 'center' }}>
-                Search
-              </span>
+            <div className="input-group input-group-sm" style={{ maxWidth: 420 }}>
+              <span className="input-group-text">Search</span>
               <input
                 type="text"
-                className="form-control form-control-sm"
+                className="form-control"
                 placeholder="Product name or description"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                style={{ height: 31 }}
               />
             </div>
 
-            <div className="form-check form-switch mb-0" style={{ minHeight: 31, display: 'flex', alignItems: 'center' }}>
+            <div className="form-check form-switch">
               <input
                 className="form-check-input"
                 type="checkbox"
                 id="onlyDiscounted"
                 checked={onlyDiscounted}
                 onChange={(e) => setOnlyDiscounted(e.target.checked)}
-                style={{ height: 18, width: 36 }}
               />
               <label className="form-check-label" htmlFor="onlyDiscounted">
                 Show only discounted products

@@ -143,21 +143,18 @@ const ContactMessages = () => {
         </div>
 
         <div className="d-flex flex-wrap gap-2">
-          <div className="input-group input-group-sm" style={{ maxWidth: 420, width: '100%' }}>
-            <span className="input-group-text" style={{ height: 31, display: 'flex', alignItems: 'center' }}>
-              Search
-            </span>
+          <div className="input-group input-group-sm" style={{ maxWidth: 320 }}>
+            <span className="input-group-text">Search</span>
             <input
               type="text"
-              className="form-control form-control-sm"
+              className="form-control"
               placeholder="email / subject / name"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              style={{ height: 31 }}
             />
           </div>
 
-          <select className="form-select form-select-sm" style={{ maxWidth: 140, height: 31 }} value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select className="form-select form-select-sm" style={{ maxWidth: 180 }} value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">All</option>
             <option value="new">New</option>
             <option value="read">Read</option>
@@ -171,7 +168,6 @@ const ContactMessages = () => {
             disabled={loading}
             aria-label="Refresh"
             title="Refresh"
-            style={{ height: 31 }}
           >
             <RotateCw size={16} />
           </button>
