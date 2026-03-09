@@ -15,6 +15,8 @@ const Contact = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +42,7 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE}/backend/api/submit_contact.php`, {
+      const response = await fetch(`${API_BASE}api/submit_contact.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -55,14 +57,26 @@ const Contact = () => {
         })
       });
 
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (!response.ok || !data?.success) {
         throw new Error(data?.message || 'Failed to send message');
       }
 
       toast.success(data?.message || 'Message sent successfully');
+      setNotification({
+        type: 'success',
+        message: data?.message || 'Message sent successfully! We will get back to you soon.'
+      });
+      setIsSubmitted(true);
       setForm({ firstName: '', lastName: '', phone: '', email: '', subject: '', message: '' });
+
+      // Clear notification after 5 seconds
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
     } catch (error) {
       toast.error(error?.message || 'An error occurred. Please try again later.');
     } finally {
@@ -84,74 +98,123 @@ const Contact = () => {
 
         <section className="contact padding-block">
           <div className="container">
+            {notification && (
+              <div className="row mb-4">
+                <div className="col-12">
+                  <div 
+                    style={{
+                      background: '#d4edda',
+                      border: '1px solid #c3e6cb',
+                      color: '#155724',
+                      padding: '15px 20px',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px'
+                    }}
+                  >
+                    <i className="fa-solid fa-check-circle" style={{ fontSize: '24px' }}></i>
+                    <span style={{ fontSize: '16px', fontWeight: '500' }}>{notification.message}</span>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="row g-4">
               <div className="col-lg-6">
                 <div className="contact__form">
                   <h3>Get In Touch</h3>
-                  <form onSubmit={handleSubmit}>
-                    <div className="row g-3">
-                      <div className="col-md-6">
-                        <input
-                          type="text"
-                          placeholder="First Name"
-                          value={form.firstName}
-                          onChange={(e) => setForm((p) => ({ ...p, firstName: e.target.value }))}
-                          disabled={isSubmitting}
-                        />
+                  {isSubmitted ? (
+                    <div className="success-message" style={{ textAlign: 'center', padding: '40px 20px' }}>
+                      <div style={{ 
+                        width: '80px', 
+                        height: '80px', 
+                        background: '#28a745', 
+                        borderRadius: '50%', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        margin: '0 auto 20px'
+                      }}>
+                        <i className="fa-solid fa-check" style={{ fontSize: '40px', color: '#fff' }}></i>
                       </div>
-                      <div className="col-md-6">
-                        <input
-                          type="text"
-                          placeholder="Last Name"
-                          value={form.lastName}
-                          onChange={(e) => setForm((p) => ({ ...p, lastName: e.target.value }))}
-                          disabled={isSubmitting}
-                        />
-                      </div>
-                      <div className="col-12">
-                        <input
-                          type="tel"
-                          placeholder="Contact Number"
-                          value={form.phone}
-                          onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
-                          disabled={isSubmitting}
-                        />
-                      </div>
-                      <div className="col-12">
-                        <input
-                          type="email"
-                          placeholder="Email Address"
-                          value={form.email}
-                          onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-                          disabled={isSubmitting}
-                          required
-                        />
-                      </div>
-                      <div className="col-12">
-                        <input
-                          type="text"
-                          placeholder="Subject"
-                          value={form.subject}
-                          onChange={(e) => setForm((p) => ({ ...p, subject: e.target.value }))}
-                          disabled={isSubmitting}
-                        />
-                      </div>
-                      <div className="col-12">
-                        <textarea
-                          placeholder="Your Message"
-                          value={form.message}
-                          onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))}
-                          disabled={isSubmitting}
-                          required
-                        ></textarea>
-                      </div>
-                      <div className="col-12">
-                        <button type="submit" className="custom-btn" disabled={isSubmitting}>
-                          {isSubmitting ? 'Sending...' : 'Send Message'}
-                        </button>
-                      </div>
+                      <h4 style={{ color: '#28a745', marginBottom: '15px' }}>Thank You!</h4>
+                      <p style={{ fontSize: '16px', color: '#666', marginBottom: '25px' }}>
+                        Your message has been sent successfully. We will get back to you soon.
+                      </p>
+                      <button 
+                        type="button" 
+                        className="custom-btn"
+                        onClick={() => setIsSubmitted(false)}
+                      >
+                        Send Another Message
+                      </button>
                     </div>
-                  </form>
+                  ) : (
+                    <form onSubmit={handleSubmit}>
+                      <div className="row g-3">
+                        <div className="col-md-6">
+                          <input
+                            type="text"
+                            placeholder="First Name"
+                            value={form.firstName}
+                            onChange={(e) => setForm((p) => ({ ...p, firstName: e.target.value }))}
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <input
+                            type="text"
+                            placeholder="Last Name"
+                            value={form.lastName}
+                            onChange={(e) => setForm((p) => ({ ...p, lastName: e.target.value }))}
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                        <div className="col-12">
+                          <input
+                            type="tel"
+                            placeholder="Contact Number"
+                            value={form.phone}
+                            onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                        <div className="col-12">
+                          <input
+                            type="email"
+                            placeholder="Email Address"
+                            value={form.email}
+                            onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                            disabled={isSubmitting}
+                            required
+                          />
+                        </div>
+                        <div className="col-12">
+                          <input
+                            type="text"
+                            placeholder="Subject"
+                            value={form.subject}
+                            onChange={(e) => setForm((p) => ({ ...p, subject: e.target.value }))}
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                        <div className="col-12">
+                          <textarea
+                            placeholder="Your Message"
+                            value={form.message}
+                            onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))}
+                            disabled={isSubmitting}
+                            required
+                          ></textarea>
+                        </div>
+                        <div className="col-12">
+                          <button type="submit" className="custom-btn" disabled={isSubmitting}>
+                            {isSubmitting ? 'Sending...' : 'Send Message'}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  )}
                 </div>
 
               </div>
