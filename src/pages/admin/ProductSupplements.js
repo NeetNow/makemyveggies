@@ -209,14 +209,10 @@ const ProductSupplements = () => {
   
       setDeleting(true);
       try {
-        const res = await fetch(`https://dev.makemyveggies.com/backend/api/admin/delete_product.php`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id: productToDelete.id })
-      });
+        const res = await fetch(`${API_PREFIX}/api/admin/delete_product.php?id=${encodeURIComponent(String(productToDelete.id))}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
   
         const data = await readJsonSafe(res);
         if (!res.ok || data?.status !== 'success') {
