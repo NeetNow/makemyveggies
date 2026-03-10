@@ -105,6 +105,15 @@ const Header = () => {
                         </ul>
                       </li>
                     </ul>
+                    <div className="mobile-icons d-none">
+                      <Link to="/cart" className="menu-icon">
+                        <ShoppingCart size={20} strokeWidth={1.5} style={{ color: '#28a745' }} />
+                        {hasItems && <span className="cart-count">{totalCartItems}</span>}
+                      </Link>
+                      <Link to={currentUser ? "/profile" : "/login"} className="menu-icon">
+                        <i className="fa-solid fa-user"></i>
+                      </Link>
+                    </div>
                   </div>
                 </div>
 
@@ -122,7 +131,7 @@ const Header = () => {
                   }}
                 >
                   <div className="carticon">
-                    <Link to="/cart">
+                    <Link to="/cart" onClick={(e) => { if (hasItems) { e.preventDefault(); setIsCartOpen(!isCartOpen); } }}>
                       <button
                         type="button"
                       >
@@ -175,7 +184,7 @@ const Header = () => {
                   )}
                 </div>
 
-                <div className="header__bottombtn d-xl-block d-none">
+                <div className="header__bottombtn d-none d-xl-block">
                   {currentUser ? (
                     <Link to="/profile" className="custom-btn">Profile</Link>
                   ) : (
@@ -184,6 +193,13 @@ const Header = () => {
                     </div>
                   )}
                 </div>
+
+                {/* mobile-only login icon next to hamburger */}
+                {!currentUser && (
+                  <Link to="/login" className="mobile-login-icon d-xl-none d-block">
+                    <i className="fa-solid fa-user"></i>
+                  </Link>
+                )}
 
                 <div className="ellepsis d-xl-none">
                   <i className="fa-solid fa-circle-info"></i>
