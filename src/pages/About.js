@@ -1,6 +1,6 @@
 import React from 'react';
 import Footer from '../components/Footer';
-import NaturePlant from '../components/NaturePlant';
+import AboutBanner from '../components/AboutBanner';
 import Features from '../components/Features';
 import Skill from '../components/Skill';
 import Testimonial from '../components/Testimonial';
@@ -12,10 +12,16 @@ const About = () => {
     <>
       <main>
         {/* Page Header */}
-        
+        <section className="pageheader overflow-hidden">
+          <div className="container">
+            <div className="pageheader__content">
+              <h2>About Make My Veggies</h2>
+            </div>
+          </div>
+        </section>
 
-        {/* Natureplant Section */}
-        <NaturePlant />
+        {/* About banner section (copied from NaturePlant) */}
+        <AboutBanner />
 
         {/* Feature Section */}
         <Features />
