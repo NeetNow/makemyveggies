@@ -51,33 +51,12 @@ try {
 
     $pdo->beginTransaction();
 
-    // Delete related rows explicitly to avoid FK errors on tables without ON DELETE CASCADE
-    $delOrderItems = $pdo->prepare('DELETE FROM order_items WHERE product_id = ?');
-    $delOrderItems->execute([$productId]);
+    // In case discounts table doesn't have FK cascade
+    $delDiscounts = $pdo->prepare('DELETE FROM discounts WHERE product_id = ?');
+    $delDiscounts->execute([$productId]);
 
-    $delCart = $pdo->prepare('DELETE FROM cart WHERE product_id = ?');
-    $delCart->execute([$productId]);
-
-    $delWishlist = $pdo->prepare('DELETE FROM wishlist WHERE product_id = ?');
-    $delWishlist->execute([$productId]);
-
-    $delReviews = $pdo->prepare('DELETE FROM reviews WHERE product_id = ?');
-    $delReviews->execute([$productId]);
-
-    $delIncludes = $pdo->prepare('DELETE FROM product_includes WHERE product_id = ?');
-    $delIncludes->execute([$productId]);
-
-    $delImages = $pdo->prepare('DELETE FROM product_images WHERE product_id = ?');
-    $delImages->execute([$productId]);
-
-    // In case discounts table exists and doesn't have FK cascade
-    try {
-        $delDiscounts = $pdo->prepare('DELETE FROM discounts WHERE product_id = ?');
-        $delDiscounts->execute([$productId]);
-    } catch (Exception $e) {
-        // ignore if discounts table does not exist
-    }
-
+    // product_includes and product_images are ON DELETE CASCADE (includes explicitly, images explicitly)
+    // but deleting product will cascade those as defined.
     $delProduct = $pdo->prepare('DELETE FROM products WHERE product_id = ?');
     $delProduct->execute([$productId]);
 
