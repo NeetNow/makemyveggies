@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useHasPermission } from '../../rbac/useHasPermission';
 
 const ProductDiyKits = () => {
-  const API_PREFIX = `${process.env.PUBLIC_URL || ''}/backend`;
+  const API_PREFIX = `${process.env.PUBLIC_URL || 'https://dev.makemyveggies.com'}/backend`;
   const ROWS_PER_PAGE = 9;
 
   const canAddProduct = useHasPermission('add.product');
@@ -195,7 +195,7 @@ const ProductDiyKits = () => {
 
     setDeleting(true);
     try {
-      const res = await fetch(`https://dev.makemyveggies.com/backend/api/admin/delete_product.php`, {
+      const res = await fetch(`${API_PREFIX}/api/admin/delete_product.php`, {
         method: 'POST',
         credentials: 'include',
         headers: {
