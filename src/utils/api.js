@@ -1,5 +1,5 @@
 export const getApiBase = () => {
-  const envBase = process.env.REACT_APP_API_BASE;
+  const envBase = process.env.REACT_APP_API_BASE || '';
 
   if (envBase) {
     const trimmed = String(envBase).replace(/\/+$/, '');
