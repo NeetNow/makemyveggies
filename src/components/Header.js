@@ -21,7 +21,7 @@ const Header = () => {
     <div className="header">
       {/* Header Top */}
       <div className="header__top d-xl-block bg-white">
-        <div className="container-xl container-fluid">
+        <div className="container-fluid px-4">
           <div className="header__topcontent">
             <div className="left">
               <ul>
@@ -57,8 +57,8 @@ const Header = () => {
       </div>
 
       {/* Header Bottom */}
-      <div className="header__bottom bg-white p-0">
-        <div className="container-xl container-fluid">
+      <div className="header__bottom bg-white">
+        <div className="container-fluid px-4">
           <div className="row align-items-center">
             <div className="col-6 col-lg-3 col-xl-2">
               <div className="left">
