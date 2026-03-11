@@ -2,14 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Team = () => {
-
-  const diyProducts = [
-    { id: 74, name: 'Capsicum', image: '/assets/img/home-1/team/Capsicum.png' },
-    { id: 37, name: 'Cherry Tomato', image: '/assets/img/home-1/team/cherrytomato.png' },
-    { id: 73, name: 'Hot Pepper', image: '/assets/img/home-1/team/HotPepper.png' },
-    { id: 75, name: 'Tomato', image: '/assets/img/home-1/team/Tomato.png' },
-  ];
-
   return (
     <section className="team padding-block bg-white overflow-hidden">
       <div className="container">
@@ -22,25 +14,58 @@ const Team = () => {
       <div className="section__wrapper team__wrapper">
         <div className="container">
           <div className="row g-4 justify-content-center">
-            {diyProducts.map((product) => (
-              <div key={product.id} className="col-md-6 col-lg-4 col-xl-3">
-                <Link
-                  to={`/product-details/${product.id}`}
-                  className="team__item"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  <div className="team__inner bg-white">
-                    <div className="thumb">
-                      <img src={product.image} alt={product.name} />
-                    </div>
-                    <div className="text">
-                      <h6>{product.name}</h6>
-                      <p>DIY KITS</p>
-                    </div>
+            <div className="col-md-6 col-lg-4 col-xl-3">
+              <div className="team__item">
+                <div className="team__inner bg-white">
+                  <div className="thumb">
+                    <img src="/assets/img/home-1/team/Capsicum.png" alt="bakul" />
                   </div>
-                </Link>
+                  <div className="text">
+                    <h6><Link to="/team-single">Capsicum</Link></h6>
+                    <p>DIY KITS</p>
+                  </div>
+                </div>
               </div>
-            ))}
+            </div>
+            <div className="col-md-6 col-lg-4 col-xl-3">
+              <div className="team__item">
+                <div className="team__inner bg-white">
+                  <div className="thumb">
+                    <img src="/assets/img/home-1/team/cherrytomato.png" alt="bakul" />
+                  </div>
+                  <div className="text">
+                    <h6><Link to="/team-single">Cherry Tomato</Link></h6>
+                    <p>DIY KITS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6 col-lg-4 col-xl-3">
+              <div className="team__item">
+                <div className="team__inner bg-white">
+                  <div className="thumb">
+                    <img src="/assets/img/home-1/team/HotPepper.png" alt="bakul" />
+                  </div>
+                  <div className="text">
+                    <h6><Link to="/team-single">Hot Pepper</Link></h6>
+                    <p>DIY KITS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6 col-lg-4 col-xl-3">
+              <div className="team__item">
+                <div className="team__inner bg-white">
+                  <div className="thumb">
+                    <img src="/assets/img/home-1/team/Tomato.png" alt="bakul" />
+                  </div>
+                  <div className="text">
+                    <h6><Link to="/team-single">Tomato</Link></h6>
+                    <p>DIY KITS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

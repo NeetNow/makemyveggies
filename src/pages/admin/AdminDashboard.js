@@ -4,7 +4,7 @@ import { ShoppingBag, IndianRupee, Package, Users, TrendingUp, Calendar, CreditC
 import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
+  const API_BASE = process.env.REACT_APP_API_BASE || '';
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

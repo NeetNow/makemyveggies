@@ -21,13 +21,13 @@ const Header = () => {
     <div className="header">
       {/* Header Top */}
       <div className="header__top d-xl-block bg-white">
-        <div className="container-fluid px-4">
+        <div className="container-fluid">
           <div className="header__topcontent">
             <div className="left">
               <ul>
                 <li>
                   <div className="icon">
-                    <i className="fa-solid fa-square-phone"></i>
+                    <i className="fa-solid fa-square-phone" style={{ marginLeft: 10 }}></i>
                   </div>
                   <div className="text">
                     <p>77980-40848</p>
@@ -57,8 +57,8 @@ const Header = () => {
       </div>
 
       {/* Header Bottom */}
-      <div className="header__bottom bg-white">
-        <div className="container-fluid px-4">
+      <div className="header__bottom bg-white p-0">
+        <div className="container-fluid">
           <div className="row align-items-center">
             <div className="col-6 col-lg-3 col-xl-2">
               <div className="left">

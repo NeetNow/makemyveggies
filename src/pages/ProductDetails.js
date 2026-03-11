@@ -7,7 +7,7 @@ import Footer from '../components/Footer';
 import '../styles/ProductDetails.css';
 
 const ProductDetails = () => {
-  const { id, slug } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { addToCart: cartAddToCart } = useCart();
@@ -26,14 +26,6 @@ const ProductDetails = () => {
   const [reviewSuccess, setReviewSuccess] = useState(null);
 
   const [relatedProducts, setRelatedProducts] = useState([]);
-
-  // Slug to product name mapping for DIY kits
-  const slugToNameMap = {
-    'capsicum': 'Capsicum',
-    'cherry-tomato': 'Cherry Tomato',
-    'hot-pepper': 'Hot Pepper',
-    'tomato': 'Tomato',
-  };
 
   const dummyDescription =
     'This premium plant product is carefully selected for quality, freshness, and performance. It is suitable for home gardens and professional use, delivering consistent results with proper care.';
@@ -145,20 +137,7 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        
-        let apiUrl;
-        if (slug && slugToNameMap[slug]) {
-          // If slug is provided, search by product name/title
-          const productName = slugToNameMap[slug];
-          apiUrl = `/backend/api/get_products.php?search=${encodeURIComponent(productName)}&limit=1`;
-        } else if (id) {
-          // If ID is provided, fetch by ID
-          apiUrl = `/backend/api/get_product.php?id=${id}`;
-        } else {
-          throw new Error('No product identifier provided');
-        }
-        
-        const res = await fetch(apiUrl, {
+        const res = await fetch(`/backend/api/get_product.php?id=${id}`, {
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -176,74 +155,62 @@ const ProductDetails = () => {
           throw new Error(data.message || 'Failed to fetch product');
         }
 
-        // Handle different API response structures
-        let productData;
-        if (slug && data.products && data.products.length > 0) {
-          // From get_products.php (search by name)
-          productData = data.products[0];
-        } else if (id && data.product) {
-          // From get_product.php (fetch by ID)
-          productData = data.product;
-        } else {
-          throw new Error('Product not found');
-        }
-
         // Map API response to component state (use backend discount/originalPrice)
-        const safePrice = Number(productData.price);
-        const safeOriginalPrice = Number(productData.originalPrice);
+        const safePrice = Number(data.product.price);
+        const safeOriginalPrice = Number(data.product.originalPrice);
         const price = Number.isFinite(safePrice) ? safePrice : 0;
         const originalPrice = Number.isFinite(safeOriginalPrice) ? safeOriginalPrice : price;
-        const ratingNum = Number(productData.rating);
+        const ratingNum = Number(data.product.rating);
         const rating = Number.isFinite(ratingNum) ? ratingNum : 0;
-        const reviewsNum = Number(productData.reviews);
+        const reviewsNum = Number(data.product.reviews);
         const reviews = Number.isFinite(reviewsNum) ? reviewsNum : 0;
 
-        const apiPrimaryImage = resolveImageUrl(productData.primaryImage);
-        const apiImagesRaw = Array.isArray(productData.images)
-          ? productData.images
-          : Array.isArray(productData.secondaryImages)
-            ? [productData.primaryImage, ...productData.secondaryImages]
-            : [productData.primaryImage];
+        const apiPrimaryImage = resolveImageUrl(data.product.primaryImage);
+        const apiImagesRaw = Array.isArray(data.product.images)
+          ? data.product.images
+          : Array.isArray(data.product.secondaryImages)
+            ? [data.product.primaryImage, ...data.product.secondaryImages]
+            : [data.product.primaryImage];
         const apiImagesResolved = apiImagesRaw.map(resolveImageUrl).filter(Boolean);
         const images = apiImagesResolved.length > 0 ? apiImagesResolved : [apiPrimaryImage];
 
-        const features = productData.keyFeatures
-          ? productData.keyFeatures
+        const features = data.product.keyFeatures
+          ? data.product.keyFeatures
               .split(',')
               .map((x) => x.trim())
               .filter(Boolean)
           : [];
 
-        const productIncludes = Array.isArray(productData.productIncludes) ? productData.productIncludes : [];
+        const productIncludes = Array.isArray(data.product.productIncludes) ? data.product.productIncludes : [];
 
-        const reviewsList = Array.isArray(productData.reviewsList) ? productData.reviewsList : [];
-        const ratingBreakdown = productData.ratingBreakdown || { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 };
+        const reviewsList = Array.isArray(data.product.reviewsList) ? data.product.reviewsList : [];
+        const ratingBreakdown = data.product.ratingBreakdown || { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 };
 
-        const mappedProductData = {
-          id: productData.id,
-          name: productData.title,
+        const productData = {
+          id: data.product.id,
+          name: data.product.title,
           price,
           originalPrice,
           image: apiPrimaryImage,
           images,
-          category: (productData.categoryName || 'others').toString(),
+          category: (data.product.categoryName || 'others').toString(),
           rating,
           reviews,
           reviewsList,
           ratingBreakdown,
-          inStock: !!productData.inStock,
-          stockCount: Number.isFinite(Number(productData.stock)) ? Number(productData.stock) : 0,
-          description: productData.description || dummyDescription,
+          inStock: !!data.product.inStock,
+          stockCount: Number.isFinite(Number(data.product.stock)) ? Number(data.product.stock) : 0,
+          description: data.product.description || dummyDescription,
           features,
           productIncludes,
           specifications: {
-            'Stock Available': productData.stock,
-            'SKU': productData.sku,
-            'Category': productData.categoryName
+            'Stock Available': data.product.stock,
+            'SKU': data.product.sku,
+            'Category': data.product.categoryName
           }
         };
 
-        setProduct(mappedProductData);
+        setProduct(productData);
         setSelectedImage(0);
         setReviewRating(0);
         setReviewError(null);
@@ -257,10 +224,10 @@ const ProductDetails = () => {
       }
     };
 
-    if (id || slug) {
+    if (id) {
       fetchProduct();
     }
-  }, [id, slug,]);
+  }, [id]);
 
   useEffect(() => {
     const fetchRelated = async () => {

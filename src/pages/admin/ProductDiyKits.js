@@ -3,9 +3,10 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useHasPermission } from '../../rbac/useHasPermission';
+import { getApiBase } from '../../utils/api';
 
 const ProductDiyKits = () => {
-  const API_PREFIX = `${process.env.PUBLIC_URL || 'https://dev.makemyveggies.com'}/backend`;
+  const API_BASE = getApiBase();
   const ROWS_PER_PAGE = 9;
 
   const canAddProduct = useHasPermission('add.product');
@@ -61,7 +62,7 @@ const ProductDiyKits = () => {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await fetch(`${API_PREFIX}/api/admin/get_categories.php`, {
+        const res = await fetch(`${API_BASE}/api/admin/get_categories.php`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -119,7 +120,7 @@ const ProductDiyKits = () => {
       if (statusFilter !== 'all') qs.set('status', String(statusFilter));
       if (sort) qs.set('sort', String(sort));
 
-      const response = await fetch(`${API_PREFIX}/api/admin/get_products.php?${qs.toString()}`, {
+      const response = await fetch(`${API_BASE}/api/admin/get_products.php?${qs.toString()}`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -195,7 +196,7 @@ const ProductDiyKits = () => {
 
     setDeleting(true);
     try {
-      const res = await fetch(`${API_PREFIX}/api/admin/delete_product.php`, {
+      const res = await fetch(`${API_BASE}/api/admin/delete_product.php`, {
         method: 'POST',
         credentials: 'include',
         headers: {
