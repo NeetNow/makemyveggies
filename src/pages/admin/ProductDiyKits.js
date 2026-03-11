@@ -62,7 +62,7 @@ const ProductDiyKits = () => {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/admin/get_categories.php`, {
+        const res = await fetch(`${API_BASE}/backend/api/admin/get_categories.php`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -120,7 +120,7 @@ const ProductDiyKits = () => {
       if (statusFilter !== 'all') qs.set('status', String(statusFilter));
       if (sort) qs.set('sort', String(sort));
 
-      const response = await fetch(`${API_BASE}/api/admin/get_products.php?${qs.toString()}`, {
+      const response = await fetch(`${API_BASE}/backend/api/admin/get_products.php?${qs.toString()}`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -196,7 +196,7 @@ const ProductDiyKits = () => {
 
     setDeleting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/admin/delete_product.php`, {
+      const res = await fetch(`${API_BASE}/backend/api/admin/delete_product.php`, {
         method: 'POST',
         credentials: 'include',
         headers: {
