@@ -39,7 +39,7 @@ const BlogPage = () => {
       id: 6,
       title: "Why Homegrown Vegetables Are Healthier (and More Sustainable) Than Store-Bought Produce",
       image: "/assets/img/home-1/blog/img6.png",
-      description: "Enhance your garden with creative landscape designs."
+      description: "Enhance your garden with creative designs."
     }
   ];
 
