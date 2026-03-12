@@ -196,13 +196,13 @@ const ProductDiyKits = () => {
 
     setDeleting(true);
     try {
-      const res = await fetch(`${API_BASE}/backend/api/admin/delete_product.php`, {
+      const res = await fetch(`/backend/api/admin/delete_product.php`, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ id: productToDelete.id })
+        body: JSON.stringify({ id: Number(productToDelete.id) })
       });
 
       const data = await readJsonSafe(res);
@@ -340,7 +340,9 @@ const ProductDiyKits = () => {
                           alt={p.title}
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           onError={(e) => {
-                            e.currentTarget.src = '/images/placeholder-product.jpg';
+                            const el = e.currentTarget;
+                            if (el.src && el.src.includes('/images/placeholder-product.jpg')) return;
+                            el.src = '/images/placeholder-product.jpg';
                           }}
                         />
                       </div>
