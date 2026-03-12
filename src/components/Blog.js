@@ -21,17 +21,18 @@ const Blog = () => {
           </div>
         </div>
         <div className="section__wrapper">
-          <div className="row justify-content-center g-4">
+          <div className="row justify-content-center g-4 align-items-stretch">
             <div className="col-md-6 col-xl-4">
               <div className="blog__item">
                 <div className="blog__inner">
                   <div className="thumb">
                     <Link to="/blog/1"><img src="/assets/img/home-1/blog/img1.png" alt="bakul" /></Link>
                   </div>
-                  <div className="content bg-white">
-                    <div className="text">
+                  <div className="content bg-white d-flex flex-column">
+                    <div className="text flex-grow-1">
                       <h6><Link to="/blog/1">Balcony and Kitchen Gardening for Beginners: Grow Fresh, Healthy Food at Home</Link></h6>
-                      <p>Living in the city doesn’t mean giving up fresh, healthy food. Balcony and kitchen gardening make it easy to grow your own greens at home, even with limited space and a busy lifestyle</p>
+                      <p>Living in the city doesn’t mean giving up fresh, healthy food. Balcony and kitchen gardening make 
+                        it easy to grow your own greens at home, even with limited space</p>
                     </div>
                     <div className="blogbtn">
                       <Link to="/blog/1" className="custom-btn">Read More</Link>
