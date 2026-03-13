@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useHasPermission } from '../../rbac/useHasPermission';
-import { getApiBase } from '../../utils/api';
 
 const Categories = () => {
   const canAddCategory = useHasPermission('add.category');
@@ -32,7 +31,7 @@ const Categories = () => {
     setIsSubmitting(false);
   };
 
-  const API_BASE = getApiBase();
+  const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
 
   const readJsonSafe = useCallback(async (response) => {
     const text = await response.text();
