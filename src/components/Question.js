@@ -16,7 +16,7 @@ const Question = () => {
   };
 
   return (
-    <section className="question padding-block">
+    <section className="question padding-block"  id="faq">
       <div className="container">
         <div className="section__header w-100">
           <div className="col-lg-7 col-xl-6">

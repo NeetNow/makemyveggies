@@ -245,7 +245,11 @@ const Contact = () => {
                     </div>
                     <div className="text">
                       <h6>Address</h6>
-                      <p>City - Pune</p>
+                      <p>SAANVI CROP SCIENCE PRIVATE LIMITED
+                          Gate No-1, Manjari Green Society,
+                          Manjari BK, Haveli,
+                          Pune – 412307,
+                          Maharashtra, India</p>
                     </div>
                   </div>
                 </div>
