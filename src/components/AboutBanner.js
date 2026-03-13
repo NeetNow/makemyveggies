@@ -8,7 +8,7 @@ const AboutBanner = () => {
         <div className="row g-0 align-items-stretch">
           <div className="col-12 col-lg-6">
             <div className="mmv-natureplant-split__image imghover" style={{ padding: '10px', background: '#c7d89a'}}>
-              <img src="/assets/img/home-1/welcome/aboutleft.png" alt="bakul" style={{ borderRadius: '10px', display: 'block', width: '100%', height: 'auto', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }} />
+              <img src="/assets/img/home-1/welcome/aboutleft.png" alt="bakul" style={{ borderRadius: '10px', display: 'block', width: '750px', height: '580px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }} />
             </div>
           </div>
 
@@ -36,7 +36,7 @@ const AboutBanner = () => {
                   <h4>Our Mission</h4>
                   <p>To make home gardening easy, affordable, and rewarding for everyone — 
                     so every home can enjoy fresh, pesticide-free vegetables.</p>
-                  <Link to="/about" className="custom-btn">About our company</Link>
+
                 </div>
               </div>
             </div>
