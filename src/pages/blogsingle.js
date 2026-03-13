@@ -1004,7 +1004,7 @@ const BlogSingle = () => {
 
                 <div className="container blog-single__container">
                   <div className="faq__content blog-single__content">
-                    <div className="blog-single__columns">
+                    <div className={blogId === '1' ? '' : 'blog-single__columns'}>
                       {post.content.map((block, idx) => {
                         if (typeof block === 'string') {
                           return (

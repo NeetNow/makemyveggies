@@ -47,9 +47,9 @@ const Header = () => {
             <div className="right">
               <ul>
                 <li><a href="https://www.facebook.com/makemyveggies/" target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-facebook-f"></i></a></li>
-                <li><button type="button"><i className="fa-brands fa-pinterest"></i></button></li>
+                <li><a href="https://www.pinterest.com/"><i className="fa-brands fa-pinterest"></i></a></li>
                 <li><a href="https://www.linkedin.com/company/makemyveggies/" target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-linkedin-in"></i></a></li>
-                <li><button type="button"><i className="fa-brands fa-instagram"></i></button></li>
+                <li><a href="https://www.instagram.com/"><i className="fa-brands fa-instagram"></i></a></li>
               </ul>
             </div>
           </div>

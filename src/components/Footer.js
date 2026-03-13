@@ -1,8 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Footer = () => {
   const [lightboxSrc, setLightboxSrc] = React.useState(null);
+  const navigate = useNavigate();
+  
   const openLightbox = (e, src) => { e.preventDefault(); e.stopPropagation(); setLightboxSrc(src); };
+
+  const handleFAQClick = (e) => {
+    e.preventDefault();
+    navigate('/about');
+    setTimeout(() => {
+      const faqSection = document.getElementById('faq');
+      if (faqSection) {
+        faqSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
 
   return (
     <section className="footer overflow-hidden">
@@ -20,9 +34,9 @@ const Footer = () => {
                     <ul>
                       
                       <li><a href="https://www.facebook.com/makemyveggies/" target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-facebook-f"></i></a></li>
-                      <li><button type="button"><i className="fa-brands fa-pinterest"></i> </button></li>
+                      <li><a href="https://www.pinterest.com/"><i className="fa-brands fa-pinterest"></i></a></li>
                       <li><a href="https://www.linkedin.com/company/makemyveggies/" target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-linkedin-in"></i></a></li>
-                      <li><button type="button"><i className="fa-brands fa-instagram"></i> </button></li>
+                      <li><a href="https://www.instagram.com/"><i className="fa-brands fa-instagram"></i></a></li>
                     </ul>
                   </div>
                 </div>
@@ -36,9 +50,8 @@ const Footer = () => {
                   <li><i className="fa-solid fa-leaf"></i><a href="/privacy-policy">Privacy policy</a></li>
                   <li><i className="fa-solid fa-leaf"></i><a href="/terms-and-conditions">Cancellation Policy</a></li>
                   <li><i className="fa-solid fa-leaf"></i><a href="/contact">Contact Us</a></li>
-                  <li><i className="fa-solid fa-leaf"></i><a href="/order-tracking">Track your Order</a></li>
                   <li><i className="fa-solid fa-leaf"></i><a href="/ShippingPolicy">Shipping and Returns</a></li>
-                  <li><i className="fa-solid fa-leaf"></i><a href="/About">FAQ</a></li>
+                  <li><i className="fa-solid fa-leaf"></i><a href="/about#faq" onClick={handleFAQClick}>FAQ</a></li>
                 </ul>
               </div>
             </div>
@@ -159,8 +172,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
-
-
-
-

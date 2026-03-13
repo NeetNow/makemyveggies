@@ -117,6 +117,81 @@
   height: auto;
 }
 
+/* Blog Section - Ensure cards stay in one row */
+.blog .section__wrapper .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.blog .section__wrapper .row > div {
+  display: flex;
+}
+
+.blog__item {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.blog__inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.blog__inner .content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.blog__inner .content .text {
+  flex-grow: 1;
+}
+
+.blog__inner .content .blogbtn {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.blog__inner .content .blogbtn .custom-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  font-size: 16px;
+  min-width: 180px;
+}
+
+/* Service icon sizing - fit within dotted circle */
+.service__inner .thumb {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service__inner .thumb img {
+  width: 70%;
+  height: auto;
+  max-width: 85px;
+  object-fit: contain;
+}
+
+/* Header icons - Cart and Login orange color */
+.header__cart .carticon button svg,
+.header__cart .carticon button i {
+  color: #D97706 !important;
+  stroke: #D97706 !important;
+}
+
+.mobile-login-icon i {
+  color: #D97706 !important;
+  font-size: 20px;
+}
+
+.header .bar i {
+  color: #D97706 !important;
+}
+
 /* Custom button styles */
 .custom-btn {
   background: linear-gradient(135deg, #4CAF50, #45a049);
@@ -145,6 +220,38 @@
 }
 
 /* Responsive adjustments */
+
+/* Large tablets and small desktops - Keep blog cards in one row */
+@media (min-width: 992px) and (max-width: 1400px) {
+  .blog .section__wrapper .row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+  }
+
+  .blog .section__wrapper .row > div {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .blog__inner .content .text h6 {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .blog__inner .content .text p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .blog__inner .content {
+    padding: 20px;
+  }
+
+  .blog__inner .thumb {
+    height: 200px;
+  }
+}
 
 /* Tablet adjustments - Keep desktop layout but optimize spacing */
 @media (max-width: 1024px) and (min-width: 770px) {
@@ -224,6 +331,41 @@
   .banner .position_bshape.bottommiddle {
     display: none !important;
   }
+
+  /* Blog Section Tablet Styles */
+  .blog .section__header {
+    text-align: center;
+    margin-bottom: 35px;
+  }
+
+  .blog .section__header h3 {
+    font-size: 28px;
+  }
+
+  .blog .section__header p {
+    font-size: 15px;
+  }
+
+  .blog .blog__btn {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .blog__inner .thumb {
+    height: 240px;
+  }
+
+  .blog__inner .content {
+    padding: 24px;
+  }
+
+  .blog__inner .content .text h6 {
+    font-size: 19px;
+  }
+
+  .blog__inner .content .text p {
+    font-size: 14px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -245,12 +387,152 @@
   }
 
   .banner .bannerbtn {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    gap: 12px;
+    justify-content: center;
   }
 
   .banner .bannerbtn .custom-btn {
+    width: auto;
+    flex: 1;
+    max-width: 48%;
+    text-align: center;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  /* Blog Section Mobile Styles */
+  .blog .section__header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .blog .section__header h3 {
+    font-size: 24px;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  .blog .section__header p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .blog .blog__btn {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .blog .blog__btn .custom-btn {
     width: 100%;
+    max-width: 280px;
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  .blog__item {
+    margin-bottom: 20px;
+  }
+
+  .blog__inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .blog__inner .thumb {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+  }
+
+  .blog__inner .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .blog__inner .content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .blog__inner .content .text {
+    flex-grow: 1;
+    margin-bottom: 16px;
+  }
+
+  .blog__inner .content .text h6 {
+    font-size: 18px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .blog__inner .content .text h6 a {
+    color: #31381A;
+    text-decoration: none;
+  }
+
+  .blog__inner .content .text p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+    margin-bottom: 0;
+  }
+
+  .blog__inner .content .blogbtn {
+    margin-top: auto;
+    text-align: center;
+  }
+
+  .blog__inner .content .blogbtn .custom-btn {
+    width: auto;
+    min-width: 180px;
+    max-width: 200px;
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+
+  /* Services Section Mobile Styles - Center Alignment */
+  .service .section__header {
+    text-align: center;
+  }
+
+  .service .section__header span,
+  .service .section__header h3 {
+    text-align: center;
+  }
+
+  .service .section__wrapper p {
+    text-align: center;
+  }
+
+  .service__inner {
+    text-align: center;
+  }
+
+  .service__inner .thumb {
+    margin: 0 auto 16px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .service__inner .thumb img {
+    width: 70%;
+    height: auto;
+    max-width: 80px;
+  }
+
+  .service__inner .text h6,
+  .service__inner .text p {
     text-align: center;
   }
 }

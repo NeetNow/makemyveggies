@@ -145,27 +145,6 @@ const Newsletter = () => {
               textAlign: 'center'
             }}
           >
-            {/* Icon */}
-            <div 
-              style={{
-                width: '50px',
-                height: '50px',
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 16px',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              {isSuccess ? (
-                <CheckCircle size={24} color="#fff" />
-              ) : (
-                <Mail size={24} color="#fff" />
-              )}
-            </div>
-
             {/* Heading */}
             <h3 
               style={{
