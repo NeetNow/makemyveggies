@@ -42,7 +42,7 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE}api/submit_contact.php`, {
+      const response = await fetch(`${API_BASE}backend/api/submit_contact.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -137,9 +137,9 @@ const Contact = () => {
                       }}>
                         <i className="fa-solid fa-check" style={{ fontSize: '40px', color: '#fff' }}></i>
                       </div>
-                      <h4 style={{ color: '#28a745', marginBottom: '15px' }}>Thank You!</h4>
+                      <h4 style={{ color: '#28a745', marginBottom: '15px' }}>Submitted Successfully</h4>
                       <p style={{ fontSize: '16px', color: '#666', marginBottom: '25px' }}>
-                        Your message has been sent successfully. We will get back to you soon.
+                        Your message has been submitted successfully. We will get back to you soon.
                       </p>
                       <button 
                         type="button" 
