@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiX } from 'react-icons/fi';
 import { FaStar, FaStarHalfAlt, FaRegStar, FaChevronDown, FaChevronUp, FaCheck } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import '../styles/Shop.css';
 
 const Shop = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { currentUser } = useAuth();
   const [addedItems, setAddedItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -149,6 +152,10 @@ const Shop = () => {
   }, [location.search, fetchProducts]);
 
   const handleAddToCart = async (product) => {
+    if (!currentUser) {
+      navigate('/login', { state: { from: location.pathname + location.search } });
+      return;
+    }
     await addToCart(product, 1);
     setAddedItems(prev => [...prev, product.id]);
     

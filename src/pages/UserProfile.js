@@ -701,6 +701,13 @@ const UserProfile = () => {
             <div className="mobile-header d-md-none" ref={mobileMenuRef}>
                 <div className="container-fluid">
                     <div className="mobile-header-content">
+                        <button 
+                            className="btn btn-link text-dark p-0 me-2"
+                            onClick={() => navigate(-1)}
+                            style={{ fontSize: '1.2rem' }}
+                        >
+                            <i className="fa-solid fa-arrow-left"></i>
+                        </button>
                         <div className="mobile-user-info">
                             <i className="fa-solid fa-user-circle fa-2x text-primary me-2"></i>
                             <div>
@@ -841,6 +848,15 @@ const UserProfile = () => {
                     {/* Main Content */}
                     <div className="col-12 col-md-9 col-lg-10 main-content">
                         <div className="content-wrapper">
+                            <div className="d-none d-md-flex align-items-center mb-3">
+                                <button 
+                                    className="btn btn-outline-secondary btn-sm"
+                                    onClick={() => navigate(-1)}
+                                >
+                                    <i className="fa-solid fa-arrow-left me-2"></i>
+                                    Back
+                                </button>
+                            </div>
                             {renderContent()}
                         </div>
                     </div>

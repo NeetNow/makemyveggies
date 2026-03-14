@@ -194,8 +194,12 @@ const Header = () => {
                   )}
                 </div>
 
-                {/* mobile-only login icon next to hamburger */}
-                {!currentUser && (
+                {/* mobile-only login/profile icon next to hamburger */}
+                {currentUser ? (
+                  <Link to="/profile" className="mobile-login-icon d-xl-none d-block">
+                    <i className="fa-solid fa-user"></i>
+                  </Link>
+                ) : (
                   <Link to="/login" className="mobile-login-icon d-xl-none d-block">
                     <i className="fa-solid fa-user"></i>
                   </Link>

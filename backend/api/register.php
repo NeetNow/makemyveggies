@@ -222,6 +222,24 @@ try {
         // Commit transaction
         $db->commit();
         
+        // Auto-subscribe user to newsletter
+        try {
+            // Check if email already exists in newsletter
+            $check_newsletter = "SELECT id FROM newsletter_subscriptions WHERE email = ?";
+            $check_stmt = $db->prepare($check_newsletter);
+            $check_stmt->execute([$email]);
+            
+            if ($check_stmt->rowCount() === 0) {
+                // Insert new subscription
+                $newsletter_query = "INSERT INTO newsletter_subscriptions (email, created_at) VALUES (?, NOW())";
+                $newsletter_stmt = $db->prepare($newsletter_query);
+                $newsletter_stmt->execute([$email]);
+            }
+        } catch (Exception $e) {
+            error_log("Newsletter subscription failed for: " . $email . " - " . $e->getMessage());
+            // Don't fail registration if newsletter insert fails
+        }
+        
         // Send OTP email using EmailService
         $emailService = new ProductionEmailService();
         $user_name = $first_name . ' ' . $last_name;

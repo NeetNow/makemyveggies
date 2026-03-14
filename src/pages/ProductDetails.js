@@ -286,6 +286,10 @@ const ProductDetails = () => {
   };
 
   const addToCart = async () => {
+    if (!currentUser) {
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
     if (product) {
       await cartAddToCart({
         id: product.id,
@@ -298,6 +302,10 @@ const ProductDetails = () => {
   };
 
   const buyNow = async () => {
+    if (!currentUser) {
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
     await addToCart();
     navigate('/checkout');
   };
