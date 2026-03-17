@@ -42,6 +42,7 @@ const UserProfile = () => {
     // Close mobile menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
+            if (showOrderModal) return;
             if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
                 setIsMobileMenuOpen(false);
             }
@@ -51,7 +52,7 @@ const UserProfile = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, [showOrderModal]);
 
     const loadUserProfile = useCallback(async () => {
         try {
@@ -580,7 +581,7 @@ const UserProfile = () => {
                                     <div className="col-md-4 text-end">
                                         <h5 className="text-success">{order.total}</h5>
                                         <div className="d-flex align-items-center justify-content-end gap-2 mt-1">
-                                            <span className={`badge ${order.status === 'Delivered' ? 'bg-success' : order.status === 'shipped' ? 'bg-info' : order.status === 'confirmed' ? 'bg-primary' : 'bg-warning'}`}>
+                                            <span className={`badge ${order.status === 'Delivered' ? 'bg-success' : order.status === 'Shipped' ? 'bg-info' : order.status === 'Confirmed' ? 'bg-primary' : 'bg-warning'}`}>
                                                 {order.status}
                                             </span>
                                             <button className="btn btn-outline-primary btn-sm" style={{ fontSize: '12px', padding: '4px 12px' }} onClick={(e) => { e.stopPropagation(); fetchOrderDetails(order.id); }}>
@@ -919,13 +920,13 @@ const UserProfile = () => {
                                     <div className="row mb-4">
                                         <div className="col-md-6">
                                             <h6 className="text-muted mb-1">Order Status</h6>
-                                            <span className={`badge ${orderDetails.status === 'Delivered' ? 'bg-success' : orderDetails.status === 'shipped' ? 'bg-info' : orderDetails.status === 'confirmed' ? 'bg-primary' : 'bg-warning'}`}>
+                                            <span className={`badge ${orderDetails.status === 'Delivered' ? 'bg-success' : orderDetails.status === 'Shipped' ? 'bg-info' : orderDetails.status === 'Confirmed' ? 'bg-primary' : 'bg-warning'}`}>
                                                 {orderDetails.status}
                                             </span>
                                         </div>
                                         <div className="col-md-6 text-md-end">
                                             <h6 className="text-muted mb-1">Payment Status</h6>
-                                            <span className={`badge ${orderDetails.paymentStatus === 'paid' ? 'bg-success' : 'bg-warning'}`}>
+                                            <span className={`badge ${orderDetails.paymentStatus === 'Paid' ? 'bg-success' : 'bg-warning'}`}>
                                                 {orderDetails.paymentStatus}
                                             </span>
                                         </div>
