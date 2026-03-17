@@ -19,13 +19,9 @@ const NaturePlant = () => {
                 <div className="section__header natureplant__header">
                   <div className="col-md-11 col-xl-12 col-xxl-8">
                     <br /><span>Welcome To makemyveggies</span>
-                    <br /><h3>Fresh Vegetables, Right From Your Home</h3>
-                    <p>MakemyVeggies makes home gardening simple and convenient for everyone. 
-                      Our smart gardening solutions, including DIY grow kits and self-watering 
-                      planters, help you grow fresh and healthy vegetables at home with minimal effort. 
-                      Whether you have a balcony, terrace, or small indoor space, our products are designed 
-                      to support easy plant care and better growth, making gardening enjoyable for beginners 
-                      and plant lovers alike.🌱</p>
+                    <br /><h3>Beautiful Gardens Start With Smart Growing</h3>
+                    <p>MakemyVeggies makes home gardening simple and productive with smart 
+                    self-watering planters and grow kits, perfect for urban spaces and beginners alike.</p>
                   </div>
                 </div>
                 <div className="section__wrapper natureplant__content">
