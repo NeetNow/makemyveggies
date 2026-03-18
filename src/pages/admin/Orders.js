@@ -241,6 +241,7 @@ const Orders = () => {
                 <thead className="table-light">
                   <tr>
                     <th>Order</th>
+                    <th>Tracking ID</th>
                     <th>Customer</th>
                     <th className="text-end">Amount</th>
                     <th>Status</th>
@@ -252,7 +253,7 @@ const Orders = () => {
                 <tbody>
                   {orders.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="text-center text-muted py-4">
+                      <td colSpan="8" className="text-center text-muted py-4">
                         No orders found.
                       </td>
                     </tr>
@@ -262,6 +263,9 @@ const Orders = () => {
                         <td>
                           <div className="fw-semibold">{o.orderNumber}</div>
                           <div className="text-muted small">Items: {o.items}</div>
+                        </td>
+                        <td>
+                          <div className="fw-semibold">{o.orderTrackingId || '—'}</div>
                         </td>
                         <td>
                           <div className="fw-semibold">{o.customerName}</div>

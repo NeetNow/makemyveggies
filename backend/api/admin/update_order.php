@@ -35,6 +35,7 @@ try {
     $orderId = isset($input['orderId']) ? (int)$input['orderId'] : 0;
     $status = array_key_exists('status', $input) ? trim((string)$input['status']) : '';
     $paymentStatus = array_key_exists('paymentStatus', $input) ? trim((string)$input['paymentStatus']) : '';
+    $orderTrackingId = array_key_exists('orderTrackingId', $input) ? $input['orderTrackingId'] : null;
 
     if ($orderId <= 0) {
         http_response_code(400);
@@ -42,7 +43,8 @@ try {
         exit();
     }
 
-    if ($status === '' && $paymentStatus === '') {
+    $hasTrackingField = array_key_exists('orderTrackingId', $input);
+    if ($status === '' && $paymentStatus === '' && !$hasTrackingField) {
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'Nothing to update']);
         exit();
@@ -70,6 +72,16 @@ try {
     if ($paymentStatus !== '') {
         $fields[] = 'payment_status = ?';
         $params[] = $paymentStatus;
+    }
+
+    if ($hasTrackingField) {
+        $trackingValue = is_null($orderTrackingId) ? null : trim((string)$orderTrackingId);
+        if ($trackingValue === '') {
+            $trackingValue = null;
+        }
+
+        $fields[] = 'order_tracking_id = ?';
+        $params[] = $trackingValue;
     }
 
     $fields[] = 'updated_at = NOW()';

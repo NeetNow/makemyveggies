@@ -19,6 +19,7 @@ const ViewOrder = () => {
   const [order, setOrder] = useState(null);
   const [status, setStatus] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
+  const [orderTrackingId, setOrderTrackingId] = useState('');
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -93,6 +94,7 @@ const ViewOrder = () => {
       setOrder(data.order || null);
       setStatus(data.order?.status || '');
       setPaymentStatus(data.order?.paymentStatus || '');
+      setOrderTrackingId(data.order?.orderTrackingId || '');
     } catch (e) {
       setError(e?.message || 'Failed to load order');
       toast.error(e?.message || 'Failed to load order');
@@ -111,8 +113,10 @@ const ViewOrder = () => {
 
     const nextStatus = status?.trim() || '';
     const nextPayment = paymentStatus?.trim() || '';
+    const nextTracking = orderTrackingId?.trim() || '';
 
-    if (nextStatus === order.status && nextPayment === order.paymentStatus) {
+    const currentTracking = (order.orderTrackingId || '').toString();
+    if (nextStatus === order.status && nextPayment === order.paymentStatus && nextTracking === currentTracking) {
       toast.info('No changes to save');
       return;
     }
@@ -126,7 +130,8 @@ const ViewOrder = () => {
         body: JSON.stringify({
           orderId: order.id,
           status: nextStatus,
-          paymentStatus: nextPayment
+          paymentStatus: nextPayment,
+          orderTrackingId: nextTracking
         })
       });
 
@@ -228,6 +233,17 @@ const ViewOrder = () => {
                       <option value="Delivered">Delivered</option>
                       <option value="Cancelled">Cancelled</option>
                     </select>
+                  </div>
+                  <div className="col-12">
+                    <label className="form-label small text-muted">Order Tracking ID</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      value={orderTrackingId}
+                      onChange={(e) => setOrderTrackingId(e.target.value)}
+                      placeholder="Enter tracking id"
+                      disabled={!canUpdateOrder}
+                    />
                   </div>
                   <div className="col-12">
                     <label className="form-label small text-muted">Payment Status</label>
