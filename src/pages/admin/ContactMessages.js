@@ -15,7 +15,7 @@ const ContactMessages = () => {
   const [selected, setSelected] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const API_BASE = process.env.REACT_APP_API_BASE || 'https://makemyveggies.com/';
+  const API_BASE = process.env.REACT_APP_API_BASE || 'https://dev.makemyveggies.com/';
 
   const readJsonSafe = useCallback(async (response) => {
     const text = await response.text();
