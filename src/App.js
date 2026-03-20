@@ -14,7 +14,6 @@ import { AdminAuthProvider } from './context/AdminAuthContext';
 import Header from './components/Header';
 import Banner from './components/Banner';
 import Features from './components/Features';
-import NaturePlant from './components/NaturePlant';
 import Services from './components/Services';
 import Team from './components/Team';
 import Feedback from './components/Feedback';

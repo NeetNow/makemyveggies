@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Archive, Eye, RotateCw, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useHasPermission } from '../../rbac/useHasPermission';
+import { getApiBase } from '../../utils/api';
 
 const ContactMessages = () => {
   const canUpdateMessage = useHasPermission('update.contact_message');
@@ -15,7 +16,7 @@ const ContactMessages = () => {
   const [selected, setSelected] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const API_BASE = process.env.REACT_APP_API_BASE || 'https://makemyveggies.com/';
+  const API_BASE = getApiBase();
 
   const readJsonSafe = useCallback(async (response) => {
     const text = await response.text();
