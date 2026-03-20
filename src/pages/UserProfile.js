@@ -34,10 +34,17 @@ const UserProfile = () => {
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [orders, setOrders] = useState([]);
+    const [ordersPage, setOrdersPage] = useState(1);
+    const [ordersLimit] = useState(10);
+    const [ordersTotalPages, setOrdersTotalPages] = useState(1);
+    const [orderDetails, setOrderDetails] = useState(null);
+    const [showOrderModal, setShowOrderModal] = useState(false);
+    const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
 
     // Close mobile menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
+            if (showOrderModal) return;
             if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
                 setIsMobileMenuOpen(false);
             }
@@ -47,7 +54,7 @@ const UserProfile = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, [showOrderModal]);
 
     const loadUserProfile = useCallback(async () => {
         try {
@@ -86,39 +93,54 @@ const UserProfile = () => {
         }
     }, [currentUser]);
 
-    const loadUserOrders = useCallback(async () => {
+    const loadUserOrders = useCallback(async (page = 1) => {
         try {
             if (!currentUser) return;
 
-            const response = await fetch(`/backend/api/get_user_orders.php`, {
+            const response = await fetch(`/backend/api/get_user_orders.php?page=${page}&limit=${ordersLimit}`, {
                 credentials: 'include'
             });
             const data = await response.json();
             
             if (data.status === 'success') {
                 setOrders(data.orders);
+                const totalPages = (data.pagination && data.pagination.total_pages) ? Number(data.pagination.total_pages) : 1;
+                setOrdersTotalPages(totalPages > 0 ? totalPages : 1);
+                setOrdersPage(page);
             }
         } catch (error) {
             console.error('Error loading orders:', error);
-            // Add sample orders for testing if API fails
-            setOrders([
-                {
-                    id: 'ORD001',
-                    date: '2024-10-25',
-                    items: 3,
-                    total: 45.99,
-                    status: 'Delivered'
-                },
-                {
-                    id: 'ORD002', 
-                    date: '2024-10-20',
-                    items: 2,
-                    total: 29.99,
-                    status: 'Processing'
-                }
-            ]);
         }
-    }, [currentUser]);
+    }, [currentUser, ordersLimit]);
+
+    const fetchOrderDetails = useCallback(async (orderId) => {
+        setLoadingOrderDetails(true);
+        setShowOrderModal(true);
+        try {
+            const response = await fetch(`/backend/api/get_order_details.php?id=${orderId}`, {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                setOrderDetails(data.order);
+            } else {
+                toast.error(data.message || 'Failed to load order details');
+                setShowOrderModal(false);
+            }
+        } catch (error) {
+            console.error('Error loading order details:', error);
+            toast.error('Failed to load order details');
+            setShowOrderModal(false);
+        } finally {
+            setLoadingOrderDetails(false);
+        }
+    }, []);
+
+    const closeOrderModal = () => {
+        setShowOrderModal(false);
+        setOrderDetails(null);
+    };
 
     useEffect(() => {
         // Wait for authentication check to complete
@@ -149,7 +171,7 @@ const UserProfile = () => {
         
         // Load user profile data
         loadUserProfile();
-        loadUserOrders();
+        loadUserOrders(1);
     }, [currentUser, loading, navigate, loadUserProfile, loadUserOrders]);
 
     const handleInputChange = (e) => {
@@ -302,11 +324,9 @@ const UserProfile = () => {
                         </div>
                     </div>
                 </div>
-                <Footer />
             </>
         );
     }
-
 
     // Get section title for mobile header
     const getSectionTitle = () => {
@@ -552,21 +572,26 @@ const UserProfile = () => {
             {orders.length > 0 ? (
                 <div className="orders-list">
                     {orders.map((order, index) => (
-                        <div key={index} className="order-item card mb-3">
+                        <div key={index} className="order-item card mb-3" style={{ cursor: 'pointer' }} onClick={() => fetchOrderDetails(order.id)}>
                             <div className="card-body">
                                 <div className="row">
                                     <div className="col-md-8">
-                                        <h5 className="card-title">Order #{order.id}</h5>
+                                        <h5 className="card-title">Order #{order.orderNumber || order.id}</h5>
                                         <p className="card-text">
                                             <small className="text-muted">Placed on {order.date}</small>
                                         </p>
                                         <p className="card-text">{order.items} items</p>
                                     </div>
                                     <div className="col-md-4 text-end">
-                                        <h5 className="text-success">${order.total}</h5>
-                                        <span className={`badge ${order.status === 'Delivered' ? 'bg-success' : 'bg-warning'}`}>
-                                            {order.status}
-                                        </span>
+                                        <h5 className="text-success">{order.total}</h5>
+                                        <div className="d-flex align-items-center justify-content-end gap-2 mt-1">
+                                            <span className={`badge ${order.status === 'Delivered' ? 'bg-success' : order.status === 'Shipped' ? 'bg-info' : order.status === 'Confirmed' ? 'bg-primary' : 'bg-warning'}`}>
+                                                {order.status}
+                                            </span>
+                                            <button className="btn btn-outline-primary btn-sm" style={{ fontSize: '12px', padding: '4px 12px' }} onClick={(e) => { e.stopPropagation(); fetchOrderDetails(order.id); }}>
+                                                View Details
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -579,6 +604,38 @@ const UserProfile = () => {
                     <h5>No Orders Yet</h5>
                     <p className="text-muted">You haven't placed any orders yet.</p>
                     <Link to="/shop" className="btn btn-primary">Start Shopping</Link>
+                </div>
+            )}
+
+            {orders.length > 0 && ordersTotalPages > 1 && (
+                <div className="d-flex justify-content-center mt-4">
+                    <nav aria-label="Order history pagination">
+                        <ul className="pagination mb-0">
+                            <li className={`page-item ${ordersPage <= 1 ? 'disabled' : ''}`}>
+                                <button
+                                    className="page-link"
+                                    type="button"
+                                    onClick={() => loadUserOrders(ordersPage - 1)}
+                                    disabled={ordersPage <= 1}
+                                >
+                                    Previous
+                                </button>
+                            </li>
+                            <li className="page-item disabled">
+                                <span className="page-link">{ordersPage} / {ordersTotalPages}</span>
+                            </li>
+                            <li className={`page-item ${ordersPage >= ordersTotalPages ? 'disabled' : ''}`}>
+                                <button
+                                    className="page-link"
+                                    type="button"
+                                    onClick={() => loadUserOrders(ordersPage + 1)}
+                                    disabled={ordersPage >= ordersTotalPages}
+                                >
+                                    Next
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             )}
         </div>
@@ -863,6 +920,144 @@ const UserProfile = () => {
                 </div>
             </div>
         </div>
+
+        {/* Order Details Modal */}
+        {showOrderModal && (
+            <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
+                <div className="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Order Details</h5>
+                            <button type="button" className="btn-close" onClick={closeOrderModal}></button>
+                        </div>
+                        <div className="modal-body">
+                            {loadingOrderDetails ? (
+                                <div className="text-center py-4">
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p className="mt-2">Loading order details...</p>
+                                </div>
+                            ) : orderDetails ? (
+                                <div className="order-details">
+                                    {/* Order Header */}
+                                    <div className="row mb-4">
+                                        <div className="col-md-6">
+                                            <h6 className="text-muted mb-1">Order Number</h6>
+                                            <p className="fw-bold">#{orderDetails.orderNumber}</p>
+                                        </div>
+                                        <div className="col-md-6 text-md-end">
+                                            <h6 className="text-muted mb-1">Order Date</h6>
+                                            <p>{new Date(orderDetails.placedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Order Status */}
+                                    <div className="row mb-4">
+                                        <div className="col-md-6">
+                                            <h6 className="text-muted mb-1">Order Status</h6>
+                                            <span className={`badge ${orderDetails.status === 'Delivered' ? 'bg-success' : orderDetails.status === 'Shipped' ? 'bg-info' : orderDetails.status === 'Confirmed' ? 'bg-primary' : 'bg-warning'}`}>
+                                                {orderDetails.status}
+                                            </span>
+                                        </div>
+                                        <div className="col-md-6 text-md-end">
+                                            <h6 className="text-muted mb-1">Payment Status</h6>
+                                            <span className={`badge ${orderDetails.paymentStatus === 'Paid' ? 'bg-success' : 'bg-warning'}`}>
+                                                {orderDetails.paymentStatus}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Product Items */}
+                                    <h6 className="border-bottom pb-2 mb-3">Items Ordered</h6>
+                                    {orderDetails.items && orderDetails.items.length > 0 ? (
+                                        <div className="table-responsive mb-4">
+                                            <table className="table table-borderless">
+                                                <thead className="table-light">
+                                                    <tr>
+                                                        <th>Product</th>
+                                                        <th className="text-center">Qty</th>
+                                                        <th className="text-end">Price</th>
+                                                        <th className="text-end">Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {orderDetails.items.map((item) => (
+                                                        <tr key={item.id}>
+                                                            <td>
+                                                                <div className="d-flex align-items-center">
+                                                                    {item.image && (
+                                                                        <img 
+                                                                            src={item.image} 
+                                                                            alt={item.title} 
+                                                                            style={{ width: '50px', height: '50px', objectFit: 'cover', marginRight: '10px', borderRadius: '4px' }}
+                                                                        />
+                                                                    )}
+                                                                    <div>
+                                                                        <p className="mb-0 fw-semibold">{item.title}</p>
+                                                                        <small className="text-muted">SKU: {item.sku}</small>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="text-center">{item.quantity}</td>
+                                                            <td className="text-end">${item.unitPrice.toFixed(2)}</td>
+                                                            <td className="text-end">${item.totalPrice.toFixed(2)}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p className="text-muted">No items found for this order.</p>
+                                    )}
+
+                                    {/* Order Summary */}
+                                    <div className="row justify-content-end mb-4">
+                                        <div className="col-md-6">
+                                            <div className="bg-light p-3 rounded">
+                                                <div className="d-flex justify-content-between mb-2">
+                                                    <span>Subtotal:</span>
+                                                    <span>${orderDetails.subtotal?.toFixed(2) || '0.00'}</span>
+                                                </div>
+                                                <div className="d-flex justify-content-between mb-2">
+                                                    <span>Shipping:</span>
+                                                    <span>${orderDetails.shippingCost?.toFixed(2) || '0.00'}</span>
+                                                </div>
+                                                <div className="d-flex justify-content-between fw-bold border-top pt-2">
+                                                    <span>Total:</span>
+                                                    <span className="text-success">${orderDetails.totalAmount?.toFixed(2) || '0.00'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Shipping Address */}
+                                    <h6 className="border-bottom pb-2 mb-3">Shipping Address</h6>
+                                    <div className="bg-light p-3 rounded mb-3">
+                                        <p className="mb-0" style={{ whiteSpace: 'pre-line' }}>
+                                            {orderDetails.shippingAddress || 'No shipping address available'}
+                                        </p>
+                                    </div>
+
+                                    {/* Payment Method */}
+                                    <h6 className="border-bottom pb-2 mb-3">Payment Method</h6>
+                                    <p className="mb-0">
+                                        <i className="fa-solid fa-credit-card me-2"></i>
+                                        {orderDetails.paymentMethod || 'Online Payment'}
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="alert alert-danger">Failed to load order details.</div>
+                            )}
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" onClick={closeOrderModal}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+
         <Footer />
         </>
     );

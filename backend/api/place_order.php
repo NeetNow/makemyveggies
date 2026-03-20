@@ -36,6 +36,10 @@ try {
     $selectedAddressId = $input['address_id'] ?? null;
     $billing = $input['billing'] ?? [];
 
+    if (strtoupper((string)$paymentMethod) !== 'COD') {
+        sendResponse(false, 'Online payment must be initiated via Razorpay. Please try again.', null, 400);
+    }
+
     $pdo->beginTransaction();
 
     // Load cart for this user, including discount info (if any)
@@ -171,8 +175,8 @@ try {
     $orderNumber = 'MMV' . $orderYearIst . strtoupper(bin2hex(random_bytes(4)));
 
     $orderSql = 'INSERT INTO orders (user_id, order_number, shipping_address_id, total_amount, status, payment_status, placed_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    $status = 'Pending';
-    $paymentStatus = $paymentMethod === 'COD' ? 'Pending' : 'Pending';
+    $status = 'pending';
+    $paymentStatus = 'pending';
     $stmtOrder = $pdo->prepare($orderSql);
     $stmtOrder->execute([$userId, $orderNumber, $shippingAddressId, $totalAmount, $status, $paymentStatus, $istNow, $istNow]);
     $orderId = (int)$pdo->lastInsertId();
@@ -229,11 +233,11 @@ try {
     $paySql = 'INSERT INTO payments (order_id, payment_gateway, gateway_order_id, payment_method, payment_status, transaction_id, amount, created_at, gateway_signature)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-    $paymentGateway   = $paymentMethod === 'COD' ? 'COD' : 'ONLINE';
+    $paymentGateway   = 'COD';
     $gatewayOrderId   = $orderNumber; // use our order number as the gateway order id for now
     $transactionId    = null;         // for COD or before online capture
     $gatewaySignature = '';           // no signature at order creation
-    $payStatus        = $paymentMethod === 'COD' ? 'Pending' : 'Pending';
+    $payStatus        = 'Pending';
 
     $stmtPay = $pdo->prepare($paySql);
     $stmtPay->execute([

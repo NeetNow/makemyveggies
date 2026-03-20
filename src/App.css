@@ -89,7 +89,7 @@
   max-height: 570px;
   object-fit: contain;
   border-radius: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */
 }
 
 .banner .position_bshape.topright {
@@ -97,6 +97,12 @@
   top: 10%;
   max-width: 100px;
   z-index: 0;
+}
+
+@media (max-width: 1023px) {
+  .banner .position_bshape.contentrightimg {
+    display: none;
+  }
 }
 
 .banner .position_bshape.topright img {

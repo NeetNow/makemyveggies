@@ -8275,7 +8275,7 @@ select {
 }
 
 .contact .contact__form .custom-btn {
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
 }
 
 @media (max-width: 991.98px) {
@@ -8410,6 +8410,20 @@ select {
 
 .header__cart .carticon button i {
     font-size: 1.5rem;
+}
+
+/* HomeAboutBanner mobile responsive styles */
+@media (max-width: 991px) {
+    .mmv-homeabout-title {
+        text-align: center;
+    }
+    .mmv-homeabout-btn-wrap {
+        text-align: center;
+    }
+    .mmv-homeabout-welcome {
+        display: block;
+        text-align: center;
+    }
 }
 
 /* Override Bootstrap container constraints */

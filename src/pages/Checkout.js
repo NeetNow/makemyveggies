@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useCart } from '../context/CartContext';
 import Footer from '../components/Footer';
 import '../assets/css/style.css';
@@ -173,6 +174,9 @@ const Checkout = () => {
     setError('');
     setPlacingOrder(true);
 
+    let initiatedOrderId = null;
+    let initiatedRazorpayOrderId = null;
+
     try {
       const payload = {
         paymentMethod: formData.paymentMethod === 'ONLINE' ? 'ONLINE' : 'COD',
@@ -193,136 +197,165 @@ const Checkout = () => {
         }
       };
 
-      const res = await fetch('/backend/api/place_order.php', {
+      if (formData.paymentMethod === 'COD') {
+        const res = await fetch('/backend/api/place_order.php', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          setError(data.message || 'Failed to place order');
+          setPlacingOrder(false);
+          return;
+        }
+
+        const placedOrderNumber = data.data.order_number;
+        const backendTotal = (data.data && typeof data.data.total_amount === 'number')
+          ? data.data.total_amount
+          : total;
+
+        setOrderNumber(placedOrderNumber);
+        setOrderTotal(backendTotal);
+        setOrderPlaced(true);
+        clearCart();
+        toast.success('Order placed successfully!');
+        setPlacingOrder(false);
+        return;
+      }
+
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded || !window.Razorpay) {
+        throw new Error('Razorpay SDK failed to load. Are you online?');
+      }
+
+      const initResp = await fetch('/backend/api/razorpay_create_order.php', {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          ...payload,
+          paymentMethod: 'ONLINE'
+        })
       });
 
-      const data = await res.json();
-      if (!data.success) {
-        setError(data.message || 'Failed to place order');
-        setPlacingOrder(false);
-        return;
+      const initData = await initResp.json();
+      if (!initResp.ok || !initData.success) {
+        throw new Error(initData.message || 'Failed to initiate online payment');
       }
 
-      const placedOrderId = data.data.order_id;
-      const placedOrderNumber = data.data.order_number;
-      const backendTotal = (data.data && typeof data.data.total_amount === 'number')
-        ? data.data.total_amount
-        : total;
+      const rp = initData.data;
+      initiatedOrderId = rp.order_id;
+      initiatedRazorpayOrderId = rp.razorpay_order_id;
 
-      if (formData.paymentMethod === 'COD') {
-        // Existing COD flow
-        setOrderNumber(placedOrderNumber);
-        setOrderTotal(backendTotal);
-        setOrderPlaced(true);
-        await clearCart();
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        toast.success('Order placed successfully!', {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-      } else {
-        // Razorpay online payment flow
-        const scriptLoaded = await loadRazorpayScript();
-        if (!scriptLoaded) {
-          setError('Unable to load Razorpay payment. Please try again or choose Cash on Delivery.');
-          return;
-        }
-
-        const rpRes = await fetch('/backend/api/razorpay_create_order.php', {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ order_id: placedOrderId }),
-        });
-
-        const rpData = await rpRes.json();
-        if (!rpData.success) {
-          setError(rpData.message || 'Failed to initiate online payment.');
-          return;
-        }
-
+      await new Promise((resolve, reject) => {
         const options = {
-          key: rpData.data.razorpay_key_id,
-          amount: rpData.data.amount,
-          currency: rpData.data.currency,
+          key: rp.razorpay_key_id,
+          amount: rp.amount,
+          currency: rp.currency,
           name: 'MakeMyVeggies',
-          description: `Order ${placedOrderNumber}`,
-          order_id: rpData.data.razorpay_order_id,
+          description: `Order ${rp.order_number}`,
+          order_id: rp.razorpay_order_id,
           prefill: {
-            name: rpData.data.name || `${formData.firstName} ${formData.lastName}`,
-            email: rpData.data.email || formData.email,
-            contact: rpData.data.contact || formData.phone,
+            name: rp.name,
+            email: rp.email,
+            contact: rp.contact,
+          },
+          notes: {
+            order_id: String(rp.order_id),
+            order_number: rp.order_number,
           },
           handler: async function (response) {
             try {
-              const verifyRes = await fetch('/backend/api/razorpay_verify.php', {
+              const verifyResp = await fetch('/backend/api/razorpay_verify.php', {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                  'Content-Type': 'application/json',
+                  'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                  order_id: placedOrderId,
+                  order_id: rp.order_id,
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_signature: response.razorpay_signature,
-                }),
+                })
               });
 
-              const verifyData = await verifyRes.json();
-              if (!verifyData.success) {
-                setError(verifyData.message || 'Payment verification failed.');
-                return;
+              const verifyData = await verifyResp.json();
+              if (!verifyResp.ok || !verifyData.success) {
+                throw new Error(verifyData.message || 'Payment verification failed');
               }
 
-              setOrderNumber(placedOrderNumber);
-              setOrderTotal(backendTotal);
+              setOrderNumber(rp.order_number);
+              setOrderTotal(total);
               setOrderPlaced(true);
-              await clearCart();
-
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-
-              toast.success('Payment successful! Your order has been placed.', {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-              });
+              clearCart();
+              toast.success('Payment successful! Order confirmed.');
+              resolve();
             } catch (err) {
-              setError('Error verifying payment. Please contact support if your amount was deducted.');
+              reject(err);
             }
           },
           modal: {
-            ondismiss: function () {
-              setError('Payment popup closed. You can try again or choose Cash on Delivery.');
-            },
-          },
-          theme: {
-            color: '#31381A',
-          },
+            ondismiss: () => reject(new Error('PAYMENT_CANCELLED'))
+          }
         };
 
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      }
+        try {
+          const rzp = new window.Razorpay(options);
+          rzp.on('payment.failed', () => reject(new Error('PAYMENT_FAILED')));
+          rzp.open();
+        } catch (err) {
+          reject(err);
+        }
+      });
+
+      setPlacingOrder(false);
+      return;
     } catch (err) {
-      setError('Something went wrong while placing the order');
+      const msg = (err && err.message) ? String(err.message) : '';
+      let userMessage = 'Something went wrong while placing the order';
+
+      if (msg === 'PAYMENT_CANCELLED') {
+        userMessage = 'Payment popup closed. Your order is not confirmed. You can try again.';
+      } else if (msg === 'PAYMENT_FAILED') {
+        userMessage = 'Payment failed. Your order is not confirmed. Please try again.';
+      } else if (msg.toLowerCase().includes('verification')) {
+        userMessage = msg;
+      }
+
+      if ((msg === 'PAYMENT_CANCELLED' || msg === 'PAYMENT_FAILED') && initiatedOrderId) {
+        try {
+          await fetch('/backend/api/razorpay_mark_failed.php', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              order_id: initiatedOrderId,
+              razorpay_order_id: initiatedRazorpayOrderId,
+            })
+          });
+        } catch (e) {
+          // ignore secondary failure
+        }
+
+        try {
+          await clearCart();
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      setError(userMessage);
+      toast.error(userMessage);
     } finally {
       setPlacingOrder(false);
     }
@@ -330,6 +363,21 @@ const Checkout = () => {
 
   return (
     <>
+      {/* Toast Container for checkout page notifications */}
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 9999 }}
+      />
+      
       <main>
         {/* Page Header */}
         <section className="pageheader overflow-hidden">

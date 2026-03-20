@@ -103,6 +103,7 @@ CREATE TABLE `orders` (
     `user_id` INT NOT NULL,
     `order_number` VARCHAR(50) NOT NULL UNIQUE,
     `total_amount` DECIMAL(10,2) NOT NULL,
+    `order_tracking_id` VARCHAR(100) NULL DEFAULT NULL,
     `status` VARCHAR(50) DEFAULT 'Pending',
     `payment_status` VARCHAR(50) DEFAULT 'Pending',
     `shipping_address` TEXT NOT NULL,

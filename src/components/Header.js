@@ -119,22 +119,10 @@ const Header = () => {
 
                 <div
                   className="header__cart"
-                  onMouseEnter={() => {
-                    if (hasItems) {
-                      setIsCartOpen(true);
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (hasItems) {
-                      setIsCartOpen(false);
-                    }
-                  }}
                 >
                   <div className="carticon">
-                    <Link to="/cart" onClick={(e) => { if (hasItems) { e.preventDefault(); setIsCartOpen(!isCartOpen); } }}>
-                      <button
-                        type="button"
-                      >
+                    <Link to="/cart">
+                      <button type="button">
                         <ShoppingCart size={24} strokeWidth={1.5} />
 
                         {hasItems && (

@@ -34,6 +34,24 @@ try {
     $user = $auth_result['user'];
     $userId = $user['user_id'];
 
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+    if ($page < 1) $page = 1;
+    if ($limit < 1) $limit = 10;
+    if ($limit > 50) $limit = 50;
+    $offset = ($page - 1) * $limit;
+
+    // Only show confirmed+paid orders in profile history
+    $statusFilter = 'confirmed';
+    $paymentStatusFilter = 'paid';
+
+    // Total count for pagination
+    $countStmt = $pdo->prepare('SELECT COUNT(*) AS cnt FROM orders WHERE user_id = ? AND status = ? AND payment_status = ?');
+    $countStmt->execute([$userId, $statusFilter, $paymentStatusFilter]);
+    $totalCountRow = $countStmt->fetch(PDO::FETCH_ASSOC);
+    $totalCount = isset($totalCountRow['cnt']) ? (int)$totalCountRow['cnt'] : 0;
+    $totalPages = (int)ceil($totalCount / $limit);
+
     // Get user orders with order items
     $stmt = $pdo->prepare("
         SELECT 
@@ -46,12 +64,18 @@ try {
             COUNT(oi.order_item_id) as item_count
         FROM orders o 
         LEFT JOIN order_items oi ON o.order_id = oi.order_id
-        WHERE o.user_id = ? 
+        WHERE o.user_id = ? AND o.status = ? AND o.payment_status = ?
         GROUP BY o.order_id
         ORDER BY o.placed_at DESC
+        LIMIT ? OFFSET ?
     ");
     
-    $stmt->execute([$userId]);
+    $stmt->bindValue(1, $userId, PDO::PARAM_INT);
+    $stmt->bindValue(2, $statusFilter, PDO::PARAM_STR);
+    $stmt->bindValue(3, $paymentStatusFilter, PDO::PARAM_STR);
+    $stmt->bindValue(4, $limit, PDO::PARAM_INT);
+    $stmt->bindValue(5, $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Format orders for frontend
@@ -70,7 +94,13 @@ try {
 
     echo json_encode([
         'status' => 'success',
-        'orders' => $formattedOrders
+        'orders' => $formattedOrders,
+        'pagination' => [
+            'page' => $page,
+            'limit' => $limit,
+            'total' => $totalCount,
+            'total_pages' => $totalPages
+        ]
     ]);
 
 } catch (Exception $e) {
