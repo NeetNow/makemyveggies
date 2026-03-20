@@ -240,28 +240,24 @@ const Login = () => {
                   <>
                     <div className="form-group mb-3">
                       <label htmlFor="mobile" className="form-label">Mobile Number</label>
-                      <div className="row g-2 align-items-center">
-                        <div className="col-8 col-md-9">
-                          <input
-                            type="tel"
-                            className="form-control"
-                            id="mobile"
-                            placeholder="Enter your mobile number"
-                            value={mobile}
-                            onChange={(e) => setMobile(e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div className="col-4 col-md-3">
-                          <button
-                            type="button"
-                            className="btn btn-secondary w-100"
-                            onClick={handleSendMobileOtp}
-                            disabled={isSubmitting}
-                          >
-                            {isSubmitting ? 'Sending...' : 'Send OTP'}
-                          </button>
-                        </div>
+                      <div className="mobile-input-group">
+                        <input
+                          type="tel"
+                          className="form-control mobile-input"
+                          id="mobile"
+                          placeholder="Enter your mobile number"
+                          value={mobile}
+                          onChange={(e) => setMobile(e.target.value)}
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-secondary otp-btn"
+                          onClick={handleSendMobileOtp}
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? 'Sending...' : 'Send OTP'}
+                        </button>
                       </div>
                     </div>
 
