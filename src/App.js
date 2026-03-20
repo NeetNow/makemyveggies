@@ -21,7 +21,7 @@ import Feedback from './components/Feedback';
 import Blog from './components/Blog';
 import Newsletter from './components/Newsletter';
 import Footer from './components/Footer';
-
+import HomeAboutBanner from './components/HomeAboutBanner';
 // Page Components
 import About from './pages/About';
 import ServicesPage from './pages/Services';
@@ -128,7 +128,7 @@ function App() {
                   <>
                     <Banner />
                     <Features />
-                    <NaturePlant />
+                    <HomeAboutBanner />
                     <Services />
                     <Team />
                     <Feedback />

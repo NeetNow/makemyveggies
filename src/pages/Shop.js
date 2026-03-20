@@ -78,21 +78,22 @@ const Shop = () => {
 
       const mapped = data.products.map(p => {
         // safe parsing with fallbacks
-        const rawPrice = Number(p.price);
         const rawOriginalPrice = Number(p.originalPrice);
         const rawDiscount = Number(p.discount);
 
-        const safePrice = Number.isFinite(rawPrice) ? rawPrice : 0;
-        // Prefer backend originalPrice if valid and greater than price; otherwise fall back to price
-        const backendOriginal = Number.isFinite(rawOriginalPrice) ? rawOriginalPrice : safePrice;
-        const safeOriginalPrice = backendOriginal > safePrice ? backendOriginal : safePrice;
-
-        // Normalize discount: use backend value if valid
+        // Get original price (the real price before discount)
+        const originalPrice = Number.isFinite(rawOriginalPrice) ? rawOriginalPrice : 0;
+        
+        // Get discount percentage
         let discount = Number.isFinite(rawDiscount) ? rawDiscount : 0;
-
-        // If discount is not positive, treat product as non-discounted
         if (discount <= 0) {
           discount = 0;
+        }
+        
+        // Calculate price: if discount exists, deduct percentage from original price
+        let price = originalPrice;
+        if (discount > 0 && originalPrice > 0) {
+          price = originalPrice - (originalPrice * discount / 100);
         }
 
         // normalize category & brand from backend fields
@@ -109,9 +110,9 @@ const Shop = () => {
         return {
           id: p.id,
           name: p.title || p.name || 'Unnamed product',
-          price: safePrice,
+          price,
           // If no discount, keep originalPrice equal to price so UI shows simple price
-          originalPrice: discount > 0 ? safeOriginalPrice : safePrice,
+          originalPrice: discount > 0 ? originalPrice : price,
           image: p.primaryImage || p.image || 'https://via.placeholder.com/300x300/eeeeee/888888?text=Product',
           category,
           rating,

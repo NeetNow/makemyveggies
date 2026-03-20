@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '../context/AuthContext';
 import '../assets/css/auth.css';
 
@@ -171,6 +172,21 @@ const Login = () => {
 
   return (
     <div className="login-page banner">
+      {/* Toast Container for login page notifications */}
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 9999 }}
+      />
+      
       {/* Background Images */}
       <div className="position_bshape contentrightimg imghover d-md-block d-none">
         <img src="/assets/img/home-1/banner/bannerightimg.png" alt="banner" />
