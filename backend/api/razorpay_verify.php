@@ -45,8 +45,11 @@ try {
         sendResponse(false, 'Order not found', null, 404);
     }
 
-    if (strtolower($order['payment_status']) === 'paid') {
-        sendResponse(true, 'Order already marked as paid', null, 200);
+    if (strtolower((string)$order['payment_status']) === 'paid') {
+        sendResponse(true, 'Order already marked as paid', [
+            'order_id'     => $orderId,
+            'order_number' => $order['order_number'],
+        ], 200);
     }
 
     $razorpayKeySecret = $_ENV['RAZORPAY_KEY_SECRET'] ?? '';
@@ -59,9 +62,14 @@ try {
 
     if (!hash_equals($generatedSignature, $razorpaySignature)) {
         error_log('Razorpay signature mismatch for order ' . $orderId);
-        // Optionally mark payment as failed
+        // Mark payment + order as failed
+        $pdo->beginTransaction();
         $stmtFail = $pdo->prepare('UPDATE payments SET payment_status = ? WHERE order_id = ? AND gateway_order_id = ?');
-        $stmtFail->execute(['Failed', $orderId, $razorpayOrderId]);
+        $stmtFail->execute(['failed', $orderId, $razorpayOrderId]);
+        $istNow = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))->format('Y-m-d H:i:s');
+        $stmtOrderFail = $pdo->prepare('UPDATE orders SET payment_status = ?, status = ?, updated_at = ? WHERE order_id = ?');
+        $stmtOrderFail->execute(['failed', 'payment_failed', $istNow, $orderId]);
+        $pdo->commit();
         sendResponse(false, 'Payment verification failed', null, 400);
     }
 
@@ -69,13 +77,69 @@ try {
     $pdo->beginTransaction();
 
     $stmtPay = $pdo->prepare('UPDATE payments SET payment_status = ?, transaction_id = ?, gateway_signature = ? WHERE order_id = ? AND gateway_order_id = ?');
-    $stmtPay->execute(['Success', $razorpayPaymentId, $razorpaySignature, $orderId, $razorpayOrderId]);
+    $stmtPay->execute(['paid', $razorpayPaymentId, $razorpaySignature, $orderId, $razorpayOrderId]);
 
     $stmtOrderUpd = $pdo->prepare('UPDATE orders SET payment_status = ?, status = ?, updated_at = ? WHERE order_id = ?');
     $istNow = (new DateTime('now', new DateTimeZone('Asia/Kolkata')))->format('Y-m-d H:i:s');
-    $stmtOrderUpd->execute(['Paid', 'Confirmed', $istNow, $orderId]);
+    $stmtOrderUpd->execute(['paid', 'confirmed', $istNow, $orderId]);
+
+    // Reduce stock now (only after verified payment)
+    $itemsStmt = $pdo->prepare('SELECT product_id, quantity FROM order_items WHERE order_id = ?');
+    $itemsStmt->execute([$orderId]);
+    $items = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmtStock = $pdo->prepare('UPDATE products SET stock = stock - ? WHERE product_id = ? AND stock >= ?');
+    foreach ($items as $it) {
+        $qty = (int)$it['quantity'];
+        $pid = (int)$it['product_id'];
+        $stmtStock->execute([$qty, $pid, $qty]);
+        if ($stmtStock->rowCount() === 0) {
+            $pdo->rollBack();
+            sendResponse(false, 'Insufficient stock to confirm order', null, 400);
+        }
+    }
+
+    // Clear cart now (as per new flow)
+    $clearStmt = $pdo->prepare('DELETE FROM cart WHERE user_id = ?');
+    $clearStmt->execute([$userId]);
 
     $pdo->commit();
+
+    // WhatsApp notification after confirmed payment
+    try {
+        $userStmt = $pdo->prepare('SELECT first_name, last_name, phone FROM users WHERE user_id = ?');
+        $userStmt->execute([$userId]);
+        $u = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+        $accountName = trim(($u['first_name'] ?? '') . ' ' . ($u['last_name'] ?? ''));
+        $accountPhone = $u['phone'] ?? null;
+        if ($accountPhone) {
+            $fast2smsAuthKey   = $_ENV['FAST2SMS_AUTH_KEY'] ?? '';
+            $fast2smsBaseUrl   = $_ENV['FAST2SMS_BASE_URL'] ?? '';
+            $fast2smsMessageId = $_ENV['FAST2SMS_MESSAGE_ID_2'] ?? '';
+            $fast2smsPhoneId   = $_ENV['FAST2SMS_PHONE_NUMBER_ID'] ?? '';
+            $fast2smsImageUrl  = $_ENV['FAST2SMS_IMAGE_URL_ORDER_PLACED'] ?? '';
+
+            if ($fast2smsAuthKey !== '' && $fast2smsBaseUrl !== '') {
+                $numbers = preg_replace('/\D/', '', (string)$accountPhone);
+                $queryParams = [
+                    'authorization'    => $fast2smsAuthKey,
+                    'message_id'       => $fast2smsMessageId,
+                    'phone_number_id'  => $fast2smsPhoneId,
+                    'numbers'          => $numbers,
+                    'image_url'        => $fast2smsImageUrl,
+                    'variables_values' => $accountName . '|' . $order['order_number'],
+                ];
+                $url = $fast2smsBaseUrl . '?' . http_build_query($queryParams);
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_exec($ch);
+                curl_close($ch);
+            }
+        }
+    } catch (Exception $e) {
+        error_log('WhatsApp after payment failed: ' . $e->getMessage());
+    }
 
     sendResponse(true, 'Payment verified successfully', [
         'order_id'     => $orderId,

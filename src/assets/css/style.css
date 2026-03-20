@@ -8412,6 +8412,20 @@ select {
     font-size: 1.5rem;
 }
 
+/* HomeAboutBanner mobile responsive styles */
+@media (max-width: 991px) {
+    .mmv-homeabout-title {
+        text-align: center;
+    }
+    .mmv-homeabout-btn-wrap {
+        text-align: center;
+    }
+    .mmv-homeabout-welcome {
+        display: block;
+        text-align: center;
+    }
+}
+
 /* Override Bootstrap container constraints */
 @media (min-width: 1200px) {
     .header__bottom .container-xl,

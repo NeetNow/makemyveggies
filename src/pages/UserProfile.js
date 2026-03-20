@@ -34,7 +34,9 @@ const UserProfile = () => {
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [orders, setOrders] = useState([]);
-    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [ordersPage, setOrdersPage] = useState(1);
+    const [ordersLimit] = useState(10);
+    const [ordersTotalPages, setOrdersTotalPages] = useState(1);
     const [orderDetails, setOrderDetails] = useState(null);
     const [showOrderModal, setShowOrderModal] = useState(false);
     const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
@@ -91,22 +93,25 @@ const UserProfile = () => {
         }
     }, [currentUser]);
 
-    const loadUserOrders = useCallback(async () => {
+    const loadUserOrders = useCallback(async (page = 1) => {
         try {
             if (!currentUser) return;
 
-            const response = await fetch(`/backend/api/get_user_orders.php`, {
+            const response = await fetch(`/backend/api/get_user_orders.php?page=${page}&limit=${ordersLimit}`, {
                 credentials: 'include'
             });
             const data = await response.json();
             
             if (data.status === 'success') {
                 setOrders(data.orders);
+                const totalPages = (data.pagination && data.pagination.total_pages) ? Number(data.pagination.total_pages) : 1;
+                setOrdersTotalPages(totalPages > 0 ? totalPages : 1);
+                setOrdersPage(page);
             }
         } catch (error) {
             console.error('Error loading orders:', error);
         }
-    }, [currentUser]);
+    }, [currentUser, ordersLimit]);
 
     const fetchOrderDetails = useCallback(async (orderId) => {
         setLoadingOrderDetails(true);
@@ -135,7 +140,6 @@ const UserProfile = () => {
     const closeOrderModal = () => {
         setShowOrderModal(false);
         setOrderDetails(null);
-        setSelectedOrder(null);
     };
 
     useEffect(() => {
@@ -167,7 +171,7 @@ const UserProfile = () => {
         
         // Load user profile data
         loadUserProfile();
-        loadUserOrders();
+        loadUserOrders(1);
     }, [currentUser, loading, navigate, loadUserProfile, loadUserOrders]);
 
     const handleInputChange = (e) => {
@@ -600,6 +604,38 @@ const UserProfile = () => {
                     <h5>No Orders Yet</h5>
                     <p className="text-muted">You haven't placed any orders yet.</p>
                     <Link to="/shop" className="btn btn-primary">Start Shopping</Link>
+                </div>
+            )}
+
+            {orders.length > 0 && ordersTotalPages > 1 && (
+                <div className="d-flex justify-content-center mt-4">
+                    <nav aria-label="Order history pagination">
+                        <ul className="pagination mb-0">
+                            <li className={`page-item ${ordersPage <= 1 ? 'disabled' : ''}`}>
+                                <button
+                                    className="page-link"
+                                    type="button"
+                                    onClick={() => loadUserOrders(ordersPage - 1)}
+                                    disabled={ordersPage <= 1}
+                                >
+                                    Previous
+                                </button>
+                            </li>
+                            <li className="page-item disabled">
+                                <span className="page-link">{ordersPage} / {ordersTotalPages}</span>
+                            </li>
+                            <li className={`page-item ${ordersPage >= ordersTotalPages ? 'disabled' : ''}`}>
+                                <button
+                                    className="page-link"
+                                    type="button"
+                                    onClick={() => loadUserOrders(ordersPage + 1)}
+                                    disabled={ordersPage >= ordersTotalPages}
+                                >
+                                    Next
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             )}
         </div>

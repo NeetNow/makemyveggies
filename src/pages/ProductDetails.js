@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
@@ -156,10 +157,18 @@ const ProductDetails = () => {
         }
 
         // Map API response to component state (use backend discount/originalPrice)
-        const safePrice = Number(data.product.price);
         const safeOriginalPrice = Number(data.product.originalPrice);
-        const price = Number.isFinite(safePrice) ? safePrice : 0;
-        const originalPrice = Number.isFinite(safeOriginalPrice) ? safeOriginalPrice : price;
+        const originalPrice = Number.isFinite(safeOriginalPrice) ? safeOriginalPrice : 0;
+        
+        // Get discount percentage from backend
+        const discountPercent = Number(data.product.discount) || 0;
+        
+        // Calculate price: if discount exists, deduct percentage from original price
+        let price = originalPrice;
+        if (discountPercent > 0 && originalPrice > 0) {
+          price = originalPrice - (originalPrice * discountPercent / 100);
+        }
+        
         const ratingNum = Number(data.product.rating);
         const rating = Number.isFinite(ratingNum) ? ratingNum : 0;
         const reviewsNum = Number(data.product.reviews);
@@ -191,6 +200,7 @@ const ProductDetails = () => {
           name: data.product.title,
           price,
           originalPrice,
+          discount: discountPercent,
           image: apiPrimaryImage,
           images,
           category: (data.product.categoryName || 'others').toString(),
@@ -291,13 +301,18 @@ const ProductDetails = () => {
       return;
     }
     if (product) {
-      await cartAddToCart({
-        id: product.id,
-        product_id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image
-      }, quantity);
+      try {
+        await cartAddToCart({
+          id: product.id,
+          product_id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image
+        }, quantity);
+        toast.success(`Added ${product.name} to cart!`);
+      } catch (err) {
+        toast.error('Failed to add to cart');
+      }
     }
   };
 
@@ -306,8 +321,20 @@ const ProductDetails = () => {
       navigate('/login', { state: { from: location.pathname } });
       return;
     }
-    await addToCart();
-    navigate('/checkout');
+    if (product) {
+      try {
+        await cartAddToCart({
+          id: product.id,
+          product_id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image
+        }, quantity);
+        navigate('/cart');
+      } catch (err) {
+        toast.error('Failed to add to cart');
+      }
+    }
   };
 
   const submitRating = async (ratingValue) => {
@@ -364,10 +391,16 @@ const ProductDetails = () => {
       if (refresh.ok) {
         const refreshed = await refresh.json();
         if (refreshed.status === 'success') {
-          const safePrice = Number(refreshed.product.price);
           const safeOriginalPrice = Number(refreshed.product.originalPrice);
-          const price = Number.isFinite(safePrice) ? safePrice : 0;
-          const originalPrice = Number.isFinite(safeOriginalPrice) ? safeOriginalPrice : price;
+          const originalPrice = Number.isFinite(safeOriginalPrice) ? safeOriginalPrice : 0;
+          
+          // Get discount percentage and calculate price
+          const discountPercent = Number(refreshed.product.discount) || 0;
+          let price = originalPrice;
+          if (discountPercent > 0 && originalPrice > 0) {
+            price = originalPrice - (originalPrice * discountPercent / 100);
+          }
+          
           const ratingNum = Number(refreshed.product.rating);
           const rating = Number.isFinite(ratingNum) ? ratingNum : 0;
           const reviewsNum = Number(refreshed.product.reviews);
@@ -393,6 +426,7 @@ const ProductDetails = () => {
             name: refreshed.product.title,
             price,
             originalPrice,
+            discount: discountPercent,
             image: apiPrimaryImage,
             images,
             category: (refreshed.product.categoryName || 'others').toString(),
@@ -478,6 +512,20 @@ const ProductDetails = () => {
 
   return (
     <div className="product-details-page">
+      {/* Toast Container for product page notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 9999, marginTop: '5rem' }}
+      />
       <main>
         {/* Page Header */}
         <section className="pageheader overflow-hidden">
@@ -561,16 +609,16 @@ const ProductDetails = () => {
                     {product.originalPrice > product.price && (
                       <span className="original-price">₹{product.originalPrice.toFixed(2)}</span>
                     )}
-                    {product.originalPrice > product.price && (
+                    {product.discount > 0 && (
                       <span className="discount">
-                        {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                        {Math.round(product.discount)}% OFF
                       </span>
                     )}
                   </div>
 
                   <div className="stock-status">
                     <span className={`stock-badge ${product.inStock ? 'in-stock' : 'out-of-stock'}`}>
-                      {product.inStock ? `✓ In Stock (${product.stockCount} available)` : '✗ Out of Stock'}
+                      {product.inStock ? `✓ In Stock` : '✗ Out of Stock'}
                     </span>
                   </div>
 

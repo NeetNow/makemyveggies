@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
+
 import '../assets/css/style.css'; // Import original CSS
 import '../assets/css/order.css'; // Import order page CSS
 
@@ -31,6 +32,23 @@ const Order = () => {
   const [orderData, setOrderData] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [razorpayReady, setRazorpayReady] = useState(false);
+
+  useEffect(() => {
+    const existing = document.querySelector('script[data-razorpay="checkout"]');
+    if (existing) {
+      setRazorpayReady(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.dataset.razorpay = 'checkout';
+    script.onload = () => setRazorpayReady(true);
+    script.onerror = () => setRazorpayReady(false);
+    document.body.appendChild(script);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -96,7 +114,107 @@ const Order = () => {
       },
     };
 
+    let initiatedOrderId = null;
+    let initiatedRazorpayOrderId = null;
+
     try {
+      if (paymentMethod === 'ONLINE') {
+        if (!razorpayReady || !window.Razorpay) {
+          throw new Error('Payment system is not ready. Please refresh and try again.');
+        }
+
+        const initResp = await fetch('/backend/api/razorpay_create_order.php', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...payload,
+            paymentMethod: 'ONLINE'
+          }),
+        });
+
+        const initData = await initResp.json();
+        if (!initResp.ok || !initData.success) {
+          throw new Error(initData.message || 'Failed to initiate payment');
+        }
+
+        const rp = initData.data;
+        initiatedOrderId = rp.order_id;
+        initiatedRazorpayOrderId = rp.razorpay_order_id;
+
+        await new Promise((resolve, reject) => {
+          const options = {
+            key: rp.razorpay_key_id,
+            amount: rp.amount,
+            currency: rp.currency,
+            name: 'MakeMyVeggies',
+            description: `Order ${rp.order_number}`,
+            order_id: rp.razorpay_order_id,
+            prefill: {
+              name: rp.name,
+              email: rp.email,
+              contact: rp.contact,
+            },
+            notes: {
+              order_id: String(rp.order_id),
+              order_number: rp.order_number,
+            },
+            handler: async function (response) {
+              try {
+                const verifyResp = await fetch('/backend/api/razorpay_verify.php', {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    order_id: rp.order_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                  }),
+                });
+
+                const verifyData = await verifyResp.json();
+                if (!verifyResp.ok || !verifyData.success) {
+                  throw new Error(verifyData.message || 'Payment verification failed');
+                }
+
+                setOrderPlaced(true);
+                setOrderData({
+                  order_id: rp.order_id,
+                  order_number: rp.order_number,
+                  payment_method: 'ONLINE',
+                  total_amount: displayTotal,
+                  items: displayItems,
+                  billing: payload.billing,
+                });
+                resolve();
+              } catch (err) {
+                reject(err);
+              }
+            },
+            modal: {
+              ondismiss: () => reject(new Error('PAYMENT_CANCELLED'))
+            }
+          };
+
+          try {
+            const rzp = new window.Razorpay(options);
+            rzp.on('payment.failed', function () {
+              reject(new Error('PAYMENT_FAILED'));
+            });
+            rzp.open();
+          } catch (err) {
+            reject(err);
+          }
+        });
+
+        return;
+      }
+
       const response = await fetch('/backend/api/place_order.php', {
         method: 'POST',
         credentials: 'include',
@@ -115,8 +233,42 @@ const Order = () => {
       setOrderPlaced(true);
       setOrderData(data.data || null);
     } catch (err) {
-      console.error('Error placing order:', err);
-      setError(err.message || 'An error occurred while placing your order.');
+      const msg = (err && err.message) ? String(err.message) : '';
+
+      if ((msg === 'PAYMENT_CANCELLED' || msg === 'PAYMENT_FAILED') && initiatedOrderId) {
+        try {
+          await fetch('/backend/api/razorpay_mark_failed.php', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              order_id: initiatedOrderId,
+              razorpay_order_id: initiatedRazorpayOrderId,
+            }),
+          });
+        } catch (e) {
+          // ignore secondary failure
+        }
+
+        try {
+          await fetch('/backend/api/clear_cart.php', {
+            method: 'POST',
+            credentials: 'include',
+          });
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      if (msg === 'PAYMENT_CANCELLED') {
+        setError('Payment popup closed. Your order is not confirmed. You can try again.');
+      } else if (msg === 'PAYMENT_FAILED') {
+        setError('Payment failed. Your order is not confirmed. Please try again.');
+      } else {
+        setError(msg || 'An error occurred while placing your order.');
+      }
     } finally {
       setSubmitting(false);
     }

@@ -43,6 +43,8 @@ try {
     }
 
     // Get order details (verify it belongs to the current user)
+    // Note: orders table uses shipping_address_id (not shipping_address text) in current schema.
+    // Also payment_method may not exist; we avoid selecting non-existent columns.
     $orderSql = "
         SELECT
             o.order_id,
@@ -50,11 +52,17 @@ try {
             o.total_amount,
             o.status,
             o.payment_status,
-            o.payment_method,
-            o.shipping_address,
+            o.shipping_address_id,
             o.placed_at,
-            o.updated_at
+            o.updated_at,
+            a.address_line1,
+            a.address_line2,
+            a.city,
+            a.state,
+            a.country,
+            a.postal_code
         FROM orders o
+        LEFT JOIN addresses a ON o.shipping_address_id = a.address_id
         WHERE o.order_id = ? AND o.user_id = ?
         LIMIT 1
     ";
@@ -63,52 +71,20 @@ try {
     $stmt->execute([$orderId, $userId]);
     $orderRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // If not found with direct shipping_address, try with address_id
-    if (!$orderRow) {
-        $orderSql2 = "
-            SELECT
-                o.order_id,
-                o.order_number,
-                o.total_amount,
-                o.status,
-                o.payment_status,
-                o.payment_method,
-                o.shipping_address_id,
-                o.placed_at,
-                o.updated_at,
-                a.address_line1,
-                a.address_line2,
-                a.city,
-                a.state,
-                a.country,
-                a.postal_code
-            FROM orders o
-            LEFT JOIN addresses a ON o.shipping_address_id = a.address_id
-            WHERE o.order_id = ? AND o.user_id = ?
-            LIMIT 1
-        ";
-
-        $stmt2 = $pdo->prepare($orderSql2);
-        $stmt2->execute([$orderId, $userId]);
-        $orderRow = $stmt2->fetch(PDO::FETCH_ASSOC);
-
-        if ($orderRow) {
-            // Build shipping address from address fields
-            $parts = [];
-            if (!empty($orderRow['address_line1'])) $parts[] = $orderRow['address_line1'];
-            if (!empty($orderRow['address_line2'])) $parts[] = $orderRow['address_line2'];
-            $cityLine = trim((string)($orderRow['city'] ?? ''));
-            $stateLine = trim((string)($orderRow['state'] ?? ''));
-            $countryLine = trim((string)($orderRow['country'] ?? ''));
-            $pinLine = trim((string)($orderRow['postal_code'] ?? ''));
-            $line3 = trim($cityLine . ($stateLine ? ', ' . $stateLine : ''));
-            if ($line3 !== '') $parts[] = $line3;
-            $line4 = trim($countryLine . ($pinLine ? ' - ' . $pinLine : ''));
-            if ($line4 !== '') $parts[] = $line4;
-            $shippingAddressText = implode("\n", $parts);
-        }
-    } else {
-        $shippingAddressText = $orderRow['shipping_address'] ?? '';
+    $shippingAddressText = '';
+    if ($orderRow) {
+        $parts = [];
+        if (!empty($orderRow['address_line1'])) $parts[] = $orderRow['address_line1'];
+        if (!empty($orderRow['address_line2'])) $parts[] = $orderRow['address_line2'];
+        $cityLine = trim((string)($orderRow['city'] ?? ''));
+        $stateLine = trim((string)($orderRow['state'] ?? ''));
+        $countryLine = trim((string)($orderRow['country'] ?? ''));
+        $pinLine = trim((string)($orderRow['postal_code'] ?? ''));
+        $line3 = trim($cityLine . ($stateLine ? ', ' . $stateLine : ''));
+        if ($line3 !== '') $parts[] = $line3;
+        $line4 = trim($countryLine . ($pinLine ? ' - ' . $pinLine : ''));
+        if ($line4 !== '') $parts[] = $line4;
+        $shippingAddressText = implode("\n", $parts);
     }
 
     if (!$orderRow) {
@@ -167,7 +143,7 @@ try {
             'shippingCost' => $shippingCost,
             'status' => $orderRow['status'],
             'paymentStatus' => $orderRow['payment_status'],
-            'paymentMethod' => $orderRow['payment_method'] ?? 'Online Payment',
+            'paymentMethod' => 'Online Payment',
             'shippingAddress' => $shippingAddressText,
             'placedAt' => $orderRow['placed_at'],
             'updatedAt' => $orderRow['updated_at'],
@@ -178,6 +154,6 @@ try {
 } catch (Exception $e) {
     error_log("Get order details error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Internal server error']);
+    echo json_encode(['status' => 'error', 'message' => 'Internal server error', 'error' => $e->getMessage()]);
 }
 ?>
