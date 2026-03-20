@@ -159,6 +159,7 @@ const Contact = () => {
                             value={form.firstName}
                             onChange={(e) => setForm((p) => ({ ...p, firstName: e.target.value }))}
                             disabled={isSubmitting}
+                            required
                           />
                         </div>
                         <div className="col-md-6">
@@ -168,6 +169,7 @@ const Contact = () => {
                             value={form.lastName}
                             onChange={(e) => setForm((p) => ({ ...p, lastName: e.target.value }))}
                             disabled={isSubmitting}
+                            required
                           />
                         </div>
                         <div className="col-12">
@@ -177,6 +179,7 @@ const Contact = () => {
                             value={form.phone}
                             onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
                             disabled={isSubmitting}
+                            required
                           />
                         </div>
                         <div className="col-12">
