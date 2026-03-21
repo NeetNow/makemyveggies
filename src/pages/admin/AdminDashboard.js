@@ -2,9 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { ShoppingBag, IndianRupee, Package, Users, TrendingUp, Calendar, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getApiBase } from '../../utils/api';
 
 const AdminDashboard = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE || '';
+  const API_BASE = getApiBase();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
