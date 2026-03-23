@@ -1,25 +1,25 @@
 {
   "files": {
-    "main.css": "https://dev.makemyveggies.com/static/css/main.3cf4f7e1.css",
-    "main.js": "https://dev.makemyveggies.com/static/js/main.fd5be16c.js",
-    "static/js/453.5ffa9928.chunk.js": "https://dev.makemyveggies.com/static/js/453.5ffa9928.chunk.js",
-    "static/media/Blogs.png": "https://dev.makemyveggies.com/static/media/Blogs.58a028971df279c34989.png",
-    "static/media/AboutPage.png": "https://dev.makemyveggies.com/static/media/AboutPage.8a78a92684b0764df1b2.png",
-    "static/media/DIYKits.png": "https://dev.makemyveggies.com/static/media/DIYKits.f953de597e1411e9b2a4.png",
-    "static/media/contact.png": "https://dev.makemyveggies.com/static/media/contact.fdee61d53ecda3e4c2fd.png",
-    "static/media/bg.png": "https://dev.makemyveggies.com/static/media/bg.39b63c84f7b97be30603.png",
-    "static/media/bg.jpg": "https://dev.makemyveggies.com/static/media/bg.4889b1b9bc216bbb82c2.jpg",
-    "static/media/img.jpg": "https://dev.makemyveggies.com/static/media/img.5f74b7570969abe7553f.jpg",
-    "static/media/bgright.jpg": "https://dev.makemyveggies.com/static/media/bgright.bcf8af8e1bf73ff092e1.jpg",
-    "static/media/preloader.gif": "https://dev.makemyveggies.com/static/media/preloader.2b8a2d026d950783b620.gif",
-    "static/media/pata.png": "https://dev.makemyveggies.com/static/media/pata.a21db91e53c7c372143a.png",
-    "index.html": "https://dev.makemyveggies.com/index.html",
-    "main.3cf4f7e1.css.map": "https://dev.makemyveggies.com/static/css/main.3cf4f7e1.css.map",
-    "main.fd5be16c.js.map": "https://dev.makemyveggies.com/static/js/main.fd5be16c.js.map",
-    "453.5ffa9928.chunk.js.map": "https://dev.makemyveggies.com/static/js/453.5ffa9928.chunk.js.map"
+    "main.css": "/static/css/main.718f5e72.css",
+    "main.js": "/static/js/main.2889db3e.js",
+    "static/js/453.5ffa9928.chunk.js": "/static/js/453.5ffa9928.chunk.js",
+    "static/media/Blogs.png": "/static/media/Blogs.58a028971df279c34989.png",
+    "static/media/AboutPage.png": "/static/media/AboutPage.8a78a92684b0764df1b2.png",
+    "static/media/DIYKits.png": "/static/media/DIYKits.f953de597e1411e9b2a4.png",
+    "static/media/contact.png": "/static/media/contact.fdee61d53ecda3e4c2fd.png",
+    "static/media/bg.png": "/static/media/bg.39b63c84f7b97be30603.png",
+    "static/media/bg.jpg": "/static/media/bg.4889b1b9bc216bbb82c2.jpg",
+    "static/media/img.jpg": "/static/media/img.5f74b7570969abe7553f.jpg",
+    "static/media/bgright.jpg": "/static/media/bgright.bcf8af8e1bf73ff092e1.jpg",
+    "static/media/preloader.gif": "/static/media/preloader.2b8a2d026d950783b620.gif",
+    "static/media/pata.png": "/static/media/pata.a21db91e53c7c372143a.png",
+    "index.html": "/index.html",
+    "main.718f5e72.css.map": "/static/css/main.718f5e72.css.map",
+    "main.2889db3e.js.map": "/static/js/main.2889db3e.js.map",
+    "453.5ffa9928.chunk.js.map": "/static/js/453.5ffa9928.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3cf4f7e1.css",
-    "static/js/main.fd5be16c.js"
+    "static/css/main.718f5e72.css",
+    "static/js/main.2889db3e.js"
   ]
 }
