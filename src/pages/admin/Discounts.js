@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Tag, RefreshCw, Pencil, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useHasPermission } from '../../rbac/useHasPermission';
-import { getApiBase } from '../../utils/api';
 
 const Discounts = () => {
   const canUpdateProduct = useHasPermission('update.product');
@@ -47,7 +46,7 @@ const Discounts = () => {
   const getEndpointCandidates = useCallback((path) => {
     return [
       path,
-      getApiBase() + path
+      `http://localhost/makemyveggies-main${path}`
     ];
   }, []);
 

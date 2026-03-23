@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RotateCw } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useHasAnyPermission } from '../../rbac/useHasPermission';
-import { getApiBase } from '../../utils/api';
 
 const AdminNewsletter = () => {
   const canRefresh = useHasAnyPermission(['view.newsletter', 'update.newsletter']);
@@ -11,8 +10,6 @@ const AdminNewsletter = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
-  const [page, setPage] = useState(1);
-  const limit = 10;
 
   const readJsonSafe = useCallback(async (response) => {
     const text = await response.text();
@@ -29,7 +26,7 @@ const AdminNewsletter = () => {
     const path = '/backend/api/admin/get_newsletter_subscribers.php?limit=1000';
     return [
       path,
-      `${getApiBase()}${path}`
+      `http://localhost/git_mmv/makemyveggies/${path}`
     ];
   }, []);
 
@@ -89,16 +86,6 @@ const AdminNewsletter = () => {
     if (!q) return subscribers;
     return subscribers.filter((s) => String(s?.email || '').toLowerCase().includes(q));
   }, [query, subscribers]);
-
-  const totalPages = Math.ceil(filteredSubscribers.length / limit) || 1;
-  const paginated = useMemo(() => {
-    const start = (page - 1) * limit;
-    return filteredSubscribers.slice(start, start + limit);
-  }, [filteredSubscribers, page, limit]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [query]);
 
   const handleRefresh = async () => {
     if (!canRefresh) return;
@@ -161,16 +148,16 @@ const AdminNewsletter = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginated.length === 0 ? (
+                  {filteredSubscribers.length === 0 ? (
                     <tr>
                       <td colSpan={3} className="text-muted">
                         No subscribers found.
                       </td>
                     </tr>
                   ) : (
-                    paginated.map((s, idx) => (
+                    filteredSubscribers.map((s, idx) => (
                       <tr key={s?.id ?? `${s?.email ?? 'row'}-${idx}`}>
-                        <td>{(page - 1) * limit + idx + 1}</td>
+                        <td>{idx + 1}</td>
                         <td className="fw-semibold">{s?.email || '-'}</td>
                         <td className="text-muted">{s?.created_at || '-'}</td>
                       </tr>
@@ -178,31 +165,6 @@ const AdminNewsletter = () => {
                   )}
                 </tbody>
               </table>
-            </div>
-          )}
-          {!loading && !error && totalPages > 1 && (
-            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
-              <div className="text-muted small">
-                Page {page} of {totalPages}
-              </div>
-              <div className="d-flex gap-2">
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-secondary"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                >
-                  Prev
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-secondary"
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                >
-                  Next
-                </button>
-              </div>
             </div>
           )}
         </div>

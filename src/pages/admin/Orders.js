@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Eye, Pencil, XCircle, Download } from 'lucide-react';
+import { Eye, Pencil, XCircle } from 'lucide-react';
 import { useHasPermission } from '../../rbac/useHasPermission';
 import { getApiBase } from '../../utils/api';
 
@@ -129,51 +129,6 @@ const Orders = () => {
     }
   };
 
-  const [exporting, setExporting] = useState(false);
-
-  const exportOrders = async () => {
-    if (exporting) return;
-    setExporting(true);
-    try {
-      const params = new URLSearchParams();
-      params.set('sort', sort);
-      if (search.trim()) params.set('search', search.trim());
-      if (status) params.set('status', status);
-      if (paymentStatus) params.set('paymentStatus', paymentStatus);
-
-      const res = await fetch(`${API_BASE}/backend/api/admin/export_orders.php?${params.toString()}`, {
-        method: 'GET',
-        credentials: 'include'
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        let msg = 'Export failed';
-        try {
-          const data = JSON.parse(text);
-          msg = data?.message || msg;
-        } catch {}
-        throw new Error(msg);
-      }
-
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `orders_export_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast.success('Orders exported successfully');
-    } catch (e) {
-      toast.error(e?.message || 'Failed to export orders');
-    } finally {
-      setExporting(false);
-    }
-  };
-
   return (
     <div className="container-fluid">
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
@@ -181,15 +136,6 @@ const Orders = () => {
           <h4 className="mb-0">Orders</h4>
           <div className="text-muted small">Total: {loading ? '—' : total}</div>
         </div>
-        <button
-          type="button"
-          className="btn btn-success btn-sm"
-          onClick={exportOrders}
-          disabled={exporting || loading}
-        >
-          <Download size={16} className="me-1" />
-          {exporting ? 'Exporting...' : 'Export to Excel'}
-        </button>
       </div>
 
       <div className="card shadow-sm mb-3">
