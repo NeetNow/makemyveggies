@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshCw, TrendingUp, Users, Package, ShoppingBag, IndianRupee } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getApiBase } from '../../utils/api';
 
 const Analytics = () => {
   const [loading, setLoading] = useState(true);
@@ -193,7 +194,7 @@ const Analytics = () => {
     const path = '/backend/api/admin/dashboard_stats.php';
     return [
       path,
-      `http://localhost/makemyveggies-main${path}`
+      getApiBase() + path
     ];
   }, []);
 
