@@ -1,6 +1,4 @@
-﻿@import url("../../../../../css2");
-@import url("../../../../../css2-1");
-@import url("../../../../../css2-2");
+﻿@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Public+Sans:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap");
 /* browser prefix adding  */
 /* @@@@@@@@@@@@@  Extend Property CSS Writing Now  @@@@@@@@@@@@@@ */
 .contactus__inner:hover .thumb::after, .feedback2__inner:hover .icon::after, .service__inner:hover .thumb::after, .counter__inner:hover .thumb::after, .natureplant__innerimg:hover .thumb::after, .natureplant__gardingmake .item:hover .thumb::after, .feature__inner:hover .icon::after {
