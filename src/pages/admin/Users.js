@@ -17,9 +17,29 @@ const Users = () => {
 
   const [activeTab, setActiveTab] = useState('users');
 
+  const [userPage, setUserPage] = useState(1);
+  const [rolePage, setRolePage] = useState(1);
+  const limit = 10;
+
   const roleAssignedUsers = useMemo(() => {
     return (Array.isArray(users) ? users : []).filter((u) => Array.isArray(u?.roles) && u.roles.length > 0);
   }, [users]);
+
+  const userTotalPages = Math.ceil(roleAssignedUsers.length / limit) || 1;
+  const paginatedUsers = useMemo(() => {
+    const start = (userPage - 1) * limit;
+    return roleAssignedUsers.slice(start, start + limit);
+  }, [roleAssignedUsers, userPage, limit]);
+
+  const roleTotalPages = Math.ceil(roles.length / limit) || 1;
+  const paginatedRoles = useMemo(() => {
+    const start = (rolePage - 1) * limit;
+    return roles.slice(start, start + limit);
+  }, [roles, rolePage, limit]);
+
+  useEffect(() => {
+    setUserPage(1);
+  }, [search]);
 
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -505,7 +525,7 @@ const Users = () => {
                 <table className="table table-striped align-middle mb-0">
                   <thead className="table-light">
                     <tr>
-                      <th style={{ width: 80 }}>ID</th>
+                      <th style={{ width: 70 }}>SR.NO</th>
                       <th>Name</th>
                       <th>Email</th>
                       <th style={{ width: 140 }}>Active</th>
@@ -515,16 +535,16 @@ const Users = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {roleAssignedUsers.length === 0 ? (
+                    {paginatedUsers.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="text-center text-muted py-4">
                           No users found.
                         </td>
                       </tr>
                     ) : (
-                      roleAssignedUsers.map((u) => (
+                      paginatedUsers.map((u, idx) => (
                         <tr key={u.user_id}>
-                          <td>{u.user_id}</td>
+                          <td>{(userPage - 1) * limit + idx + 1}</td>
                           <td>{`${u.first_name || ''} ${u.last_name || ''}`.trim() || '—'}</td>
                           <td>{u.email}</td>
                           <td>
@@ -570,6 +590,31 @@ const Users = () => {
                 </table>
               </div>
             )}
+            {!loading && paginatedUsers.length > 0 && userTotalPages > 1 && (
+              <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+                <div className="text-muted small">
+                  Page {userPage} of {userTotalPages}
+                </div>
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => setUserPage((p) => Math.max(1, p - 1))}
+                    disabled={userPage <= 1}
+                  >
+                    Prev
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => setUserPage((p) => Math.min(userTotalPages, p + 1))}
+                    disabled={userPage >= userTotalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -586,15 +631,15 @@ const Users = () => {
                 <table className="table table-striped align-middle mb-0">
                   <thead className="table-light">
                     <tr>
-                      <th style={{ width: 80 }}>ID</th>
+                      <th style={{ width: 70 }}>SR.NO</th>
                       <th>Role</th>
                       <th style={{ width: 240 }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {roles.map((r) => (
+                    {paginatedRoles.map((r, idx) => (
                       <tr key={r.id}>
-                        <td>{r.id}</td>
+                        <td>{(rolePage - 1) * limit + idx + 1}</td>
                         <td className="fw-semibold">{r.name}</td>
                         <td>
                           <div className="d-flex gap-2 flex-wrap">
@@ -620,6 +665,31 @@ const Users = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+            {!loading && paginatedRoles.length > 0 && roleTotalPages > 1 && (
+              <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+                <div className="text-muted small">
+                  Page {rolePage} of {roleTotalPages}
+                </div>
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => setRolePage((p) => Math.max(1, p - 1))}
+                    disabled={rolePage <= 1}
+                  >
+                    Prev
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => setRolePage((p) => Math.min(roleTotalPages, p + 1))}
+                    disabled={rolePage >= roleTotalPages}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
           </div>

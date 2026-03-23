@@ -58,6 +58,9 @@ const Customers = () => {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
 
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
   const customers = useMemo(() => {
     return (Array.isArray(users) ? users : []).filter((u) => !Array.isArray(u?.roles) || u.roles.length === 0);
   }, [users]);
@@ -73,6 +76,16 @@ const Customers = () => {
       return hay.includes(q);
     });
   }, [customers, search]);
+
+  const totalPages = Math.ceil(filtered.length / limit) || 1;
+  const paginated = useMemo(() => {
+    const start = (page - 1) * limit;
+    return filtered.slice(start, start + limit);
+  }, [filtered, page, limit]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   useEffect(() => {
     const load = async () => {
@@ -163,7 +176,7 @@ const Customers = () => {
               <table className="table table-hover align-middle mb-0">
                 <thead className="table-light">
                   <tr>
-                    <th style={{ width: 90 }}>ID</th>
+                    <th style={{ width: 70 }}>SR.NO</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th style={{ width: 160 }}>Phone</th>
@@ -172,16 +185,16 @@ const Customers = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.length === 0 ? (
+                  {paginated.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="text-center text-muted py-4">
                         No customers found.
                       </td>
                     </tr>
                   ) : (
-                    filtered.map((u) => (
+                    paginated.map((u, idx) => (
                       <tr key={u.user_id}>
-                        <td>{u.user_id}</td>
+                        <td>{(page - 1) * limit + idx + 1}</td>
                         <td className="fw-semibold">{`${u.first_name || ''} ${u.last_name || ''}`.trim() || '—'}</td>
                         <td>{u.email || '—'}</td>
                         <td className="text-muted">{maskPhone(u.phone)}</td>
@@ -198,6 +211,31 @@ const Customers = () => {
                   )}
                 </tbody>
               </table>
+            </div>
+          )}
+          {!loading && !error && totalPages > 1 && (
+            <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+              <div className="text-muted small">
+                Page {page} of {totalPages}
+              </div>
+              <div className="d-flex gap-2">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                >
+                  Prev
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </div>
