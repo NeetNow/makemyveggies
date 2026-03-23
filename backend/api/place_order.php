@@ -175,7 +175,7 @@ try {
     $orderNumber = 'MMV' . $orderYearIst . strtoupper(bin2hex(random_bytes(4)));
 
     $orderSql = 'INSERT INTO orders (user_id, order_number, shipping_address_id, total_amount, status, payment_status, placed_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    $status = 'pending';
+    $status = 'confirmed';
     $paymentStatus = 'pending';
     $stmtOrder = $pdo->prepare($orderSql);
     $stmtOrder->execute([$userId, $orderNumber, $shippingAddressId, $totalAmount, $status, $paymentStatus, $istNow, $istNow]);
@@ -237,7 +237,7 @@ try {
     $gatewayOrderId   = $orderNumber; // use our order number as the gateway order id for now
     $transactionId    = null;         // for COD or before online capture
     $gatewaySignature = '';           // no signature at order creation
-    $payStatus        = 'Pending';
+    $payStatus        = 'pending';
 
     $stmtPay = $pdo->prepare($paySql);
     $stmtPay->execute([
