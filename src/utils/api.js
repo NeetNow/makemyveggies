@@ -1,37 +1,50 @@
 export const getApiBase = () => {
-  const envBase = process.env.REACT_APP_API_BASE;
+  const envBaseRaw = process.env.REACT_APP_API_BASE;
 
-  if (envBase) {
-    const trimmed = String(envBase).replace(/\/+$/, '');
-    if (/^https?:\/\//i.test(trimmed)) return trimmed;
-    if (typeof window !== 'undefined') return `${window.location.origin}${trimmed}`.replace(/\/+$/, '');
-    return trimmed;
-  }
-
-  if (typeof window === 'undefined') return 'http://localhost';
-
-  if (window.location.port === '3000') {
-    return process.env.REACT_APP_API_BASE;
-  }
-
-  const origin = window.location.origin;
-  const publicUrl = process.env.PUBLIC_URL;
-
-  if (publicUrl) {
-    try {
-      const u = new URL(publicUrl, origin);
-      const basePath = (u.pathname || '').replace(/\/+$/, '');
-      return `${origin}${basePath}`.replace(/\/+$/, '');
-    } catch (e) {
-      const basePath = String(publicUrl).replace(/\/+$/, '');
-      return `${origin}${basePath}`.replace(/\/+$/, '');
+  // Prefer explicit env configuration.
+  // Supports:
+  // - Absolute URL: https://example.com
+  // - Absolute/relative path: /myapp or myapp (resolved against window.location.origin)
+  if (envBaseRaw) {
+    const trimmed = String(envBaseRaw).trim().replace(/\/+$/, '');
+    if (trimmed) {
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      if (typeof window !== 'undefined') {
+        const path = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+        return `${window.location.origin}${path}`.replace(/\/+$/, '');
+      }
+      return trimmed;
     }
   }
 
-  const path = window.location.pathname || '/';
-  const idx = path.toLowerCase().indexOf('/admin');
-  const basePath = idx >= 0 ? path.slice(0, idx) : '';
-  return `${origin}${basePath}`.replace(/\/+$/, '');
+  // SSR / tests fallback
+  if (typeof window === 'undefined') return 'http://localhost';
+
+  // Local CRA dev server: use relative URLs + proxy.
+  // Returning '' ensures callers can do `${API_BASE}/backend/...` safely.
+  if (window.location.hostname === 'localhost' && window.location.port === '3000') {
+    return '';
+  }
+
+  const origin = window.location.origin;
+  const publicUrlRaw = process.env.PUBLIC_URL;
+
+  // In production, PUBLIC_URL can represent a sub-path where the app is hosted.
+  if (publicUrlRaw) {
+    const cleaned = String(publicUrlRaw).trim();
+    if (cleaned) {
+      try {
+        const u = new URL(cleaned, origin);
+        const basePath = (u.pathname || '').replace(/\/+$/, '');
+        return `${origin}${basePath}`.replace(/\/+$/, '');
+      } catch (e) {
+        const basePath = cleaned.startsWith('/') ? cleaned : `/${cleaned}`;
+        return `${origin}${basePath}`.replace(/\/+$/, '');
+      }
+    }
+  }
+
+  return origin.replace(/\/+$/, '');
 };
 
 export const apiUrl = (path) => {
@@ -40,5 +53,5 @@ export const apiUrl = (path) => {
 
   const p = String(path).startsWith('/') ? String(path) : `/${path}`;
   if (!base) return p;
-  return `${base}${p}`;
+  return `${String(base).replace(/\/+$/, '')}${p}`;
 };

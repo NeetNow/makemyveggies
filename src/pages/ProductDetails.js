@@ -276,6 +276,8 @@ const ProductDetails = () => {
             name: p.title || p.name || 'Unnamed product',
             price: Number(p.price) || 0,
             image: resolveImageUrl(p.primaryImage),
+            category: p.categoryName || product.category || 'DIY Veggies',
+            rating: Number(p.rating) || 0,
           }))
           .filter((p) => p.id !== product.id)
           .slice(0, 4);
@@ -847,23 +849,59 @@ const ProductDetails = () => {
                 relatedProducts.map((p) => (
                   <div key={p.id} className="col-md-6 col-lg-3">
                     <div className="product-card">
-                      <div className="product-image">
-                        <img
-                          src={p.image}
-                          alt={p.name}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = 'https://via.placeholder.com/250x250/eeeeee/888888?text=Product';
-                          }}
-                        />
+                      <div className="product-image-container">
+                        <Link to={`/product-details/${p.id}`}>
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            className="product-image"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = 'https://via.placeholder.com/300x300/eeeeee/888888?text=Product';
+                            }}
+                          />
+                        </Link>
                       </div>
                       <div className="product-info">
+                        <span className="product-category">{p.category}</span>
                         <h5 className="product-title">
                           <Link to={`/product-details/${p.id}`}>{p.name}</Link>
                         </h5>
+                        <div className="product-rating">
+                          {[...Array(5)].map((_, i) => (
+                            <i
+                              key={i}
+                              className={`fa-${i < (p.rating || 0) ? 'solid' : 'regular'} fa-star star ${i < (p.rating || 0) ? 'filled' : 'empty'}`}
+                            />
+                          ))}
+                          <span className="rating-count">
+                            {p.rating > 0 ? `(${p.rating})` : '(No ratings yet)'}
+                          </span>
+                        </div>
                         <div className="product-price">
                           <span className="current-price">₹{Number(p.price || 0).toFixed(2)}</span>
                         </div>
+                        <button
+                          type="button"
+                          className="add-to-cart-btn"
+                          onClick={() => {
+                            if (!currentUser) {
+                              navigate('/login', { state: { from: location.pathname } });
+                              return;
+                            }
+                            cartAddToCart({
+                              id: p.id,
+                              product_id: p.id,
+                              name: p.name,
+                              price: p.price,
+                              image: p.image
+                            }, 1);
+                            toast.success(`Added ${p.name} to cart!`);
+                          }}
+                        >
+                          <i className="fa-solid fa-cart-plus icon"></i>
+                          Add to Cart
+                        </button>
                       </div>
                     </div>
                   </div>
