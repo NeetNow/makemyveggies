@@ -43,8 +43,6 @@ try {
     }
 
     // Get order details (verify it belongs to the current user)
-    // Note: orders table uses shipping_address_id (not shipping_address text) in current schema.
-    // Also payment_method may not exist; we avoid selecting non-existent columns.
     $orderSql = "
         SELECT
             o.order_id,
@@ -52,17 +50,10 @@ try {
             o.total_amount,
             o.status,
             o.payment_status,
-            o.shipping_address_id,
+            o.shipping_address,
             o.placed_at,
-            o.updated_at,
-            a.address_line1,
-            a.address_line2,
-            a.city,
-            a.state,
-            a.country,
-            a.postal_code
+            o.updated_at
         FROM orders o
-        LEFT JOIN addresses a ON o.shipping_address_id = a.address_id
         WHERE o.order_id = ? AND o.user_id = ?
         LIMIT 1
     ";
@@ -71,27 +62,14 @@ try {
     $stmt->execute([$orderId, $userId]);
     $orderRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $shippingAddressText = '';
-    if ($orderRow) {
-        $parts = [];
-        if (!empty($orderRow['address_line1'])) $parts[] = $orderRow['address_line1'];
-        if (!empty($orderRow['address_line2'])) $parts[] = $orderRow['address_line2'];
-        $cityLine = trim((string)($orderRow['city'] ?? ''));
-        $stateLine = trim((string)($orderRow['state'] ?? ''));
-        $countryLine = trim((string)($orderRow['country'] ?? ''));
-        $pinLine = trim((string)($orderRow['postal_code'] ?? ''));
-        $line3 = trim($cityLine . ($stateLine ? ', ' . $stateLine : ''));
-        if ($line3 !== '') $parts[] = $line3;
-        $line4 = trim($countryLine . ($pinLine ? ' - ' . $pinLine : ''));
-        if ($line4 !== '') $parts[] = $line4;
-        $shippingAddressText = implode("\n", $parts);
-    }
-
     if (!$orderRow) {
         http_response_code(404);
         echo json_encode(['status' => 'error', 'message' => 'Order not found']);
         exit;
     }
+
+    // Use shipping_address directly from orders table
+    $shippingAddressText = $orderRow['shipping_address'] ?? 'No shipping address available';
 
     // Get order items with product details
     $itemsSql = "
@@ -154,6 +132,6 @@ try {
 } catch (Exception $e) {
     error_log("Get order details error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Internal server error', 'error' => $e->getMessage()]);
+    echo json_encode(['status' => 'error', 'message' => 'Failed to load order details. Please try again later.']);
 }
 ?>
