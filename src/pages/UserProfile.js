@@ -142,18 +142,6 @@ const UserProfile = () => {
         setOrderDetails(null);
     };
 
-    // Helper function to get order tracking steps
-    const getOrderTrackingSteps = (status) => {
-        const steps = [
-            { title: 'Order Confirmed', completed: true, date: 'Order placed' },
-            { title: 'Processing', completed: ['Processing', 'Shipped', 'Out for Delivery', 'Delivered'].includes(status), date: 'Processing items' },
-            { title: 'Shipped', completed: ['Shipped', 'Out for Delivery', 'Delivered'].includes(status), date: 'Items shipped' },
-            { title: 'Out for Delivery', completed: ['Out for Delivery', 'Delivered'].includes(status), date: 'In transit' },
-            { title: 'Delivered', completed: status === 'Delivered', date: status === 'Delivered' ? 'Delivered successfully' : 'Pending delivery' }
-        ];
-        return steps;
-    };
-
     useEffect(() => {
         // Wait for authentication check to complete
         if (loading) {
@@ -936,13 +924,13 @@ const UserProfile = () => {
         {/* Order Details Modal */}
         {showOrderModal && (
             <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
-                <div className="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+                <div className="modal-dialog modal-lg modal-dialog-scrollable">
                     <div className="modal-content">
-                        <div className="modal-header border-0 bg-light">
-                            <h5 className="modal-title fw-bold text-success">Order Details</h5>
+                        <div className="modal-header">
+                            <h5 className="modal-title">Order Details</h5>
                             <button type="button" className="btn-close" onClick={closeOrderModal}></button>
                         </div>
-                        <div className="modal-body p-4">
+                        <div className="modal-body">
                             {loadingOrderDetails ? (
                                 <div className="text-center py-4">
                                     <div className="spinner-border text-primary" role="status">
@@ -980,34 +968,16 @@ const UserProfile = () => {
                                         </div>
                                     </div>
 
-                                    {/* Order Tracking Timeline */}
-                                    <div className="mb-4">
-                                        <h6 className="border-bottom pb-2 mb-3">Order Tracking</h6>
-                                        <div className="timeline">
-                                            {getOrderTrackingSteps(orderDetails.status).map((step, index) => (
-                                                <div key={index} className="timeline-item">
-                                                    <div className={`timeline-marker ${step.completed ? 'completed' : 'pending'}`}>
-                                                        <i className={`fa-solid ${step.completed ? 'fa-check' : 'fa-clock'}`}></i>
-                                                    </div>
-                                                    <div className="timeline-content">
-                                                        <h6 className={step.completed ? 'text-success' : 'text-muted'}>{step.title}</h6>
-                                                        <small className="text-muted">{step.date}</small>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
                                     {/* Product Items */}
-                                    <h6 className="border-bottom pb-2 mb-3 fw-bold">Items Ordered</h6>
+                                    <h6 className="border-bottom pb-2 mb-3">Items Ordered</h6>
                                     {orderDetails.items && orderDetails.items.length > 0 ? (
                                         <div className="table-responsive mb-4">
-                                            <table className="table table-hover">
+                                            <table className="table table-borderless">
                                                 <thead className="table-light">
                                                     <tr>
                                                         <th>Product</th>
-                                                        <th className="text-center">Quantity</th>
-                                                        <th className="text-end">Unit Price</th>
+                                                        <th className="text-center">Qty</th>
+                                                        <th className="text-end">Price</th>
                                                         <th className="text-end">Total</th>
                                                     </tr>
                                                 </thead>
@@ -1016,40 +986,22 @@ const UserProfile = () => {
                                                         <tr key={item.id}>
                                                             <td>
                                                                 <div className="d-flex align-items-center">
-                                                                    {item.image ? (
+                                                                    {item.image && (
                                                                         <img 
                                                                             src={item.image} 
                                                                             alt={item.title} 
-                                                                            style={{ width: '60px', height: '60px', objectFit: 'cover', marginRight: '15px', borderRadius: '8px', border: '1px solid #e0e0e0' }}
+                                                                            style={{ width: '50px', height: '50px', objectFit: 'cover', marginRight: '10px', borderRadius: '4px' }}
                                                                         />
-                                                                    ) : (
-                                                                        <div 
-                                                                            style={{ 
-                                                                                width: '60px', 
-                                                                                height: '60px', 
-                                                                                backgroundColor: '#f8f9fa', 
-                                                                                marginRight: '15px', 
-                                                                                borderRadius: '8px', 
-                                                                                border: '1px solid #e0e0e0',
-                                                                                display: 'flex',
-                                                                                alignItems: 'center',
-                                                                                justifyContent: 'center'
-                                                                            }}
-                                                                        >
-                                                                            <i className="fa-solid fa-image text-muted"></i>
-                                                                        </div>
                                                                     )}
                                                                     <div>
-                                                                        <p className="mb-1 fw-semibold text-dark">{item.title}</p>
-                                                                        <small className="text-muted">SKU: {item.sku || 'N/A'}</small>
+                                                                        <p className="mb-0 fw-semibold">{item.title}</p>
+                                                                        <small className="text-muted">SKU: {item.sku}</small>
                                                                     </div>
                                                                 </div>
                                                             </td>
-                                                            <td className="text-center align-middle">
-                                                                <span className="badge bg-light text-dark">{item.quantity}</span>
-                                                            </td>
-                                                            <td className="text-end align-middle fw-medium">${item.unitPrice.toFixed(2)}</td>
-                                                            <td className="text-end align-middle fw-bold text-success">${item.totalPrice.toFixed(2)}</td>
+                                                            <td className="text-center">{item.quantity}</td>
+                                                            <td className="text-end">${item.unitPrice.toFixed(2)}</td>
+                                                            <td className="text-end">${item.totalPrice.toFixed(2)}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -1062,54 +1014,44 @@ const UserProfile = () => {
                                     {/* Order Summary */}
                                     <div className="row justify-content-end mb-4">
                                         <div className="col-md-6">
-                                            <div className="bg-light p-4 rounded-3 border">
-                                                <h6 className="fw-bold mb-3 text-dark">Order Summary</h6>
+                                            <div className="bg-light p-3 rounded">
                                                 <div className="d-flex justify-content-between mb-2">
-                                                    <span className="text-muted">Subtotal:</span>
-                                                    <span className="fw-medium">${(orderDetails.subtotal || 0).toFixed(2)}</span>
+                                                    <span>Subtotal:</span>
+                                                    <span>${orderDetails.subtotal?.toFixed(2) || '0.00'}</span>
                                                 </div>
                                                 <div className="d-flex justify-content-between mb-2">
-                                                    <span className="text-muted">Shipping:</span>
-                                                    <span className="fw-medium">${(orderDetails.shippingCost || 0).toFixed(2)}</span>
+                                                    <span>Shipping:</span>
+                                                    <span>${orderDetails.shippingCost?.toFixed(2) || '0.00'}</span>
                                                 </div>
-                                                <div className="d-flex justify-content-between fw-bold border-top pt-3 mt-2">
-                                                    <span className="fs-6">Total Amount:</span>
-                                                    <span className="fs-6 text-success">${(orderDetails.totalAmount || 0).toFixed(2)}</span>
+                                                <div className="d-flex justify-content-between fw-bold border-top pt-2">
+                                                    <span>Total:</span>
+                                                    <span className="text-success">${orderDetails.totalAmount?.toFixed(2) || '0.00'}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Shipping Address */}
-                                    <h6 className="border-bottom pb-2 mb-3 fw-bold">Shipping Address</h6>
-                                    <div className="bg-light p-4 rounded-3 border mb-4">
-                                        <p className="mb-0 text-dark" style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>
+                                    <h6 className="border-bottom pb-2 mb-3">Shipping Address</h6>
+                                    <div className="bg-light p-3 rounded mb-3">
+                                        <p className="mb-0" style={{ whiteSpace: 'pre-line' }}>
                                             {orderDetails.shippingAddress || 'No shipping address available'}
                                         </p>
                                     </div>
 
                                     {/* Payment Method */}
-                                    <h6 className="border-bottom pb-2 mb-3 fw-bold">Payment Information</h6>
-                                    <div className="bg-light p-4 rounded-3 border">
-                                        <div className="d-flex align-items-center">
-                                            <div className="me-3">
-                                                <i className="fa-solid fa-credit-card fa-2x text-primary"></i>
-                                            </div>
-                                            <div>
-                                                <p className="mb-1 fw-semibold text-dark">Payment Method</p>
-                                                <p className="mb-0 text-muted">{orderDetails.paymentMethod || 'Online Payment'}</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <h6 className="border-bottom pb-2 mb-3">Payment Method</h6>
+                                    <p className="mb-0">
+                                        <i className="fa-solid fa-credit-card me-2"></i>
+                                        {orderDetails.paymentMethod || 'Online Payment'}
+                                    </p>
                                 </div>
                             ) : (
                                 <div className="alert alert-danger">Failed to load order details.</div>
                             )}
                         </div>
-                        <div className="modal-footer border-0 bg-light">
-                            <button type="button" className="btn btn-outline-secondary" onClick={closeOrderModal}>
-                                <i className="fa-solid fa-times me-2"></i>Close
-                            </button>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" onClick={closeOrderModal}>Close</button>
                         </div>
                     </div>
                 </div>
