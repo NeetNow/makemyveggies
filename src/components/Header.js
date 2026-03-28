@@ -152,7 +152,7 @@ const Header = () => {
                               <div className="right">
                                 <div className="text">
                                   <h6><Link to={`/product-details/${item.product_id}`}>{item.name}</Link></h6>
-                                  <p>${item.price.toFixed(2)}</p>
+                                  <p>₹{item.price.toFixed(2)}</p>
                                   <span>Qty: {item.quantity}</span>
                                 </div>
                               </div>
@@ -160,7 +160,7 @@ const Header = () => {
                           ))}
                           <div className="total">
                             <div className="subtotal">
-                              <p>Subtotal :<span> ${cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)}</span></p>
+                              <p>Subtotal :<span> ₹{cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)}</span></p>
                             </div>
                             <div className="checkout">
                               <Link to="/checkout">Checkout</Link>

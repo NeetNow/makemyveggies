@@ -43,6 +43,8 @@ const AdminLayout = () => {
   const [topSearchOpen, setTopSearchOpen] = useState(false);
   const [topSearchLoading, setTopSearchLoading] = useState(false);
   const [topSearchResults, setTopSearchResults] = useState([]);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const mobileSearchRef = useRef(null);
   const topSearchWrapRef = useRef(null);
 
   const readJsonSafe = async (response) => {
@@ -58,6 +60,20 @@ const AdminLayout = () => {
   const canUseTopSearch = useMemo(() => {
     return canSeeProducts || canSeeOrders || canSeeCustomers || canSeeCategories;
   }, [canSeeCategories, canSeeCustomers, canSeeOrders, canSeeProducts]);
+
+  useEffect(() => {
+    if (!mobileSearchOpen) return;
+    const onDocDown = (e) => {
+      const container = mobileSearchRef.current;
+      const searchButton = document.querySelector('[aria-label="Toggle search"]');
+      if (!container) return;
+      if (container.contains(e.target)) return;
+      if (searchButton && searchButton.contains(e.target)) return;
+      setMobileSearchOpen(false);
+    };
+    document.addEventListener('mousedown', onDocDown);
+    return () => document.removeEventListener('mousedown', onDocDown);
+  }, [mobileSearchOpen]);
 
   useEffect(() => {
     if (!topSearchOpen) return;
@@ -234,6 +250,12 @@ const AdminLayout = () => {
     if (item.type === 'category') {
       navigate(`/admin/categories`);
     }
+  };
+
+  const onSubmitTopSearch = (e) => {
+    e.preventDefault();
+    if (!topSearchOpen) setTopSearchOpen(true);
+    if (topSearchResults.length > 0) onSelectTopSearch(topSearchResults[0]);
   };
 
   useEffect(() => {
@@ -462,11 +484,155 @@ const AdminLayout = () => {
 
       <div className="admin-main d-flex flex-column flex-grow-1">
         <header className="admin-topnav d-flex align-items-center justify-content-between px-4">
-          <div className="d-flex flex-column">
-            <span className="topnav-welcome">WELCOME!</span>
-            <small className="text-muted">Here is your analytics dashboard.</small>
-          </div>
+          {!mobileSearchOpen ? (
+            <div className="d-flex flex-column">
+              <span className="topnav-welcome">WELCOME!</span>
+              <small className="text-muted">Here is your analytics dashboard.</small>
+            </div>
+          ) : (
+            <div ref={mobileSearchRef} className="d-md-none" style={{ maxWidth: 'calc(100% - 100px)', width: '100%' }}>
+              <form className="input-group input-group-sm" role="search" onSubmit={onSubmitTopSearch}>
+                <label htmlFor="admin-top-search-mobile" className="visually-hidden">Search admin</label>
+                <input
+                  id="admin-top-search-mobile"
+                  type="search"
+                  className="mt-3 form-control"
+                  placeholder="Search..."
+                  value={topSearch}
+                  onChange={(e) => {
+                    setTopSearch(e.target.value);
+                    setTopSearchOpen(true);
+                  }}
+                  onFocus={() => setTopSearchOpen(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setTopSearchOpen(false);
+                      setMobileSearchOpen(false);
+                      return;
+                    }
+                    if (e.key === 'Enter') {
+                      onSubmitTopSearch(e);
+                    }
+                  }}
+                  autoComplete="off"
+                  style={{ height: 31 }}
+                  aria-label="Search admin"
+                />
+              </form>
+              {topSearchOpen && (topSearchLoading || topSearchResults.length > 0 || topSearch.trim().length >= 2) && (
+                <div
+                  className="dropdown-menu show mt-2 p-0"
+                  style={{ width: '100%', maxHeight: 360, overflow: 'auto' }}
+                >
+                  {topSearchLoading ? (
+                    <div className="px-3 py-2 text-muted small">Searching...</div>
+                  ) : topSearchResults.length === 0 ? (
+                    <div className="px-3 py-2 text-muted small">No results</div>
+                  ) : (
+                    <>
+                      {topSearchResults.map((r) => (
+                        <button
+                          key={`${r.type}-${r.id}`}
+                          type="button"
+                          className="dropdown-item"
+                          onClick={() => {
+                            onSelectTopSearch(r);
+                            setMobileSearchOpen(false);
+                          }}
+                        >
+                          <div className="d-flex align-items-center justify-content-between">
+                            <div className="fw-semibold" style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {r.title}
+                            </div>
+                            <span className="badge bg-light text-dark text-uppercase">{r.type}</span>
+                          </div>
+                          {r.subtitle ? <div className="text-muted small">{r.subtitle}</div> : null}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           <div className="d-flex align-items-center gap-2">
+            {canUseTopSearch && (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary admin-mobile-menu-btn d-md-none"
+                  onClick={() => setMobileSearchOpen((p) => !p)}
+                  aria-label="Toggle search"
+                >
+                  <Search size={16} />
+                </button>
+                <div className="position-relative d-none d-md-block">
+                  <form
+                    className="input-group"
+                    style={{ maxWidth: 320, width: '100%' }}
+                    role="search"
+                    onSubmit={onSubmitTopSearch}
+                  >
+                    <label htmlFor="admin-top-search" className="visually-hidden">Search admin</label>
+                    <input
+                      id="admin-top-search"
+                      type="search"
+                      className="form-control form-control-sm mt-3"
+                      placeholder="Search products, orders, customers, categories..."
+                      value={topSearch}
+                      onChange={(e) => {
+                        setTopSearch(e.target.value);
+                        setTopSearchOpen(true);
+                      }}
+                      onFocus={() => setTopSearchOpen(true)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                          setTopSearchOpen(false);
+                          return;
+                        }
+                        if (e.key === 'Enter') {
+                          onSubmitTopSearch(e);
+                        }
+                      }}
+                      autoComplete="off"
+                      style={{ height: 31, borderRadius: 4, minWidth: 320 }}
+                      aria-label="Search admin"
+                    />
+                  </form>
+                  {topSearchOpen && (topSearchLoading || topSearchResults.length > 0 || topSearch.trim().length >= 2) && (
+                    <div
+                      className="dropdown-menu show mt-2 p-0"
+                      style={{ width: '100%', maxHeight: 360, overflow: 'auto' }}
+                    >
+                      {topSearchLoading ? (
+                        <div className="px-3 py-2 text-muted small">Searching...</div>
+                      ) : topSearchResults.length === 0 ? (
+                        <div className="px-3 py-2 text-muted small">No results</div>
+                      ) : (
+                        <>
+                          {topSearchResults.map((r) => (
+                            <button
+                              key={`${r.type}-${r.id}`}
+                              type="button"
+                              className="dropdown-item"
+                              onClick={() => onSelectTopSearch(r)}
+                            >
+                              <div className="d-flex align-items-center justify-content-between">
+                                <div className="fw-semibold" style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {r.title}
+                                </div>
+                                <span className="badge bg-light text-dark text-uppercase">{r.type}</span>
+                              </div>
+                              {r.subtitle ? <div className="text-muted small">{r.subtitle}</div> : null}
+                            </button>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
             <button
               type="button"
               className="btn btn-sm btn-outline-secondary admin-mobile-menu-btn"
@@ -475,64 +641,7 @@ const AdminLayout = () => {
             >
               ☰
             </button>
-            {canUseTopSearch && (
-              <div ref={topSearchWrapRef} className="position-relative d-none d-md-block">
-                <div
-                  className="topnav-search d-flex align-items-center bg-white border"
-                  style={{ height: 36, borderRadius: 10, width: 360 }}
-                >
-                  <span className="ms-3 me-2 text-muted d-flex align-items-center">
-                    <Search size={16} />
-                  </span>
-                  <input
-                    type="text"
-                    className="form-control form-control-sm border-0"
-                    placeholder="Search..."
-                    value={topSearch}
-                    onChange={(e) => {
-                      setTopSearch(e.target.value);
-                      setTopSearchOpen(true);
-                    }}
-                    onFocus={() => setTopSearchOpen(true)}
-                    style={{ boxShadow: 'none', height: 34 }}
-                  />
-                </div>
-
-                {topSearchOpen && (topSearchLoading || topSearchResults.length > 0) && (
-                  <div
-                    className="dropdown-menu show mt-2 p-0"
-                    style={{
-                      width: 360,
-                      maxHeight: 360,
-                      overflow: 'auto'
-                    }}
-                  >
-                    {topSearchLoading ? (
-                      <div className="px-3 py-2 text-muted small">Searching...</div>
-                    ) : (
-                      <>
-                        {topSearchResults.map((r) => (
-                          <button
-                            key={`${r.type}-${r.id}`}
-                            type="button"
-                            className="dropdown-item"
-                            onClick={() => onSelectTopSearch(r)}
-                          >
-                            <div className="d-flex align-items-center justify-content-between">
-                              <div className="fw-semibold" style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {r.title}
-                              </div>
-                              <span className="badge bg-light text-dark text-uppercase">{r.type}</span>
-                            </div>
-                            {r.subtitle ? <div className="text-muted small">{r.subtitle}</div> : null}
-                          </button>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+            
           </div>
         </header>
         <main className="admin-content flex-grow-1 p-4">

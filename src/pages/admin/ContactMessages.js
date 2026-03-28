@@ -15,6 +15,10 @@ const ContactMessages = () => {
   const [status, setStatus] = useState('');
   const [selected, setSelected] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   const API_BASE = getApiBase();
 
@@ -74,6 +78,13 @@ const ContactMessages = () => {
       return hay.includes(q);
     });
   }, [messages, query]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredMessages.length / pageSize);
+  const paginatedMessages = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredMessages.slice(start, start + pageSize);
+  }, [filteredMessages, currentPage, pageSize]);
 
   const closeModal = () => setSelected(null);
 
@@ -185,51 +196,81 @@ const ContactMessages = () => {
           {!loading && error && <p className="text-danger mb-0">{error}</p>}
 
           {!loading && !error && (
-            <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
-                  <tr>
-                    <th style={{ width: 90 }}>Sr No</th>
-                    <th style={{ width: 110 }}>Status</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Subject</th>
-                    <th style={{ width: 200 }}>Received</th>
-                    <th style={{ width: 120 }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredMessages.length === 0 ? (
+            <>
+              <div className="table-responsive">
+                <table className="table table-hover align-middle mb-0">
+                  <thead className="table-light">
                     <tr>
-                      <td colSpan={7} className="text-muted">No messages found.</td>
+                      <th style={{ width: 90 }}>Sr No</th>
+                      <th style={{ width: 110 }}>Status</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Subject</th>
+                      <th style={{ width: 200 }}>Received</th>
+                      <th style={{ width: 120 }}>Actions</th>
                     </tr>
-                  ) : (
-                    filteredMessages.map((m, idx) => {
-                      const name = `${m?.first_name || ''} ${m?.last_name || ''}`.trim() || '—';
-                      return (
-                        <tr key={m?.id ?? `row-${idx}`}>
-                          <td>{idx + 1}</td>
-                          <td>
-                            <span className={`badge ${m?.status === 'new' ? 'bg-success' : m?.status === 'read' ? 'bg-primary' : 'bg-secondary'}`}>
-                              {m?.status || 'new'}
-                            </span>
-                          </td>
-                          <td className="fw-semibold">{name}</td>
-                          <td>{m?.email || '-'}</td>
-                          <td className="text-truncate" style={{ maxWidth: 260 }}>{m?.subject || '-'}</td>
-                          <td className="text-muted">{m?.created_at || '-'}</td>
-                          <td>
-                            <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setSelected(m)} aria-label="View">
-                              <Eye size={16} />
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {paginatedMessages.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="text-muted">No messages found.</td>
+                      </tr>
+                    ) : (
+                      paginatedMessages.map((m, idx) => {
+                        const name = `${m?.first_name || ''} ${m?.last_name || ''}`.trim() || '—';
+                        const actualIndex = (currentPage - 1) * pageSize + idx;
+                        return (
+                          <tr key={m?.id ?? `row-${actualIndex}`}>
+                            <td>{actualIndex + 1}</td>
+                            <td>
+                              <span className={`badge ${m?.status === 'new' ? 'bg-success' : m?.status === 'read' ? 'bg-primary' : 'bg-secondary'}`}>
+                                {m?.status || 'new'}
+                              </span>
+                            </td>
+                            <td className="fw-semibold">{name}</td>
+                            <td>{m?.email || '-'}</td>
+                            <td className="text-truncate" style={{ maxWidth: 260 }}>{m?.subject || '-'}</td>
+                            <td className="text-muted">{m?.created_at || '-'}</td>
+                            <td>
+                              <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setSelected(m)} aria-label="View">
+                                <Eye size={16} />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* Pagination */}
+              {filteredMessages.length > 0 && (
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+                  <div className="text-muted small">
+                    Page {currentPage} of {totalPages}
+                  </div>
+                  <div className="d-flex gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage <= 1}
+                    >
+                      Prev
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage >= totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
