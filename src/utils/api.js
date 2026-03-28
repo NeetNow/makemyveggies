@@ -23,7 +23,7 @@ export const getApiBase = () => {
   // Local CRA dev server: use relative URLs + proxy.
   // Returning '' ensures callers can do `${API_BASE}/backend/...` safely.
   if (window.location.hostname === 'localhost' && window.location.port === '3000') {
-    return '';
+    return 'http://localhost';
   }
 
   const origin = window.location.origin;

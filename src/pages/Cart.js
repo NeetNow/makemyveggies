@@ -94,7 +94,29 @@ const Cart = () => {
                           </div>
                         </div>
                         <div className="item-price">
-                          <span className="unit-price">₹{item.price.toFixed(2)}</span>
+                          {item.original_price && item.original_price > item.price ? (
+                            <div className="price-with-discount d-flex flex-column gap-1">
+                              <div>
+                                <span className="text-muted">MRP: </span>
+                                <span className="original-price text-decoration-line-through text-muted">
+                                  ₹{item.original_price.toFixed(2)}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="discount-badge badge bg-danger">
+                                  {Math.round(((item.original_price - item.price) / item.original_price) * 100)}% OFF
+                                </span>
+                                <span className="text-success fw-bold ms-2">
+                                  ₹{item.price.toFixed(2)}
+                                </span>
+                                <span className="text-muted small ms-1">
+                                  (Save ₹{(item.original_price - item.price).toFixed(2)})
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="unit-price">₹{item.price.toFixed(2)}</span>
+                          )}
                         </div>
                         <div className="item-quantity">
                           <div className="quantity-controls">
@@ -121,7 +143,26 @@ const Cart = () => {
                           </div>
                         </div>
                         <div className="item-total">
-                          <span className="total-price">₹{(item.price * item.quantity).toFixed(2)}</span>
+                          {item.original_price && item.original_price > item.price ? (
+                            <div className="total-with-discount d-flex flex-column gap-1 text-end">
+                              <div>
+                                <span className="text-muted">Total MRP: </span>
+                                <span className="original-total text-decoration-line-through text-muted">
+                                  ₹{(item.original_price * item.quantity).toFixed(2)}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-success fw-bold">
+                                  ₹{(item.price * item.quantity).toFixed(2)}
+                                </span>
+                                <span className="badge bg-success ms-2">
+                                  Save ₹{((item.original_price - item.price) * item.quantity).toFixed(2)}
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="total-price">₹{(item.price * item.quantity).toFixed(2)}</span>
+                          )}
                         </div>
                         <div className="item-actions">
                           <button

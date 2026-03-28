@@ -1,13 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Eye, Pencil, XCircle, Download } from 'lucide-react';
+import { Eye, Pencil, XCircle, Download, Printer } from 'lucide-react';
 import { useHasPermission } from '../../rbac/useHasPermission';
 import { getApiBase } from '../../utils/api';
+import ShippingLabelsModal from '../../components/ShippingLabelsModal';
 
 const Orders = () => {
   const API_BASE = getApiBase();
-
+  const [exporting, setExporting] = useState(false);
+  
   const canViewOrder = useHasPermission('view.order');
   const canUpdateOrder = useHasPermission('update.order');
   const canDeleteOrder = useHasPermission('delete.order');
@@ -29,6 +31,7 @@ const Orders = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [cancelling, setCancelling] = useState(false);
+  const [showShippingLabelsModal, setShowShippingLabelsModal] = useState(false);
 
   const readJsonSafe = async (response) => {
     const text = await response.text();
@@ -129,8 +132,6 @@ const Orders = () => {
     }
   };
 
-  const [exporting, setExporting] = useState(false);
-
   const exportOrders = async () => {
     if (exporting) return;
     setExporting(true);
@@ -174,6 +175,10 @@ const Orders = () => {
     }
   };
 
+  const exportShippingLabels = () => {
+    setShowShippingLabelsModal(true);
+  };
+
   return (
     <div className="container-fluid">
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
@@ -181,16 +186,34 @@ const Orders = () => {
           <h4 className="mb-0">Orders</h4>
           <div className="text-muted small">Total: {loading ? '—' : total}</div>
         </div>
-        <button
-          type="button"
-          className="btn btn-success btn-sm"
-          onClick={exportOrders}
-          disabled={exporting || loading}
-        >
-          <Download size={16} className="me-1" />
-          {exporting ? 'Exporting...' : 'Export to Excel'}
-        </button>
+        <div className="d-flex flex-wrap align-items-center gap-2">
+          <button
+            type="button"
+            className="btn btn-success btn-sm"
+            onClick={exportOrders}
+            disabled={exporting || loading}
+          >
+            <Download size={16} className="me-1" />
+            {exporting ? 'Exporting...' : 'Export to Excel'}
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={exportShippingLabels}
+            disabled={exporting || loading}
+            title="Open shipping labels generator"
+            style={{padding: "4px 8px", backgroundColor: "#198754", fontWeight: "normal"}}
+          >
+            <Printer size={16} className="me-1" />
+            Shipping Labels
+          </button>
+        </div>
       </div>
+
+      <ShippingLabelsModal 
+        isOpen={showShippingLabelsModal} 
+        onClose={() => setShowShippingLabelsModal(false)} 
+      />
 
       <div className="card shadow-sm mb-3">
   <div className="card-body">
