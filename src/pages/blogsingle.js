@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import { Loader2, CheckCircle } from 'lucide-react';
+import 'react-toastify/dist/ReactToastify.css';
 import Footer from '../components/Footer';
 
 const BLOG_POSTS = {
@@ -341,15 +344,6 @@ const BLOG_POSTS = {
   },
 };
 
-const categories = [
-  { name: 'Gardening Tips', count: 12 },
-  { name: 'Healthy Eating', count: 8 },
-  { name: 'Mental Wellness', count: 6 },
-  { name: 'Sustainability', count: 5 },
-  { name: 'Nutrition Science', count: 4 },
-  { name: 'Wellness', count: 7 },
-];
-
 const getRelatedPosts = (currentId) => {
   return Object.values(BLOG_POSTS)
     .filter(post => post.id !== currentId)
@@ -369,10 +363,72 @@ const BlogSingle = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [activeMobileWidget, setActiveMobileWidget] = useState(null);
+  // Newsletter state
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const blogId = id || '1';
   const post = BLOG_POSTS[blogId];
   const relatedPosts = getRelatedPosts(blogId);
   const recentPosts = getRecentPosts(blogId);
+
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!email.trim()) {
+      toast.error('Please enter your email address', {
+        position: 'top-center',
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast.error('Please enter a valid email address', {
+        position: 'top-center',
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/backend/api/subscribe_newsletter.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email.trim() })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setIsSuccess(true);
+        toast.success(data.message || 'Thank you for subscribing!', {
+          position: 'top-center',
+          autoClose: 4000,
+        });
+        setEmail('');
+        
+        setTimeout(() => setIsSuccess(false), 5000);
+      } else {
+        throw new Error(data.message || 'Failed to subscribe');
+      }
+    } catch (error) {
+      toast.error(error.message || 'An error occurred. Please try again later.', {
+        position: 'top-center',
+        autoClose: 4000,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -502,6 +558,21 @@ const BlogSingle = () => {
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        style={{
+          top: '70px',
+          zIndex: 999999
+        }}
+      />
       {/* Reading Progress Bar */}
       <div className="reading-progress-container">
         <div 
@@ -519,10 +590,6 @@ const BlogSingle = () => {
           </div>
           <div className="container">
             <div className="blog-hero-content">
-              <div className="blog-meta-badge">
-                <span className="category-badge">{post.category}</span>
-                <span className="read-time"><i className="far fa-clock" /> {post.readTime}</span>
-              </div>
               <h1 className="blog-hero-title">{post.title}</h1>
               <div className="blog-hero-meta">
                 <div className="author-info">
@@ -531,20 +598,6 @@ const BlogSingle = () => {
                     <span className="author-name">{post.author}</span>
                     <span className="publish-date">{post.date}</span>
                   </div>
-                </div>
-                <div className="social-share">
-                  <button className="share-btn whatsapp" onClick={shareOnWhatsApp} title="Share on WhatsApp">
-                    <i className="fab fa-whatsapp" />
-                  </button>
-                  <button className="share-btn facebook" onClick={shareOnFacebook} title="Share on Facebook">
-                    <i className="fab fa-facebook-f" />
-                  </button>
-                  <button className="share-btn linkedin" onClick={shareOnLinkedIn} title="Share on LinkedIn">
-                    <i className="fab fa-linkedin-in" />
-                  </button>
-                  <button className="share-btn copy" onClick={copyLink} title="Copy Link">
-                    <i className="fas fa-link" />
-                  </button>
                 </div>
               </div>
             </div>
@@ -600,23 +653,6 @@ const BlogSingle = () => {
                   </div>
                 )}
 
-                {/* Categories */}
-                <div className="sidebar-widget categories-widget">
-                  <h4 className="widget-title">
-                    <i className="fas fa-folder-open" /> Categories
-                  </h4>
-                  <ul className="category-list">
-                    {categories.map((cat, idx) => (
-                      <li key={idx}>
-                        <Link to={`/blog?category=${cat.name}`}>
-                          <span className="cat-name">{cat.name}</span>
-                          <span className="cat-count">({cat.count})</span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
                 {/* Recent Posts */}
                 <div className="sidebar-widget recent-posts-widget">
                   <h4 className="widget-title">
@@ -645,10 +681,31 @@ const BlogSingle = () => {
                     <i className="fas fa-envelope" /> Newsletter
                   </h4>
                   <p>Get gardening tips delivered to your inbox!</p>
-                  <form className="newsletter-form">
-                    <input type="email" placeholder="Your email address" />
-                    <button type="submit" className="btn-subscribe">
-                      <i className="fas fa-paper-plane" /> Subscribe
+                  <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
+                    <input 
+                      type="email" 
+                      placeholder="Your email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={isSubmitting || isSuccess}
+                      required
+                    />
+                    <button type="submit" className="btn-subscribe" disabled={isSubmitting || isSuccess}>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                          Subscribing...
+                        </>
+                      ) : isSuccess ? (
+                        <>
+                          <CheckCircle size={14} />
+                          Subscribed!
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-paper-plane" /> Subscribe
+                        </>
+                      )}
                     </button>
                   </form>
                 </div>
