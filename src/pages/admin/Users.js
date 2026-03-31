@@ -398,7 +398,30 @@ const Users = () => {
     });
   };
 
+  const validateEmail = (email) => {
+    if (!email || !email.includes('@')) return false;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return false;
+    const localPart = email.split('@')[0];
+    if (/^\d+$/.test(localPart)) return false;
+    return true;
+  };
+
+  const validatePhone = (phone) => {
+    if (!phone) return true;
+    const digitsOnly = phone.replace(/\D/g, '');
+    return digitsOnly.length === 10;
+  };
+
   const save = async () => {
+    if (!form.email || !validateEmail(form.email)) {
+      toast.error('Please enter a valid email address. Numeric-only emails are not allowed.');
+      return;
+    }
+    if (form.phone && !validatePhone(form.phone)) {
+      toast.error('Phone number must be exactly 10 digits.');
+      return;
+    }
     setSaving(true);
     try {
       const isEdit = !!form.user_id;
