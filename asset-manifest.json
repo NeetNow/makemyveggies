@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "https://dev.makemyveggies.com/static/css/main.5c95ec58.css",
-    "main.js": "https://dev.makemyveggies.com/static/js/main.6ef99386.js",
+    "main.js": "https://dev.makemyveggies.com/static/js/main.43d00bba.js",
     "static/js/453.5ffa9928.chunk.js": "https://dev.makemyveggies.com/static/js/453.5ffa9928.chunk.js",
     "static/media/Blogs.png": "https://dev.makemyveggies.com/static/media/Blogs.58a028971df279c34989.png",
     "static/media/AboutPage.png": "https://dev.makemyveggies.com/static/media/AboutPage.8a78a92684b0764df1b2.png",
@@ -15,11 +15,11 @@
     "static/media/pata.png": "https://dev.makemyveggies.com/static/media/pata.a21db91e53c7c372143a.png",
     "index.html": "https://dev.makemyveggies.com/index.html",
     "main.5c95ec58.css.map": "https://dev.makemyveggies.com/static/css/main.5c95ec58.css.map",
-    "main.6ef99386.js.map": "https://dev.makemyveggies.com/static/js/main.6ef99386.js.map",
+    "main.43d00bba.js.map": "https://dev.makemyveggies.com/static/js/main.43d00bba.js.map",
     "453.5ffa9928.chunk.js.map": "https://dev.makemyveggies.com/static/js/453.5ffa9928.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.5c95ec58.css",
-    "static/js/main.6ef99386.js"
+    "static/js/main.43d00bba.js"
   ]
 }
