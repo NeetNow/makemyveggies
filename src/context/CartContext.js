@@ -211,7 +211,8 @@ export const CartProvider = ({ children }) => {
     clearCart,
     getCartTotal,
     getCartItemCount,
-    loading
+    loading,
+    fetchCart: fetchCartItems
   };
 
   // Don't block rendering with loading state - just show children

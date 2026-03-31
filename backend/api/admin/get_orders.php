@@ -128,6 +128,28 @@ try {
     $countStmt->execute($params);
     $totalCount = (int)$countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
+    // Calculate totals for all filtered results (not just current page)
+    $totalsSql = "
+        SELECT 
+            COALESCE(SUM(CASE WHEN o.payment_status IN ('paid', 'success', 'Paid', 'Success') THEN o.total_amount ELSE 0 END), 0) as total_paid,
+            COALESCE(SUM(CASE WHEN o.payment_status IN ('pending', 'Pending') THEN o.total_amount ELSE 0 END), 0) as total_pending,
+            COALESCE(SUM(CASE WHEN o.payment_status IN ('failed', 'Failed', 'payment_failed') THEN o.total_amount ELSE 0 END), 0) as total_failed,
+            COALESCE(SUM(CASE WHEN o.payment_status IN ('refunded', 'Refunded') THEN o.total_amount ELSE 0 END), 0) as total_refunded,
+            COUNT(CASE WHEN o.payment_status IN ('paid', 'success', 'Paid', 'Success') THEN 1 END) as paid_count,
+            COUNT(CASE WHEN o.payment_status IN ('pending', 'Pending') THEN 1 END) as pending_count,
+            COUNT(CASE WHEN o.payment_status IN ('failed', 'Failed', 'payment_failed') THEN 1 END) as failed_count,
+            COUNT(CASE WHEN o.payment_status IN ('refunded', 'Refunded') THEN 1 END) as refunded_count,
+            COUNT(*) as total_orders,
+            COALESCE(SUM(o.total_amount), 0) as grand_total
+        FROM orders o
+        LEFT JOIN users u ON o.user_id = u.user_id
+        WHERE $whereClause
+    ";
+
+    $totalsStmt = $pdo->prepare($totalsSql);
+    $totalsStmt->execute($params);
+    $totals = $totalsStmt->fetch(PDO::FETCH_ASSOC);
+
     $orders = [];
     foreach ($rows as $r) {
         $customerName = trim(($r['first_name'] ?? '') . ' ' . ($r['last_name'] ?? ''));
@@ -162,6 +184,18 @@ try {
             'currentPage' => (int)floor($offset / $limit) + 1,
             'totalPages' => (int)ceil($totalCount / $limit),
             'hasMore' => ($offset + $limit) < $totalCount
+        ],
+        'totals' => [
+            'totalPaid' => (float)$totals['total_paid'],
+            'totalPending' => (float)$totals['total_pending'],
+            'totalFailed' => (float)$totals['total_failed'],
+            'totalRefunded' => (float)$totals['total_refunded'],
+            'paidCount' => (int)$totals['paid_count'],
+            'pendingCount' => (int)$totals['pending_count'],
+            'failedCount' => (int)$totals['failed_count'],
+            'refundedCount' => (int)$totals['refunded_count'],
+            'totalOrders' => (int)$totals['total_orders'],
+            'grandTotal' => (float)$totals['grand_total']
         ]
     ]);
 
