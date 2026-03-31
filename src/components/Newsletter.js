@@ -9,7 +9,15 @@ const Newsletter = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const validateEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    // Basic email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return false;
+    
+    // Check that local part (before @) is not purely numeric
+    const localPart = email.split('@')[0];
+    if (/^\d+$/.test(localPart)) return false;
+    
+    return true;
   };
 
   const handleSubmit = async (e) => {
