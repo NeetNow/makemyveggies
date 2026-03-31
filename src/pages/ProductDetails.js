@@ -21,11 +21,6 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedTab, setSelectedTab] = useState('overview');
 
-  const [reviewRating, setReviewRating] = useState(0);
-  const [reviewSubmitting, setReviewSubmitting] = useState(false);
-  const [reviewError, setReviewError] = useState(null);
-  const [reviewSuccess, setReviewSuccess] = useState(null);
-
   const [relatedProducts, setRelatedProducts] = useState([]);
 
   const dummyDescription =
@@ -222,9 +217,6 @@ const ProductDetails = () => {
 
         setProduct(productData);
         setSelectedImage(0);
-        setReviewRating(0);
-        setReviewError(null);
-        setReviewSuccess(null);
         setError(null);
       } catch (err) {
         console.error('❌ Product fetch error:', err);
@@ -337,128 +329,6 @@ const ProductDetails = () => {
         toast.error('Failed to add to cart');
       }
     }
-  };
-
-  const submitRating = async (ratingValue) => {
-    setReviewError(null);
-    setReviewSuccess(null);
-
-    if (!product) {
-      return;
-    }
-
-    if (!currentUser) {
-      // Redirect to login and return back to this product page
-      navigate('/login', { state: { from: location.pathname } });
-      return;
-    }
-
-    const ratingNum = Number(ratingValue);
-    if (!Number.isFinite(ratingNum) || ratingNum < 1 || ratingNum > 5) {
-      setReviewError('Please select a rating.');
-      return;
-    }
-
-    try {
-      setReviewSubmitting(true);
-      const res = await fetch(`/backend/api/submit_review.php`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          product_id: product.id,
-          rating: ratingNum,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || data.status !== 'success') {
-        setReviewError(data.message || 'Failed to submit review.');
-        return;
-      }
-
-      setReviewSuccess('Rating submitted successfully.');
-      setReviewRating(ratingNum);
-
-      const refresh = await fetch(`/backend/api/get_product.php?id=${product.id}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (refresh.ok) {
-        const refreshed = await refresh.json();
-        if (refreshed.status === 'success') {
-          const safeOriginalPrice = Number(refreshed.product.originalPrice);
-          const originalPrice = Number.isFinite(safeOriginalPrice) ? safeOriginalPrice : 0;
-          
-          // Get discount percentage and calculate price
-          const discountPercent = Number(refreshed.product.discount) || 0;
-          let price = originalPrice;
-          if (discountPercent > 0 && originalPrice > 0) {
-            price = originalPrice - (originalPrice * discountPercent / 100);
-          }
-          
-          const ratingNum = Number(refreshed.product.rating);
-          const rating = Number.isFinite(ratingNum) ? ratingNum : 0;
-          const reviewsNum = Number(refreshed.product.reviews);
-          const reviews = Number.isFinite(reviewsNum) ? reviewsNum : 0;
-
-          const apiPrimaryImage = resolveImageUrl(refreshed.product.primaryImage);
-          const apiImagesRaw = Array.isArray(refreshed.product.images) ? refreshed.product.images : [];
-          const apiImagesResolved = apiImagesRaw.map(resolveImageUrl).filter(Boolean);
-          const images = apiImagesResolved.length > 0 ? apiImagesResolved : [apiPrimaryImage];
-
-          const features = refreshed.product.keyFeatures
-            ? refreshed.product.keyFeatures
-                .split(',')
-                .map((x) => x.trim())
-                .filter(Boolean)
-            : [];
-
-          const reviewsList = Array.isArray(refreshed.product.reviewsList) ? refreshed.product.reviewsList : [];
-          const ratingBreakdown = refreshed.product.ratingBreakdown || { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 };
-
-          setProduct({
-            id: refreshed.product.id,
-            name: refreshed.product.title,
-            price,
-            originalPrice,
-            discount: discountPercent,
-            image: apiPrimaryImage,
-            images,
-            category: (refreshed.product.categoryName || 'others').toString(),
-            rating,
-            reviews,
-            reviewsList,
-            ratingBreakdown,
-            inStock: !!refreshed.product.inStock,
-            stockCount: Number.isFinite(Number(refreshed.product.stock)) ? Number(refreshed.product.stock) : 0,
-            description: refreshed.product.description || dummyDescription,
-            features,
-            specifications: {
-              'Stock Available': refreshed.product.stock,
-              'SKU': refreshed.product.sku,
-              'Category': refreshed.product.categoryName,
-            },
-          });
-        }
-      }
-    } catch (err) {
-      setReviewError(err.message || 'Failed to submit review.');
-    } finally {
-      setReviewSubmitting(false);
-    }
-  };
-
-  const handleStarClick = (star) => {
-    if (reviewSubmitting) return;
-    setReviewRating(star);
-    submitRating(star);
   };
 
   if (loading) {
@@ -796,36 +666,6 @@ const ProductDetails = () => {
                               })}
                             </div>
                           </div>
-
-                          <div className="write-review">
-                            <h5>Rate this product</h5>
-                            <div className="review-form">
-                              <div className="rating-input">
-                                <label>Your Rating:</label>
-                                <div className="star-rating" role="radiogroup" aria-label="Select rating">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <button
-                                      key={star}
-                                      type="button"
-                                      className={`star-btn ${reviewRating >= star ? 'active' : ''}`}
-                                      onClick={() => handleStarClick(star)}
-                                      aria-label={`${star} star`}
-                                      disabled={reviewSubmitting}
-                                    >
-                                      <i className={`${reviewRating >= star ? 'fa-solid' : 'fa-regular'} fa-star`}></i>
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                              <p className="m-0 text-muted" style={{ marginTop: 10 }}>
-                                {currentUser ? 'Tap a star to submit your rating.' : 'Login required to rate. Tap a star and you’ll be redirected to login.'}
-                              </p>
-
-                              {reviewError && <div className="review-msg error">{reviewError}</div>}
-                              {reviewSuccess && <div className="review-msg success">{reviewSuccess}</div>}
-                            </div>
-                          </div>
-
                         </div>
                       </div>
                     )}

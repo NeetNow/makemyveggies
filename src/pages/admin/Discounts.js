@@ -307,7 +307,6 @@ const Discounts = () => {
                 id="onlyDiscounted"
                 checked={onlyDiscounted}
                 onChange={(e) => setOnlyDiscounted(e.target.checked)}
-                style={{ height: 18, width: 36 }}
               />
               <label className="form-check-label" htmlFor="onlyDiscounted">
                 Show only discounted products

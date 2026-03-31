@@ -87,8 +87,21 @@ try {
         $disPercent = isset($item['dis_percent']) ? (float)$item['dis_percent'] : 0.0;
         $disAmount  = isset($item['dis_amount']) ? (float)$item['dis_amount'] : 0.0;
 
-        $hasDiscount = $disPercent > 0 && $disAmount > 0;
-        $unitPrice   = $hasDiscount ? $disAmount : $basePrice;
+        $hasDiscount = $disPercent > 0 || $disAmount > 0;
+
+        // Calculate final price: base - discount
+        // Formula: final = base - (base * percent / 100)
+        // If percent is 0 but disAmount exists: final = base - disAmount
+        if ($hasDiscount) {
+            if ($disPercent > 0) {
+                $unitPrice = $basePrice - ($basePrice * $disPercent / 100);
+            } else {
+                // Only disAmount exists - subtract it from base price
+                $unitPrice = $basePrice - $disAmount;
+            }
+        } else {
+            $unitPrice = $basePrice;
+        }
 
         $qty = (int)$item['quantity'];
         $lineTotal = $unitPrice * $qty;
@@ -190,8 +203,19 @@ try {
         $disPercent = isset($item['dis_percent']) ? (float)$item['dis_percent'] : 0.0;
         $disAmount  = isset($item['dis_amount']) ? (float)$item['dis_amount'] : 0.0;
 
-        $hasDiscount = $disPercent > 0 && $disAmount > 0;
-        $unit        = $hasDiscount ? $disAmount : $basePrice;
+        $hasDiscount = $disPercent > 0 || $disAmount > 0;
+
+        // Calculate final price: base - discount
+        if ($hasDiscount) {
+            if ($disPercent > 0) {
+                $unit = $basePrice - ($basePrice * $disPercent / 100);
+            } else {
+                // Only disAmount exists - subtract it from base price
+                $unit = $basePrice - $disAmount;
+            }
+        } else {
+            $unit = $basePrice;
+        }
 
         $qty   = (int)$item['quantity'];
         $currentStock = isset($item['product_stock']) ? (int)$item['product_stock'] : 0;

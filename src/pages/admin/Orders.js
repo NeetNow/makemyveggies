@@ -1,13 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Eye, Pencil, XCircle, Download } from 'lucide-react';
+import { Eye, Pencil, XCircle, Download, Printer, CheckCircle, Clock, XOctagon, RotateCcw, CreditCard } from 'lucide-react';
 import { useHasPermission } from '../../rbac/useHasPermission';
 import { getApiBase } from '../../utils/api';
+import ShippingLabelsModal from '../../components/ShippingLabelsModal';
 
 const Orders = () => {
   const API_BASE = getApiBase();
-
+  const [exporting, setExporting] = useState(false);
+  
   const canViewOrder = useHasPermission('view.order');
   const canUpdateOrder = useHasPermission('update.order');
   const canDeleteOrder = useHasPermission('delete.order');
@@ -26,9 +28,21 @@ const Orders = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [totals, setTotals] = useState({
+    totalPaid: 0,
+    totalPending: 0,
+    totalFailed: 0,
+    totalRefunded: 0,
+    paidCount: 0,
+    pendingCount: 0,
+    failedCount: 0,
+    refundedCount: 0,
+    grandTotal: 0
+  });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [cancelling, setCancelling] = useState(false);
+  const [showShippingLabelsModal, setShowShippingLabelsModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const readJsonSafe = async (response) => {
     const text = await response.text();
@@ -77,6 +91,17 @@ const Orders = () => {
         setOrders(Array.isArray(data.orders) ? data.orders : []);
         setTotalPages(data?.pagination?.totalPages || 1);
         setTotal(data?.pagination?.total || 0);
+        setTotals(data?.totals || {
+          totalPaid: 0,
+          totalPending: 0,
+          totalFailed: 0,
+          totalRefunded: 0,
+          paidCount: 0,
+          pendingCount: 0,
+          failedCount: 0,
+          refundedCount: 0,
+          grandTotal: 0
+        });
       } catch (e) {
         setError(e?.message || 'Failed to load orders');
         toast.error(e?.message || 'Failed to load orders');
@@ -129,8 +154,6 @@ const Orders = () => {
     }
   };
 
-  const [exporting, setExporting] = useState(false);
-
   const exportOrders = async () => {
     if (exporting) return;
     setExporting(true);
@@ -174,6 +197,10 @@ const Orders = () => {
     }
   };
 
+  const exportShippingLabels = () => {
+    setShowShippingLabelsModal(true);
+  };
+
   return (
     <div className="container-fluid">
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
@@ -181,104 +208,197 @@ const Orders = () => {
           <h4 className="mb-0">Orders</h4>
           <div className="text-muted small">Total: {loading ? '—' : total}</div>
         </div>
-        <button
-          type="button"
-          className="btn btn-success btn-sm"
-          onClick={exportOrders}
-          disabled={exporting || loading}
-        >
-          <Download size={16} className="me-1" />
-          {exporting ? 'Exporting...' : 'Export to Excel'}
-        </button>
+        <div className="d-flex flex-wrap align-items-center gap-2">
+          <button
+            type="button"
+            className="btn btn-success btn-sm"
+            onClick={exportOrders}
+            disabled={exporting || loading}
+          >
+            <Download size={16} className="me-1" />
+            {exporting ? 'Exporting...' : 'Export to Excel'}
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={exportShippingLabels}
+            disabled={exporting || loading}
+            title="Open shipping labels generator"
+            style={{padding: "4px 8px", backgroundColor: "#198754", fontWeight: "normal"}}
+          >
+            <Printer size={16} className="me-1" />
+            Shipping Labels
+          </button>
+        </div>
       </div>
+
+      <ShippingLabelsModal 
+        isOpen={showShippingLabelsModal} 
+        onClose={() => setShowShippingLabelsModal(false)} 
+      />
 
       <div className="card shadow-sm mb-3">
-  <div className="card-body">
-    <div className="row g-2 align-items-end">
-
-      <div className="col-md-4">
-        <label className="form-label small text-muted mb-1">Search</label>
-        <input
-          type="text"
-          className="form-control form-control-sm"
-          placeholder="Order # / Customer Name / Email"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{height:"38px"}}
-        />
+        <div className="card-body">
+          <div className="row g-3">
+            <div className="col-md-4">
+              <label className="form-label small text-muted mb-1">Search</label>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                placeholder="Order # / Customer Name / Email"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{height:"38px"}}
+              />
+            </div>
+            <div className="col-md-2">
+              <label className="form-label small text-muted mb-1">Order Status</label>
+              <select
+                className="form-select form-select-sm"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                style={{height:"38px"}}
+              >
+                <option value="">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Confirmed">Confirmed</option>
+                <option value="Processing">Processing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div className="col-md-2">
+              <label className="form-label small text-muted mb-1">Payment Status</label>
+              <select
+                className="form-select form-select-sm"
+                value={paymentStatus}
+                onChange={(e) => setPaymentStatus(e.target.value)}
+                style={{height:"38px"}}
+              >
+                <option value="">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Success">Success</option>
+                <option value="Paid">Paid</option>
+                <option value="Failed">Failed</option>
+                <option value="Refunded">Refunded</option>
+              </select>
+            </div>
+            <div className="col-md-2">
+              <label className="form-label small text-muted mb-1">Sort</label>
+              <select
+                className="form-select form-select-sm"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                style={{height:"38px"}}
+              >
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="amount_high">Amount: High to Low</option>
+                <option value="amount_low">Amount: Low to High</option>
+              </select>
+            </div>
+            <div className="col-md-2">
+              <label className="form-label small text-muted mb-1">&nbsp;</label>
+              <button
+                type="button"
+                className="btn btn-outline-secondary btn-sm w-100"
+                style={{height:"38px"}}
+                onClick={() => {
+                  setSearch('');
+                  setStatus('');
+                  setPaymentStatus('');
+                  setSort('newest');
+                }}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="col-md-2 mb-3">
-        <label className="form-label small text-muted mb-1">Order Status</label>
-        <select
-          className="form-select form-select-sm"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          style={{height:"38px"}}
-        >
-          <option value="">All</option>
-          <option value="Pending">Pending</option>
-          <option value="Confirmed">Confirmed</option>
-          <option value="Processing">Processing</option>
-          <option value="Shipped">Shipped</option>
-          <option value="Delivered">Delivered</option>
-          <option value="Cancelled">Cancelled</option>
-        </select>
-      </div>
+      {/* Totals Summary Card */}
+      {!loading && !error && (
+        <div className="card shadow-sm mb-3 border-0">
+          <div className="card-body py-3">
+            <div className="row g-3">
+              <div className="col-6 col-md-4 col-lg">
+                <div className="d-flex align-items-center p-3 bg-white rounded shadow-sm h-100" style={{borderLeft: '4px solid #198754'}}>
+                  <div className="flex-shrink-0 me-3">
+                    <div className="d-flex align-items-center justify-content-center rounded-circle" style={{width: '48px', height: '48px', backgroundColor: 'rgba(25, 135, 84, 0.1)'}}>
+                      <CheckCircle size={24} className="text-success" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted small text-uppercase fw-semibold" style={{fontSize: '0.75rem', letterSpacing: '0.5px'}}>Paid</div>
+                    <div className="fw-bold text-success fs-5">{moneyFmt(totals.totalPaid)}</div>
+                    <div className="text-muted small">{totals.paidCount} orders</div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-6 col-md-4 col-lg">
+                <div className="d-flex align-items-center p-3 bg-white rounded shadow-sm h-100" style={{borderLeft: '4px solid #ffc107'}}>
+                  <div className="flex-shrink-0 me-3">
+                    <div className="d-flex align-items-center justify-content-center rounded-circle" style={{width: '48px', height: '48px', backgroundColor: 'rgba(255, 193, 7, 0.1)'}}>
+                      <Clock size={24} className="text-warning" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted small text-uppercase fw-semibold" style={{fontSize: '0.75rem', letterSpacing: '0.5px'}}>Pending</div>
+                    <div className="fw-bold text-warning fs-5">{moneyFmt(totals.totalPending)}</div>
+                    <div className="text-muted small">{totals.pendingCount} orders</div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-6 col-md-4 col-lg">
+                <div className="d-flex align-items-center p-3 bg-white rounded shadow-sm h-100" style={{borderLeft: '4px solid #dc3545'}}>
+                  <div className="flex-shrink-0 me-3">
+                    <div className="d-flex align-items-center justify-content-center rounded-circle" style={{width: '48px', height: '48px', backgroundColor: 'rgba(220, 53, 69, 0.1)'}}>
+                      <XOctagon size={24} className="text-danger" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted small text-uppercase fw-semibold" style={{fontSize: '0.75rem', letterSpacing: '0.5px'}}>Failed</div>
+                    <div className="fw-bold text-danger fs-5">{moneyFmt(totals.totalFailed)}</div>
+                    <div className="text-muted small">{totals.failedCount} orders</div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-6 col-md-4 col-lg">
+                <div className="d-flex align-items-center p-3 bg-white rounded shadow-sm h-100" style={{borderLeft: '4px solid #0dcaf0'}}>
+                  <div className="flex-shrink-0 me-3">
+                    <div className="d-flex align-items-center justify-content-center rounded-circle" style={{width: '48px', height: '48px', backgroundColor: 'rgba(13, 202, 240, 0.1)'}}>
+                      <RotateCcw size={24} className="text-info" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted small text-uppercase fw-semibold" style={{fontSize: '0.75rem', letterSpacing: '0.5px'}}>Refunded</div>
+                    <div className="fw-bold text-info fs-5">{moneyFmt(totals.totalRefunded)}</div>
+                    <div className="text-muted small">{totals.refundedCount} orders</div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-12 col-md-4 col-lg">
+                <div className="d-flex align-items-center p-3 text-white rounded shadow-sm h-100" style={{background: 'linear-gradient(135deg, #198754 0%, #146c43 100%)'}}>
+                  <div className="flex-shrink-0 me-3">
+                    <div className="d-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25" style={{width: '48px', height: '48px'}}>
+                      <CreditCard size={24} className="text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="small text-white-50 text-uppercase fw-semibold" style={{fontSize: '0.75rem', letterSpacing: '0.5px'}}>Grand Total</div>
+                    <div className="fw-bold fs-4">{moneyFmt(totals.grandTotal)}</div>
+                    <div className="small text-white-50">{total} orders</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <div className="col-md-2 mb-3">
-        <label className="form-label small text-muted mb-1">Payment Status</label>
-        <select
-          className="form-select form-select-sm"
-          value={paymentStatus}
-          onChange={(e) => setPaymentStatus(e.target.value)}
-          style={{height:"38px"}}
-        >
-          <option value="">All</option>
-          <option value="Pending">Pending</option>
-          <option value="Success">Success</option>
-          <option value="Paid">Paid</option>
-          <option value="Failed">Failed</option>
-          <option value="Refunded">Refunded</option>
-        </select>
-      </div>
-
-      <div className="col-md-2 mb-3">
-        <label className="form-label small text-muted mb-1">Sort</label>
-        <select
-          className="form-select form-select-sm"
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          style={{height:"38px"}}
-        >
-          <option value="newest">Newest</option>
-          <option value="oldest">Oldest</option>
-          <option value="amount_high">Amount: High to Low</option>
-          <option value="amount_low">Amount: Low to High</option>
-        </select>
-      </div>
-
-      <div className="col-md-2 mb-3">
-        <label className="form-label small text-muted mb-1">&nbsp;</label>
-        <button
-          type="button"
-          className="btn btn-outline-secondary btn-sm w-100"
-          style={{height:"38px"}}
-          onClick={() => {
-            setSearch('');
-            setStatus('');
-            setPaymentStatus('');
-            setSort('newest');
-          }}
-        >
-          Clear
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
+      {/* Orders Table */}
       <div className="card shadow-sm">
         <div className="card-body p-0">
           {loading ? (

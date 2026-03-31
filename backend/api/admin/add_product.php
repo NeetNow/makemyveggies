@@ -166,7 +166,10 @@ try {
     }
 
     if ($discountEnabled) {
+        // Calculate discount amount (the amount to subtract from base price)
+        // Formula: dis_amount = (base * percent) / 100
         $disAmount = round(($price * $discountPercent) / 100, 2);
+
         $disSql = "
             INSERT INTO discounts (product_id, dis_percent, dis_amount, from_date, to_date)
             VALUES (:product_id, :dis_percent, :dis_amount, :from_date, :to_date)

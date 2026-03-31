@@ -1,4 +1,10 @@
 <?php
+// File: backend/api/get_cart.php
+// Get cart items with simple discount logic
+
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../middleware/jwt_auth.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: http://localhost:3000');
 header('Access-Control-Allow-Credentials: true');
@@ -6,72 +12,50 @@ header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
-
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../middleware/jwt_auth.php';
-
-// Only allow GET requests
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+    http_response_code(200);
     exit;
 }
 
 try {
-    // Verify JWT token
-    $auth_result = verifyJWTFromCookie();
-    if (!$auth_result['success']) {
+    $authResult = verifyJWTFromCookie();
+    if (!$authResult['success']) {
         http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => $auth_result['message']]);
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         exit;
     }
+    $userId = $authResult['user']['user_id'];
 
-    $user = $auth_result['user'];
-    $userId = $user['user_id'];
-
-    // Initialize database connection
-    $database = new Database();
-    $pdo = $database->getConnection();
-
+    $db = new Database();
+    $pdo = $db->getConnection();
     if (!$pdo) {
         http_response_code(500);
         echo json_encode(['status' => 'error', 'message' => 'Database connection failed']);
         exit;
     }
 
-    // Get cart items for the user, including active discount info (if any)
+    // Get cart items with product price and BOTH discount fields
     $sql = "
         SELECT 
             c.cart_id,
             c.product_id,
             c.quantity,
-            c.added_at,
-            c.updated_at,
             p.title as product_name,
-            p.price as base_price,
+            p.price as original_price,
             p.stock as product_stock,
-            COALESCE(
-                (SELECT pi.image_url FROM product_images pi WHERE pi.product_id = p.product_id AND pi.is_primary = 1 ORDER BY pi.image_id DESC LIMIT 1),
-                (SELECT pi2.image_url FROM product_images pi2 WHERE pi2.product_id = p.product_id ORDER BY pi2.image_id ASC LIMIT 1)
-            ) AS product_image,
             (
-                SELECT d.dis_percent
-                FROM discounts d
-                WHERE d.product_id = p.product_id
-                  AND CURDATE() BETWEEN d.from_date AND d.to_date
-                ORDER BY d.from_date DESC
+                SELECT d.dis_percent 
+                FROM discounts d 
+                WHERE d.product_id = p.product_id 
+                  AND CURDATE() BETWEEN d.from_date AND d.to_date 
                 LIMIT 1
-            ) AS dis_percent,
+            ) as dis_percent,
             (
-                SELECT d.dis_amount
-                FROM discounts d
-                WHERE d.product_id = p.product_id
-                  AND CURDATE() BETWEEN d.from_date AND d.to_date
-                ORDER BY d.from_date DESC
+                SELECT d.dis_amount 
+                FROM discounts d 
+                WHERE d.product_id = p.product_id 
+                  AND CURDATE() BETWEEN d.from_date AND d.to_date 
                 LIMIT 1
-            ) AS dis_amount
+            ) as dis_amount
         FROM cart c
         JOIN products p ON c.product_id = p.product_id
         WHERE c.user_id = ? AND p.status = 1
@@ -82,43 +66,55 @@ try {
     $stmt->execute([$userId]);
     $cartItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Format cart items for frontend, using discounted price when applicable
-    $formattedCartItems = [];
+    // Calculate price matching get_product.php logic exactly
+    $formattedItems = [];
     foreach ($cartItems as $item) {
-        $basePrice = (float)$item['base_price'];
+        $basePrice = (float)$item['original_price'];
         $disPercent = isset($item['dis_percent']) ? (float)$item['dis_percent'] : 0.0;
-        $disAmount  = isset($item['dis_amount'])  ? (float)$item['dis_amount']  : 0.0;
+        $disAmount = isset($item['dis_amount']) ? (float)$item['dis_amount'] : 0.0;
 
-        $hasDiscount = $disPercent > 0 && $disAmount > 0;
+        $hasDiscount = $disPercent > 0 || $disAmount > 0;
 
-        // Final unit price for cart: discounted if there is an active discount, otherwise base price
-        $finalPrice = $hasDiscount ? $disAmount : $basePrice;
+        if ($hasDiscount) {
+            if ($disPercent > 0) {
+                // Percentage discount
+                $finalPrice = $basePrice - ($basePrice * $disPercent / 100);
+                $discount = (int)round($disPercent);
+                $discountType = 'percent';
+            } else {
+                // Flat amount discount
+                $finalPrice = $basePrice - $disAmount;
+                $discount = round($disAmount, 2);
+                $discountType = 'flat';
+            }
+        } else {
+            $finalPrice = $basePrice;
+            $discount = 0;
+            $discountType = 'none';
+        }
 
-        $formattedCartItems[] = [
+        $formattedItems[] = [
             'cart_id' => (int)$item['cart_id'],
             'product_id' => (int)$item['product_id'],
-            'quantity' => (int)$item['quantity'],
             'name' => $item['product_name'],
-            'price' => $finalPrice,
-            'image' => $item['product_image'] ?: 'https://via.placeholder.com/80x80/eeeeee/888888?text=Product',
-            'stock' => (int)$item['product_stock'],
-            'added_at' => $item['added_at'],
-            'updated_at' => $item['updated_at']
+            'quantity' => (int)$item['quantity'],
+            'original_price' => round($basePrice, 2),
+            'price' => round($finalPrice, 2),
+            'discount' => $discount,
+            'discount_type' => $discountType,
+            'has_discount' => $hasDiscount,
+            'stock' => (int)$item['product_stock']
         ];
     }
 
     echo json_encode([
         'status' => 'success',
-        'data' => $formattedCartItems
+        'data' => $formattedItems
     ]);
 
-} catch (PDOException $e) {
-    error_log("Database error in get_cart.php: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'A database error occurred.']);
 } catch (Exception $e) {
-    error_log("General error in get_cart.php: " . $e->getMessage());
+    error_log("Error in get_cart.php: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Internal server error.']);
+    echo json_encode(['status' => 'error', 'message' => 'Server error']);
 }
 ?>

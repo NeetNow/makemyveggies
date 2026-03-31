@@ -41,6 +41,12 @@ const UserProfile = () => {
     const [showOrderModal, setShowOrderModal] = useState(false);
     const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
 
+    // Product rating state for ordered items
+    const [productRatings, setProductRatings] = useState({});
+    const [ratingSubmitting, setRatingSubmitting] = useState({});
+    const [ratingError, setRatingError] = useState({});
+    const [ratingSuccess, setRatingSuccess] = useState({});
+
     // Close mobile menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -91,7 +97,7 @@ const UserProfile = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [currentUser]);
+    }, [currentUser, setUser]);
 
     const loadUserOrders = useCallback(async (page = 1) => {
         try {
@@ -113,33 +119,146 @@ const UserProfile = () => {
         }
     }, [currentUser, ordersLimit]);
 
-    const fetchOrderDetails = useCallback(async (orderId) => {
+    const fetchOrderDetails = useCallback(async (order) => {
         setLoadingOrderDetails(true);
-        setShowOrderModal(true);
+        setActiveSection('orderDetails');
         try {
-            const response = await fetch(`/backend/api/get_order_details.php?id=${orderId}`, {
+            // Try multiple possible identifiers in order of likelihood
+            const possibleIds = [order.id, order.order_id, order.orderNumber, order.order_number, order.orderId];
+            const idToUse = possibleIds.find(id => id != null && id !== '');
+            if (!idToUse) {
+                toast.error('Order identifier is missing');
+                setActiveSection('orders');
+                return;
+            }
+            const response = await fetch(`/backend/api/get_order_details.php?id=${idToUse}`, {
                 credentials: 'include'
             });
             const data = await response.json();
             
             if (data.status === 'success') {
                 setOrderDetails(data.order);
+                
+                // Fetch existing reviews for these products
+                const productIds = data.order.items?.map(item => {
+                    // Try different possible field names for product ID
+                    return item.productId || item.product_id || item.productId || item.id;
+                }).filter(Boolean);
+                if (productIds && productIds.length > 0) {
+                    await fetchExistingReviews(productIds);
+                }
             } else {
-                toast.error(data.message || 'Failed to load order details');
-                setShowOrderModal(false);
+                // If backend says not found, show a helpful error inside the tab instead of closing it
+                setOrderDetails(null);
+                toast.error(data.message || 'Order not found');
+                // Keep tab open so user can see error and go back manually
             }
         } catch (error) {
             console.error('Error loading order details:', error);
             toast.error('Failed to load order details');
-            setShowOrderModal(false);
+            setActiveSection('orders');
         } finally {
             setLoadingOrderDetails(false);
         }
-    }, []);
+    }, [setActiveSection]);
+
+    const fetchExistingReviews = async (productIds) => {
+        try {
+            // Fetch user's existing reviews for these products
+            const response = await fetch(`/backend/api/get_user_reviews.php`, {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const data = await response.json();
+            
+            if (data.status === 'success' && data.reviews) {
+                // Build productRatings map from existing reviews
+                const ratings = {};
+                data.reviews.forEach(review => {
+                    if (productIds.includes(review.product_id)) {
+                        ratings[review.product_id] = review.rating;
+                    }
+                });
+                setProductRatings(ratings);
+            }
+        } catch (err) {
+            console.error('Error fetching existing reviews:', err);
+        }
+    };
+
+    useEffect(() => {
+        if (!showOrderModal) return;
+
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                closeOrderModal();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [showOrderModal]);
 
     const closeOrderModal = () => {
         setShowOrderModal(false);
         setOrderDetails(null);
+    };
+
+    const backToOrders = () => {
+        setActiveSection('orders');
+        setOrderDetails(null);
+    };
+
+    const submitProductRating = async (productId, ratingValue) => {
+        setRatingError(prev => ({ ...prev, [productId]: null }));
+        setRatingSuccess(prev => ({ ...prev, [productId]: null }));
+
+        const ratingNum = Number(ratingValue);
+        if (!Number.isFinite(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+            setRatingError(prev => ({ ...prev, [productId]: 'Please select a rating between 1-5.' }));
+            return;
+        }
+
+        try {
+            setRatingSubmitting(prev => ({ ...prev, [productId]: true }));
+            const res = await fetch(`/backend/api/submit_review.php`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    rating: ratingNum,
+                }),
+            });
+
+            const data = await res.json();
+            if (!res.ok || data.status !== 'success') {
+                // If already reviewed, show existing rating instead of error
+                if (data.message && data.message.includes('already reviewed')) {
+                    setRatingSuccess(prev => ({ ...prev, [productId]: 'Rating already submitted' }));
+                    return;
+                }
+                setRatingError(prev => ({ ...prev, [productId]: data.message || 'Failed to submit rating.' }));
+                return;
+            }
+
+            setRatingSuccess(prev => ({ ...prev, [productId]: 'Rating submitted successfully!' }));
+            setProductRatings(prev => ({ ...prev, [productId]: ratingNum }));
+        } catch (err) {
+            setRatingError(prev => ({ ...prev, [productId]: err.message || 'Failed to submit rating.' }));
+        } finally {
+            setRatingSubmitting(prev => ({ ...prev, [productId]: false }));
+        }
     };
 
     useEffect(() => {
@@ -172,7 +291,7 @@ const UserProfile = () => {
         // Load user profile data
         loadUserProfile();
         loadUserOrders(1);
-    }, [currentUser, loading, navigate, loadUserProfile, loadUserOrders]);
+    }, [currentUser, loading, navigate, loadUserProfile, loadUserOrders, setUser]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -328,6 +447,40 @@ const UserProfile = () => {
         );
     }
 
+    // Show loading when order details are being fetched and we are on the orderDetails tab
+    if (activeSection === 'orderDetails' && loadingOrderDetails) {
+        return (
+            <>
+                <section className="pageheader overflow-hidden" style={{
+                    backgroundImage: 'url(/assets/img/pageheader/bg.jpg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                }}>
+                    <div className="container">
+                        <div className="pageheader__content">
+                            <h2>User Profile</h2>
+                        </div>
+                    </div>
+                </section>
+                <div className="profile-page">
+                    <div className="container-fluid">
+                        <div className="row justify-content-center">
+                            <div className="col-md-8">
+                                <div className="text-center py-5">
+                                    <h3>Loading Order Details...</h3>
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
     // Get section title for mobile header
     const getSectionTitle = () => {
         switch (activeSection) {
@@ -337,6 +490,8 @@ const UserProfile = () => {
                 return 'Address Information';
             case 'orders':
                 return 'Order History';
+            case 'orderDetails':
+                return 'Order Details';
             case 'password':
                 return 'Change Password';
             case 'settings':
@@ -350,6 +505,9 @@ const UserProfile = () => {
     const handleSectionChange = (section) => {
         setActiveSection(section);
         setIsMobileMenuOpen(false);
+        if (section !== 'orderDetails') {
+            setOrderDetails(null);
+        }
     };
 
     // Render different sections based on activeSection
@@ -361,6 +519,8 @@ const UserProfile = () => {
                 return renderAddressSection();
             case 'orders':
                 return renderOrdersSection();
+            case 'orderDetails':
+                return renderOrderDetailsSection();
             case 'password':
                 return renderPasswordSection();
             case 'settings':
@@ -572,23 +732,25 @@ const UserProfile = () => {
             {orders.length > 0 ? (
                 <div className="orders-list">
                     {orders.map((order, index) => (
-                        <div key={index} className="order-item card mb-3" style={{ cursor: 'pointer' }} onClick={() => fetchOrderDetails(order.id)}>
+                        <div key={index} className="order-item card mb-3" style={{ cursor: 'pointer' }} onClick={() => fetchOrderDetails(order)}>
                             <div className="card-body">
                                 <div className="row">
                                     <div className="col-md-8">
-                                        <h5 className="card-title">Order #{order.orderNumber || order.id}</h5>
+                                        <h5 className="card-title">Order #{order.orderNumber || order.order_number || order.id}</h5>
                                         <p className="card-text">
                                             <small className="text-muted">Placed on {order.date}</small>
                                         </p>
                                         <p className="card-text">{order.items} items</p>
                                     </div>
                                     <div className="col-md-4 text-end">
-                                        <h5 className="text-success">{order.total}</h5>
+                                        <h5 className="text-success">
+  ₹{Number(String(order?.total).replace(/[^0-9.]/g, "") || 0).toFixed(2)}
+</h5>
                                         <div className="d-flex align-items-center justify-content-end gap-2 mt-1">
                                             <span className={`badge ${order.status === 'Delivered' ? 'bg-success' : order.status === 'Shipped' ? 'bg-info' : order.status === 'Confirmed' ? 'bg-primary' : 'bg-warning'}`}>
                                                 {order.status}
                                             </span>
-                                            <button className="btn btn-outline-primary btn-sm" style={{ fontSize: '12px', padding: '4px 12px' }} onClick={(e) => { e.stopPropagation(); fetchOrderDetails(order.id); }}>
+                                            <button className="btn btn-outline-primary btn-sm" style={{ fontSize: '12px', padding: '4px 12px' }} onClick={(e) => { e.stopPropagation(); fetchOrderDetails(order); }}>
                                                 View Details
                                             </button>
                                         </div>
@@ -637,6 +799,186 @@ const UserProfile = () => {
                         </ul>
                     </nav>
                 </div>
+            )}
+        </div>
+    );
+
+    const renderOrderDetailsSection = () => (
+        <div className="profile-content">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h3 className="mb-0">Order Details</h3>
+                <button className="btn btn-outline-secondary btn-sm" onClick={backToOrders}>
+                    <i className="fa-solid fa-arrow-left me-2"></i>Back to Orders
+                </button>
+            </div>
+
+            {loadingOrderDetails ? (
+                <div className="text-center py-5">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-2">Loading order details...</p>
+                </div>
+            ) : orderDetails ? (
+                <div className="order-details">
+                    {/* Order Header */}
+                    <div className="row mb-4">
+                        <div className="col-md-6">
+                            <h6 className="text-muted mb-1">Order Number</h6>
+                            <p className="fw-bold">#{orderDetails.orderNumber}</p>
+                        </div>
+                        <div className="col-md-6 text-md-end">
+                            <h6 className="text-muted mb-1">Order Date</h6>
+                            <p>{new Date(orderDetails.placedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        </div>
+                    </div>
+
+                    {/* Order Status */}
+                    <div className="row mb-4">
+                        <div className="col text-md-end">
+                            <h6 className="text-muted mb-1">Payment Status</h6>
+                            <span className={`badge ${orderDetails.paymentStatus === 'Paid' ? 'bg-success' : 'bg-warning'}`}>
+                                {orderDetails.paymentStatus}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Tracking ID */}
+                    <div className="row mb-4">
+                        <div className="col-md-6">
+                            <h6 className="text-muted mb-1">Order Tracking ID</h6>
+                            <p className="fw-bold font-monospace" style={{ color: orderDetails.orderTrackingId ? '#2c5f2d' : '#999' }}>
+                                {orderDetails.orderTrackingId || 'NA'}
+                            </p>
+                        </div>
+                        <div className="col-md-6 text-md-end">
+                            {orderDetails.orderTrackingId ? (
+                                <button
+                                    className="btn btn-outline-primary btn-sm"
+                                    onClick={() => window.open(`https://www.indiapost.gov.in/_layouts/15/dop.dashboard.tracking/track.aspx?track=${orderDetails.orderTrackingId}`, '_blank')}
+                                >
+                                    <i className="fa-solid fa-location-arrow me-2"></i>
+                                    Track on India Post
+                                </button>
+                            ) : null}
+                        </div>
+                    </div>
+
+                    {/* Product Items */}
+                    <h6 className="border-bottom pb-2 mb-3">Items Ordered</h6>
+                    {orderDetails.items && orderDetails.items.length > 0 ? (
+                        <div className="table-responsive mb-4">
+                            <table className="table table-borderless">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th className="text-center">Qty</th>
+                                        <th className="text-end">Price</th>
+                                        <th className="text-end">Total</th>
+                                        <th className="text-center">Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {orderDetails.items.map((item) => (
+                                        <tr key={item.id}>
+                                            <td>
+                                                <div className="d-flex align-items-center">
+                                                    {item.image && (
+                                                        <img
+                                                            src={item.image}
+                                                            alt={item.title}
+                                                            style={{ width: '50px', height: '50px', objectFit: 'cover', marginRight: '10px', borderRadius: '4px' }}
+                                                        />
+                                                    )}
+                                                    <div>
+                                                        <p className="mb-0 fw-semibold">{item.title}</p>
+                                                        <small className="text-muted">SKU: {item.sku}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="text-center">{item.quantity}</td>
+                                            <td className="text-end">₹{item.unitPrice.toFixed(2)}</td>
+                                            <td className="text-end">₹{item.totalPrice.toFixed(2)}</td>
+                                            <td className="text-center">
+                                                {/* Rate Product */}
+                                                <div className="rating-section">
+                                                    {(() => {
+                                                        // Try different possible field names for product ID
+                                                        const pid = item.productId || item.product_id || item.productId || item.id;
+                                                        return (
+                                                            <>
+                                                                <div className="star-rating" role="radiogroup" aria-label="Rate product">
+                                                                    {[1, 2, 3, 4, 5].map((star) => (
+                                                                        <button
+                                                                            key={star}
+                                                                            type="button"
+                                                                            className={`star-btn btn btn-link p-0 ${(productRatings[pid] || 0) >= star ? 'text-warning' : 'text-muted'}`}
+                                                                            onClick={() => submitProductRating(pid, star)}
+                                                                            aria-label={`${star} star`}
+                                                                            disabled={ratingSubmitting[pid]}
+                                                                            style={{ fontSize: '1.2rem', cursor: 'pointer' }}
+                                                                        >
+                                                                            <i className={`${(productRatings[pid] || 0) >= star ? 'fa-solid' : 'fa-regular'} fa-star`}></i>
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                                {ratingError[pid] && (
+                                                                    <small className="text-danger d-block mt-1">{ratingError[pid]}</small>
+                                                                )}
+                                                                {ratingSuccess[pid] && (
+                                                                    <small className="text-success d-block mt-1">{ratingSuccess[pid]}</small>
+                                                                )}
+                                                            </>
+                                                        );
+                                                    })()}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <p className="text-muted">No items found for this order.</p>
+                    )}
+
+                    {/* Order Summary */}
+                    <div className="row justify-content-end mb-4">
+                        <div className="col-md-6">
+                            <div className="bg-light p-3 rounded">
+                                <div className="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>₹{orderDetails.subtotal?.toFixed(2) || '0.00'}</span>
+                                </div>
+                                <div className="d-flex justify-content-between mb-2">
+                                    <span>Shipping:</span>
+                                    <span>₹{orderDetails.shippingCost?.toFixed(2) || '0.00'}</span>
+                                </div>
+                                <div className="d-flex justify-content-between fw-bold border-top pt-2">
+                                    <span>Total:</span>
+                                    <span className="text-success">₹{orderDetails.totalAmount?.toFixed(2) || '0.00'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Shipping Address */}
+                    <h6 className="border-bottom pb-2 mb-3">Shipping Address</h6>
+                    <div className="bg-light p-3 rounded mb-3">
+                        <p className="mb-0" style={{ whiteSpace: 'pre-line' }}>
+                            {orderDetails.shippingAddress || 'No shipping address available'}
+                        </p>
+                    </div>
+
+                    {/* Payment Method */}
+                    <h6 className="border-bottom pb-2 mb-3">Payment Method</h6>
+                    <p className="mb-0">
+                        <i className="fa-solid fa-credit-card me-2"></i>
+                        {orderDetails.paymentMethod || 'Online Payment'}
+                    </p>
+                </div>
+            ) : (
+                <div className="alert alert-danger">Failed to load order details.</div>
             )}
         </div>
     );
@@ -923,7 +1265,14 @@ const UserProfile = () => {
 
         {/* Order Details Modal */}
         {showOrderModal && (
-            <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
+            <div
+                className="modal fade show"
+                style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}
+                tabIndex="-1"
+                onMouseDown={(e) => {
+                    if (e.target === e.currentTarget) closeOrderModal();
+                }}
+            >
                 <div className="modal-dialog modal-lg modal-dialog-scrollable">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -1000,8 +1349,8 @@ const UserProfile = () => {
                                                                 </div>
                                                             </td>
                                                             <td className="text-center">{item.quantity}</td>
-                                                            <td className="text-end">${item.unitPrice.toFixed(2)}</td>
-                                                            <td className="text-end">${item.totalPrice.toFixed(2)}</td>
+                                                            <td className="text-end">₹{item.unitPrice.toFixed(2)}</td>
+                                                            <td className="text-end">₹{item.totalPrice.toFixed(2)}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -1017,15 +1366,15 @@ const UserProfile = () => {
                                             <div className="bg-light p-3 rounded">
                                                 <div className="d-flex justify-content-between mb-2">
                                                     <span>Subtotal:</span>
-                                                    <span>${orderDetails.subtotal?.toFixed(2) || '0.00'}</span>
+                                                    <span>₹{orderDetails.subtotal?.toFixed(2) || '0.00'}</span>
                                                 </div>
                                                 <div className="d-flex justify-content-between mb-2">
                                                     <span>Shipping:</span>
-                                                    <span>${orderDetails.shippingCost?.toFixed(2) || '0.00'}</span>
+                                                    <span>₹{orderDetails.shippingCost?.toFixed(2) || '0.00'}</span>
                                                 </div>
                                                 <div className="d-flex justify-content-between fw-bold border-top pt-2">
                                                     <span>Total:</span>
-                                                    <span className="text-success">${orderDetails.totalAmount?.toFixed(2) || '0.00'}</span>
+                                                    <span className="text-success">₹{orderDetails.totalAmount?.toFixed(2) || '0.00'}</span>
                                                 </div>
                                             </div>
                                         </div>

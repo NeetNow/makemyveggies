@@ -43,7 +43,7 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE}backend/api/submit_contact.php`, {
+      const response = await fetch(`${API_BASE}/backend/api/submit_contact.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

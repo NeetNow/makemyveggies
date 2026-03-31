@@ -6,21 +6,21 @@ import Footer from '../components/Footer';
 const Cart = () => {
   const { cartItems, updateQuantity, clearCart } = useCart();
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = 0; // Free shipping over $200
+  const subtotal = cartItems.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
+  const shipping = 0;
   const total = subtotal + shipping;
 
   if (cartItems.length === 0) {
     return (
       <>
         <main>
-          <section className="pageheader overflow-hidden"> 
-                    <div className="container">
-                      <div className="pageheader__content">
-                        <h2>Shopping Cart</h2>
-                      </div>
-                    </div>
-                  </section>
+          <section className="pageheader overflow-hidden">
+            <div className="container">
+              <div className="pageheader__content">
+                <h2>Shopping Cart</h2>
+              </div>
+            </div>
+          </section>
 
           <section className="cart-empty padding-block">
             <div className="container">
@@ -60,19 +60,19 @@ const Cart = () => {
       <main>
         {/* Page Header */}
         <section className="pageheader overflow-hidden">
-                  <div className="container">
-                    <div className="pageheader__content">
-                      <h2>Shopping Cart</h2>
-                      <nav aria-label="breadcrumb">
-                        <ol className="breadcrumb">
-                          <li><Link to="/">Home</Link></li>
-                          <li><Link to="/shop">Shop</Link></li>
-                          <li><Link to="/cart">Cart</Link></li>
-                        </ol>
-                      </nav>
-                    </div>
-                  </div>
-                </section>
+          <div className="container">
+            <div className="pageheader__content">
+              <h2>Shopping Cart</h2>
+              <nav aria-label="breadcrumb">
+                <ol className="breadcrumb">
+  <li key="home"><Link to="/">Home</Link></li>
+  <li key="shop"><Link to="/shop">Shop</Link></li>
+  <li key="cart"><Link to="/cart">Cart</Link></li>
+</ol>
+              </nav>
+            </div>
+          </div>
+        </section>
 
         {/* Cart Section */}
         <section className="cart padding-block bg-white">
@@ -83,19 +83,22 @@ const Cart = () => {
                   {/* Cart Items */}
                   <div className="cart-items">
                     {cartItems.map((item) => (
-                      <div key={item.id} className="cart-item">
+                      <div key={item.cart_id} className="cart-item"> {/* ✅ was item.id */}
                         <div className="item-image">
                           <img src={item.image} alt={item.name} />
                         </div>
+
                         <div className="item-details">
                           <h4 className="item-name">{item.name}</h4>
                           <div className="item-meta">
                             <span className="item-category">Garden Plant</span>
                           </div>
                         </div>
+
                         <div className="item-price">
-                          <span className="unit-price">₹{item.price.toFixed(2)}</span>
+                          <span className="unit-price">₹{(item.price || 0).toFixed(2)}</span>
                         </div>
+
                         <div className="item-quantity">
                           <div className="quantity-controls">
                             <button
@@ -120,9 +123,11 @@ const Cart = () => {
                             </button>
                           </div>
                         </div>
+
                         <div className="item-total">
-                          <span className="total-price">₹{(item.price * item.quantity).toFixed(2)}</span>
+                          <span className="total-price">₹{((item.price || 0) * (item.quantity || 0)).toFixed(2)}</span>
                         </div>
+
                         <div className="item-actions">
                           <button
                             onClick={() => updateQuantity(item.cart_id, 0)}
@@ -155,27 +160,20 @@ const Cart = () => {
                     <h3>Cart Summary</h3>
                     <div className="summary-row">
                       <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items):</span>
-                      <span>₹{subtotal.toFixed(2)}</span>
+                      <span>₹{(subtotal || 0).toFixed(2)}</span>
                     </div>
-                    <div className="summary-row">
+                    <div className="summary-row"> 
                       <span>Shipping:</span>
                       <span className={shipping === 0 ? 'text-success' : ''}>
-                        {shipping === 0 ? 'FREE' : `₹${shipping.toFixed(2)}`}
+                        {shipping === 0 ? 'FREE' : `₹${(shipping || 0).toFixed(2)}`}
                       </span>
                     </div>
                     <hr className="summary-divider" />
                     <div className="summary-row summary-total">
                       <span>Total:</span>
-                      <span>₹{total.toFixed(2)}</span>
+                      <span>₹{(total || 0).toFixed(2)}</span>
                     </div>
-
-                    {/* {subtotal < 200 && (
-                      <div className="shipping-notice">
-                        <i className="fa-solid fa-info-circle"></i>
-                        <span>Add ₹{(200 - subtotal).toFixed(2)} more for FREE shipping!</span>
-                      </div>
-                    )} */}
-
+                    
                     <div className="checkout-section">
                       <Link to="/checkout" className="checkout-btn">
                         <i className="fa-solid fa-credit-card"></i>
@@ -188,6 +186,7 @@ const Cart = () => {
                     </div>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>

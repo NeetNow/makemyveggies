@@ -108,6 +108,15 @@ const ViewOrder = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  // Sync form state when order data changes
+  useEffect(() => {
+    if (order) {
+      setStatus(order.status || '');
+      setPaymentStatus(order.paymentStatus || '');
+      setOrderTrackingId(order.orderTrackingId || '');
+    }
+  }, [order]);
+
   const onSave = async () => {
     if (!order) return;
 
@@ -226,12 +235,13 @@ const ViewOrder = () => {
                     <label className="form-label small text-muted">Order Status</label>
                     <select className="form-select form-select-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
                       <option value="">Select</option>
-                      <option value="Pending">Pending</option>
-                      <option value="Confirmed">Confirmed</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Delivered">Delivered</option>
-                      <option value="Cancelled">Cancelled</option>
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="processing">Processing</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                      <option value="payment_failed">Payment Failed</option>
                     </select>
                   </div>
                   <div className="col-12">
@@ -253,11 +263,11 @@ const ViewOrder = () => {
                       onChange={(e) => setPaymentStatus(e.target.value)}
                     >
                       <option value="">Select</option>
-                      <option value="Pending">Pending</option>
-                      <option value="Success">Success</option>
-                      <option value="Paid">Paid</option>
-                      <option value="Failed">Failed</option>
-                      <option value="Refunded">Refunded</option>
+                      <option value="pending">Pending</option>
+                      <option value="success">Success</option>
+                      <option value="paid">Paid</option>
+                      <option value="failed">Failed</option>
+                      <option value="refunded">Refunded</option>
                     </select>
                   </div>
                 </div>

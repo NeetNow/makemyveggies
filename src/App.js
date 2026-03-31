@@ -109,7 +109,16 @@ function ConditionalBodyZoom() {
 
   return null;
 }
+// Scroll to top on every route change with smooth behavior
+function ScrollToTop() {
+  const location = useLocation();
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [location.pathname]);
+
+  return null;
+}
 function App() {
   return (
     <AuthProvider>
@@ -119,6 +128,7 @@ function App() {
             <ConditionalBodyZoom />
             <ConditionalHeader />
             <Fragment>
+              <ScrollToTop />
               <Routes>
               {/* Homepage */}
               <Route
