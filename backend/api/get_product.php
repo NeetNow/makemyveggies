@@ -157,12 +157,22 @@ try {
     $disPercent = isset($product['dis_percent']) ? (float)$product['dis_percent'] : 0.0;
     $disAmount  = isset($product['dis_amount'])  ? (float)$product['dis_amount']  : 0.0;
 
-    $hasDiscount = $disPercent > 0 && $disAmount > 0;
+    $hasDiscount = $disPercent > 0 || $disAmount > 0;
 
+    // Calculate final price: base - discount
+    // Formula: final = base - (base * percent / 100)
+    // If percent is 0 but disAmount exists: final = base - disAmount
     if ($hasDiscount) {
-        $price = $disAmount;
-        $originalPrice = $basePrice;
-        $discount = (int)round($disPercent);
+        if ($disPercent > 0) {
+            $price = $basePrice - ($basePrice * $disPercent / 100);
+            $discount = (int)round($disPercent);
+            $originalPrice = $basePrice;
+        } else {
+            // Only disAmount exists - subtract it from base price
+            $price = $basePrice - $disAmount;
+            $discount = 0;
+            $originalPrice = $basePrice;
+        }
     } else {
         $price = $basePrice;
         $originalPrice = $basePrice;

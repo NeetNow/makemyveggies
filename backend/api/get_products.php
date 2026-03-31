@@ -161,15 +161,24 @@ try {
         $disPercent = isset($product['dis_percent']) ? (float)$product['dis_percent'] : 0.0;
         $disAmount  = isset($product['dis_amount'])  ? (float)$product['dis_amount']  : 0.0;
 
-        $hasDiscount = $disPercent > 0 && $disAmount > 0;
+        $hasDiscount = $disPercent > 0 || $disAmount > 0;
 
-        // When discounted: price = dis_amount, originalPrice = base price, discount% = dis_percent
+        // Align with Shop.js/cart:
+        // - dis_percent means "X% OFF" from base price
+        // - if percent is 0 but dis_amount exists: final = base - dis_amount
         if ($hasDiscount) {
-            $price = $disAmount;
-            $originalPrice = $basePrice;
-            $discount = (int)round($disPercent);
+            if ($disPercent > 0) {
+                $price = $basePrice - ($basePrice * $disPercent / 100);
+                $discount = (int)round($disPercent);
+                $originalPrice = $basePrice;
+            } else {
+                // Only disAmount exists - subtract it from base price
+                $price = $basePrice - $disAmount;
+                $discount = 0;
+                $originalPrice = $basePrice;
+            }
         } else {
-            // No active discount: simple price, no discount
+            // No active discount
             $price = $basePrice;
             $originalPrice = $basePrice;
             $discount = 0;

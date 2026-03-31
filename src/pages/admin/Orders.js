@@ -28,10 +28,21 @@ const Orders = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [totals, setTotals] = useState({
+    totalPaid: 0,
+    totalPending: 0,
+    totalFailed: 0,
+    totalRefunded: 0,
+    paidCount: 0,
+    pendingCount: 0,
+    failedCount: 0,
+    refundedCount: 0,
+    grandTotal: 0
+  });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [cancelling, setCancelling] = useState(false);
   const [showShippingLabelsModal, setShowShippingLabelsModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const readJsonSafe = async (response) => {
     const text = await response.text();
@@ -80,6 +91,17 @@ const Orders = () => {
         setOrders(Array.isArray(data.orders) ? data.orders : []);
         setTotalPages(data?.pagination?.totalPages || 1);
         setTotal(data?.pagination?.total || 0);
+        setTotals(data?.totals || {
+          totalPaid: 0,
+          totalPending: 0,
+          totalFailed: 0,
+          totalRefunded: 0,
+          paidCount: 0,
+          pendingCount: 0,
+          failedCount: 0,
+          refundedCount: 0,
+          grandTotal: 0
+        });
       } catch (e) {
         setError(e?.message || 'Failed to load orders');
         toast.error(e?.message || 'Failed to load orders');
@@ -216,92 +238,130 @@ const Orders = () => {
       />
 
       <div className="card shadow-sm mb-3">
-  <div className="card-body">
-    <div className="row g-2 align-items-end">
+        <div className="card-body">
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            placeholder="Order # / Customer Name / Email"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{height:"38px"}}
+          />
+          <div className="col-md-2 mb-3">
+            <label className="form-label small text-muted mb-1">Order Status</label>
+            <select
+              className="form-select form-select-sm"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              style={{height:"38px"}}
+            >
+              <option value="">All</option>
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
 
-      <div className="col-md-4">
-        <label className="form-label small text-muted mb-1">Search</label>
-        <input
-          type="text"
-          className="form-control form-control-sm"
-          placeholder="Order # / Customer Name / Email"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{height:"38px"}}
-        />
+          <div className="col-md-2 mb-3">
+            <label className="form-label small text-muted mb-1">Payment Status</label>
+            <select
+              className="form-select form-select-sm"
+              value={paymentStatus}
+              onChange={(e) => setPaymentStatus(e.target.value)}
+              style={{height:"38px"}}
+            >
+              <option value="">All</option>
+              <option value="Pending">Pending</option>
+              <option value="Success">Success</option>
+              <option value="Paid">Paid</option>
+              <option value="Failed">Failed</option>
+              <option value="Refunded">Refunded</option>
+            </select>
+          </div>
+
+          <div className="col-md-2 mb-3">
+            <label className="form-label small text-muted mb-1">Sort</label>
+            <select
+              className="form-select form-select-sm"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              style={{height:"38px"}}
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="amount_high">Amount: High to Low</option>
+              <option value="amount_low">Amount: Low to High</option>
+            </select>
+          </div>
+
+          <div className="col-md-2 mb-3">
+            <label className="form-label small text-muted mb-1">&nbsp;</label>
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm w-100"
+              style={{height:"38px"}}
+              onClick={() => {
+                setSearch('');
+                setStatus('');
+                setPaymentStatus('');
+                setSort('newest');
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="col-md-2 mb-3">
-        <label className="form-label small text-muted mb-1">Order Status</label>
-        <select
-          className="form-select form-select-sm"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          style={{height:"38px"}}
-        >
-          <option value="">All</option>
-          <option value="Pending">Pending</option>
-          <option value="Confirmed">Confirmed</option>
-          <option value="Processing">Processing</option>
-          <option value="Shipped">Shipped</option>
-          <option value="Delivered">Delivered</option>
-          <option value="Cancelled">Cancelled</option>
-        </select>
-      </div>
+      {/* Totals Summary Card */}
+      {!loading && !error && (
+        <div className="card shadow-sm mb-3 bg-light">
+          <div className="card-body py-2">
+            <div className="row g-2 text-center">
+              <div className="col-6 col-md-3 col-lg">
+                <div className="p-2 bg-white rounded shadow-sm">
+                  <div className="text-muted small">Paid</div>
+                  <div className="fw-bold text-success">{moneyFmt(totals.totalPaid)}</div>
+                  <div className="text-muted small">{totals.paidCount} orders</div>
+                </div>
+              </div>
+              <div className="col-6 col-md-3 col-lg">
+                <div className="p-2 bg-white rounded shadow-sm">
+                  <div className="text-muted small">Pending</div>
+                  <div className="fw-bold text-warning">{moneyFmt(totals.totalPending)}</div>
+                  <div className="text-muted small">{totals.pendingCount} orders</div>
+                </div>
+              </div>
+              <div className="col-6 col-md-3 col-lg">
+                <div className="p-2 bg-white rounded shadow-sm">
+                  <div className="text-muted small">Failed</div>
+                  <div className="fw-bold text-danger">{moneyFmt(totals.totalFailed)}</div>
+                  <div className="text-muted small">{totals.failedCount} orders</div>
+                </div>
+              </div>
+              <div className="col-6 col-md-3 col-lg">
+                <div className="p-2 bg-white rounded shadow-sm">
+                  <div className="text-muted small">Refunded</div>
+                  <div className="fw-bold text-info">{moneyFmt(totals.totalRefunded)}</div>
+                  <div className="text-muted small">{totals.refundedCount} orders</div>
+                </div>
+              </div>
+              <div className="col-12 col-lg">
+                <div className="p-2 bg-success text-white rounded shadow-sm">
+                  <div className="small">Grand Total</div>
+                  <div className="fw-bold fs-5">{moneyFmt(totals.grandTotal)}</div>
+                  <div className="small">{total} orders</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-      <div className="col-md-2 mb-3">
-        <label className="form-label small text-muted mb-1">Payment Status</label>
-        <select
-          className="form-select form-select-sm"
-          value={paymentStatus}
-          onChange={(e) => setPaymentStatus(e.target.value)}
-          style={{height:"38px"}}
-        >
-          <option value="">All</option>
-          <option value="Pending">Pending</option>
-          <option value="Success">Success</option>
-          <option value="Paid">Paid</option>
-          <option value="Failed">Failed</option>
-          <option value="Refunded">Refunded</option>
-        </select>
-      </div>
-
-      <div className="col-md-2 mb-3">
-        <label className="form-label small text-muted mb-1">Sort</label>
-        <select
-          className="form-select form-select-sm"
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          style={{height:"38px"}}
-        >
-          <option value="newest">Newest</option>
-          <option value="oldest">Oldest</option>
-          <option value="amount_high">Amount: High to Low</option>
-          <option value="amount_low">Amount: Low to High</option>
-        </select>
-      </div>
-
-      <div className="col-md-2 mb-3">
-        <label className="form-label small text-muted mb-1">&nbsp;</label>
-        <button
-          type="button"
-          className="btn btn-outline-secondary btn-sm w-100"
-          style={{height:"38px"}}
-          onClick={() => {
-            setSearch('');
-            setStatus('');
-            setPaymentStatus('');
-            setSort('newest');
-          }}
-        >
-          Clear
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
+      {/* Orders Table */}
       <div className="card shadow-sm">
         <div className="card-body p-0">
           {loading ? (

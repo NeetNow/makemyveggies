@@ -24,6 +24,18 @@ const Payments = () => {
   const [activeModal, setActiveModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  const [totals, setTotals] = useState({
+    totalPaid: 0,
+    totalPending: 0,
+    totalFailed: 0,
+    totalRefunded: 0,
+    paidCount: 0,
+    pendingCount: 0,
+    failedCount: 0,
+    refundedCount: 0,
+    grandTotal: 0
+  });
+
   const moneyFmt = useMemo(() => {
     return (v) => `₹${Number(v || 0).toFixed(2)}`;
   }, []);
@@ -70,6 +82,17 @@ const Payments = () => {
       setOrders(rows);
       setTotalPages(data?.pagination?.totalPages || 1);
       setTotalCount(data?.pagination?.total || 0);
+      setTotals(data?.totals || {
+        totalPaid: 0,
+        totalPending: 0,
+        totalFailed: 0,
+        totalRefunded: 0,
+        paidCount: 0,
+        pendingCount: 0,
+        failedCount: 0,
+        refundedCount: 0,
+        grandTotal: 0
+      });
     } catch (e) {
       setError(e?.message || 'Failed to load orders');
       setOrders([]);
@@ -170,20 +193,10 @@ const Payments = () => {
     }
   };
 
-  const totalPaid = useMemo(() => {
-    return normalizedOrders
-      .filter((o) => o.paymentStatusNorm === 'paid')
-      .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-  }, [normalizedOrders]);
-
-  const totalPending = useMemo(() => {
-    return normalizedOrders
-      .filter((o) => o.paymentStatusNorm === 'pending')
-      .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-  }, [normalizedOrders]);
-
-  const paidCount = normalizedOrders.filter((o) => o.paymentStatusNorm === 'paid').length;
-  const pendingCount = normalizedOrders.filter((o) => o.paymentStatusNorm === 'pending').length;
+  const totalPaid = totals.totalPaid;
+  const totalPending = totals.totalPending;
+  const paidCount = totals.paidCount;
+  const pendingCount = totals.pendingCount;
 
   return (
     <div className="container-fluid">

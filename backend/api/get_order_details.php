@@ -1,4 +1,8 @@
 <?php
+// php error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: http://localhost:3000');
 header('Access-Control-Allow-Credentials: true');
@@ -52,6 +56,7 @@ try {
             o.total_amount,
             o.status,
             o.payment_status,
+            o.order_tracking_id,
             o.shipping_address_id,
             o.placed_at,
             o.updated_at,
@@ -88,8 +93,20 @@ try {
     }
 
     if (!$orderRow) {
-        http_response_code(404);
-        echo json_encode(['status' => 'error', 'message' => 'Order not found']);
+        // Determine whether the order does not exist, or exists but belongs to another user.
+        $ownershipSql = "SELECT user_id FROM orders WHERE order_id = ? LIMIT 1";
+        $ownershipStmt = $pdo->prepare($ownershipSql);
+        $ownershipStmt->execute([$orderId]);
+        $ownershipRow = $ownershipStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$ownershipRow) {
+            http_response_code(404);
+            echo json_encode(['status' => 'error', 'message' => 'Order not found']);
+            exit;
+        }
+
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'You do not have permission to view this order']);
         exit;
     }
 
@@ -100,12 +117,13 @@ try {
             oi.product_id,
             p.title,
             p.sku,
-            p.image_url,
+            pi.image_url,
             oi.quantity,
             oi.unit_price,
             oi.total_price
         FROM order_items oi
         LEFT JOIN products p ON oi.product_id = p.product_id
+        LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1
         WHERE oi.order_id = ?
         ORDER BY oi.order_item_id ASC
     ";
@@ -144,6 +162,7 @@ try {
             'status' => $orderRow['status'],
             'paymentStatus' => $orderRow['payment_status'],
             'paymentMethod' => 'Online Payment',
+            'orderTrackingId' => $orderRow['order_tracking_id'] ?? null,
             'shippingAddress' => $shippingAddressText,
             'placedAt' => $orderRow['placed_at'],
             'updatedAt' => $orderRow['updated_at'],
@@ -154,6 +173,6 @@ try {
 } catch (Exception $e) {
     error_log("Get order details error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Internal server error', 'error' => $e->getMessage()]);
+    echo json_encode(['status' => 'error', 'message' => 'Internal server error']);
 }
 ?>
